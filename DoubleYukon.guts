@@ -1,0 +1,35 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Double Yukon",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)",
+  "Winnable":[439020],
+  "Stock":{"packs":2},      
+  "Foundation":{"suit":2, "rank":1, "accept":1},
+  "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":1, "rank":5}, "accept":13}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="Stock">
+      <rect x="10" y="10"></rect>
+    </g>
+
+    <g class="Foundation"><rect x="77"  y="10"></rect></g>
+    <g class="Foundation"><rect x="144" y="10"></rect></g>
+    <g class="Foundation"><rect x="211" y="10"></rect></g>
+    <g class="Foundation"><rect x="278" y="10"></rect></g>
+    <g class="Foundation"><rect x="345" y="10"></rect></g>
+    <g class="Foundation"><rect x="412" y="10"></rect></g>
+    <g class="Foundation"><rect x="479" y="10"></rect></g>
+    <g class="Foundation"><rect x="546" y="10"></rect></g>
+
+    <g class="TableauTail" deal="uuuuu"><rect x="10" y="110"></rect></g>
+    <g class="TableauTail" deal="duuuuuu"><rect x="77" y="110"></rect></g>
+    <g class="TableauTail" deal="dduuuuuu"><rect x="144" y="110"></rect></g>
+    <g class="TableauTail" deal="ddduuuuuu"><rect x="211" y="110"></rect></g>
+    <g class="TableauTail" deal="dddduuuuuu"><rect x="278" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddduuuuuu"><rect x="345" y="110"></rect></g>
+    <g class="TableauTail" deal="dddddduuuuuu"><rect x="412" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddddduuuuuu"><rect x="479" y="110"></rect></g>
+    <g class="TableauTail" deal="dddddddduuuuuu"><rect x="546" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddddddduuuuuu"><rect x="613" y="110"></rect></g>

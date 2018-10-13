@@ -1,0 +1,19 @@
+>node --version
+v8.12.0
+
+>npm --version
+6.4.1
+
+npm list -g --depth=0
+(removed nativescript and json-server)
+
+npm install --global gulp-cli
+
+npm rm --global gulp
+npm update -g
+
+npm install --save-dev gulp-debug
+
+gulp-preprocess
+    <!-- @include static symbols.svg -->
+    but how to name the guts file?

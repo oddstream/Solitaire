@@ -1,0 +1,37 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Blockade",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Blockade_(solitaire)",
+  "Winnable":[],
+  "Stock":{"packs":2},
+  "Foundation":{"suit":2, "rank":1, "accept":1},
+  "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="StockScorpion">
+      <rect x="10" y="10"></rect>
+    </g>
+
+    <g class="Foundation"><rect x="144" y="10"></rect></g>
+    <g class="Foundation"><rect x="211" y="10"></rect></g>
+    <g class="Foundation"><rect x="278" y="10"></rect></g>
+    <g class="Foundation"><rect x="345" y="10"></rect></g>
+    <g class="Foundation"><rect x="412" y="10"></rect></g>
+    <g class="Foundation"><rect x="479" y="10"></rect></g>
+    <g class="Foundation"><rect x="546" y="10"></rect></g>
+    <g class="Foundation"><rect x="613" y="10"></rect></g>
+
+    <g class="TableauBlockade" deal="u"><rect  x="10" y="110"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect  x="77" y="110"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="144" y="110"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="211" y="110"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="278" y="110"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="345" y="110"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="412" y="110"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="479" y="110"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="546" y="110"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="613" y="110"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="680" y="110"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="747" y="110"></rect></g>

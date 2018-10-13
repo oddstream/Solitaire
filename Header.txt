@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+  <html lang="en">
+    <head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-123485292-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-123485292-1');
+    </script>
+
+    <title></title>
+    <meta charset="utf-8"/>
+    <meta name="description" content="Free Solitaire Game"/>
+    <meta name="keywords" content="Solitaire, Patience, Klondike, Freecell, Yukon, Spider, Scorpion, Canfield"/>
+    <meta name="author" content="Gilbert Oddstream"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="mask-icon" href="img/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen"/>
+    <!-- <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css"/> -->
+    <link type="text/css" rel="stylesheet" href="Solitaire.css" media="screen"/>
+    </head>
+    <body>
+
+    <nav>
+    <div class="nav-wrapper white-text grey darken-4">
+    <div class="row">
+    <div class="col s12">
+    <ul class="left">
+        <li data-target="slide-out" class="sidenav-trigger"><i class="material-icons">menu</i></li>
+    </ul>
+    <a id="nav-title" class="brand-logo hide-on-small-only"></a>
+    <ul class="right">
+        <li><a onclick="doundo()"><i class="material-icons tooltipped noselect" data-position="left" data-tooltip="Undo">undo</i></a></li>
+        <li><a onclick="doshowrules()"><i class="material-icons tooltipped noselect" data-position="left" data-tooltip="Show rules">assignment</i></a></li>
+        <li><a href="faq.html" class="tooltipped" data-position="bottom" data-tooltip="FAQ"><i class="material-icons">info</i></a></li>
+    </ul>
+    </div>
+    </div>
+    </div>
+    </nav>    
+
+    <ul id="slide-out" class="sidenav">
+    <li><div id="sidenav-header" class="user-view white-text grey darken-4">
+      <h4 id="sidenav-title">&nbsp;</h4>
+      <p id="sidenav-info">&nbsp;</p>
+    </div></li>
+    <li><a class="waves-effect sidenav-close" href="index.html"><i class="material-icons">apps</i>Find new game</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="areYouSure('dostar')"><i class="material-icons">star</i>New deal</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="areYouSure('doreplay')"><i class="material-icons">replay</i>Replay this deal</a></li>
+    <li><div class="divider"></div></li>
+    <li><a class="waves-effect sidenav-close" onclick="dosave()"><i class="material-icons">save</i>Save this position</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="areYouSure('doload')"><i class="material-icons">restore</i>Load last saved position</a></li>
+    <li><div class="divider"></div></li>
+    <li><a class="waves-effect modal-trigger sidenav-close" href="#modalStatistics"><i class="material-icons">assessment</i>Statistics</a></li>
+    <li><a class="waves-effect modal-trigger sidenav-close" href="#modalSettings"><i class="material-icons">settings</i>Settings</a></li>
+    <li><a class="waves-effect modal-trigger sidenav-close" href="faq.html"><i class="material-icons">help</i>Help</a></li>
+    </ul>
+    

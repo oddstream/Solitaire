@@ -1,0 +1,378 @@
+11/10/2018
+Retired AUTOCOLLECT_ACES
+
+07/10/2018
+Installed Dropbox app, creates folder c:\Users\oddst\Dropbox;
+presumably it syncs changes here to the Dropbox website?
+
+05/10/2018
+Added CellCarpet
+Added foundation a_reverse
+Retired rules.Foundation.complete
+Implemented Bisley
+
+04/10/2018
+Added rules.Cards.suit
+Implemented Fortune's Favor, Busy Aces, Stages, Courtyard
+
+03/10/2018
+Removed "usefulMove" logic to hide available moves between tableau piles
+Implemented Peek, Squadron
+
+27/08/2018
+Added rules.Reserve.fan = 'None'
+Implemented Osmosis
+
+26/09/2018
+scrunchCards() moved up to CardContainer
+Reserve now does card scrunching
+Starting to abandon StackEdit (document gets corrupted and is getting unwieldy), replace with Keep
+rules.Foundation.fan renamed to rules.Foundation.scatter
+
+25/09/2018
+Implemented Foundation.a_complete and Grandfather's Clock
+
+24/09/2018
+Retire rules.Waste.cards - waste now always shows three fanned cards (like Google solitaire)
+
+21/09/2018
+Fixed bug placing-cards bug in Reserve.push
+
+18/09/2018
+Implemented rules.<cardcontainer>.target, <cardcontainer>.canTarget()
+Implemented Frog, Fly, Thoughtful, HouseFly, Gnat (88 release variants)
+Renamed Gilbert variants to Oddstream
+
+17/09/2018
+Fix bug in StockFan that would overwrite rules.[].seed
+Refectoring of redeals indicator
+After hitting redeals indicator, reset undo (it's simple)
+hide-on-small-only added to modal titles
+
+16/09/2018
+More work on setting SVG size and viewBox
+Dynamically scale mouse coords when dragging
+Implemented Three Blind Mice, Yukon Cells
+
+15/09/2018
+Dynamically set stockredeals indicator, Stock, StockAgnes, StockScorpion, StockSpider doesn't have one; 
+StockKlondike, StockCruel, StockFan have redeals indicator
+Retire using baize border (dragged cards would appear behind it)
+Start to dynamically move guts elements (need to implement resize)
+
+14/09/2018
+css/js: noselect moved to baize in css as user-select: none
+css: background-color moved to baize because it cascades to children
+.noselect left in css; it's used by header, footer, index.html
+Use overlap-the-most instead of first-to-overlap when finding new owner
+Slowed down autoSolve() with some waitForCards()
+DOM2SVG tweaked to stop decimal fractions leaking into pt.x and pt.y
+doshowrules() if game not played before
+use event.pageX instead of clientX in drag handlers
+
+07/09/2018
+a_accept now set from rules and overridden by g or card container class
+Implemented Yukon One Suit
+Added some keyboard shortcuts
+
+06/09/2018
+Implemented Lady Jane, Blockade (TableauBlockade), Napoleon's Square
+Rewrite restart() because of Blockade
+Removed id= from card back SVG
+
+05/09/2018
+Added pointer-events to css
+Removed @media from css
+Implemented Indefatigable
+Move doshowinfo() toast when clicking in title into showStatistics modal
+Replace M.AutoInit() with just calls to bits we are using
+
+04/09/2018
+Added noselect to baize, cards, containers
+Removed PEP polyfill
+Discovered responsive design mode in Chrome, Firefox (duh)
+
+03/09/2018
+Tried centering card ordinals using an array of scrollWidths - not worth the ugly code
+Tried trapping pointerleave - no effect
+Added pointercancel
+
+29/08/2018
+Fixed error in Scorpion/Wasp foundation rules
+Added resize event handler to set baize margin
+
+28/08/2018
+Started adding css border-left and -right to baize element
+
+27/08/2018
+Implemented rules.Tableau.bury
+Implemented Baker's Dozen, Portuguese, Spanish, Castles in Spain
+
+26/08/2018
+Retired Graboid, grab logic is now in class Card
+Fixed FreecellTableau powermoves logic, almost
+Implemented Martha and Stewart
+Added ACCEPT_MARTHA_SYMBOL and logic
+
+25/08/2018
+Changed accept symbols to &times; and &equiv;
+Retired rules.Options (including auto collect set by game type)
+Tried to move grab/move/ungrab code to Card class
+Retired Edge symbol/use id weirdness (possibly caused by having multiple id the same)
+Started to implement Gilbert variant series
+Implemented inetpub/wwwroot/solitaire
+
+24/08/2018
+Added findCard which uses event.currentTarget, which is a g HTML element
+Removed setting id in card value and suit sub elements
+(so we generate valid HTML without multiple IDs)
+
+21/08/2018
+Added 0.5 sec breathe when calling robot()
+Retire "sensory cues", now just "highlight movable card"
+§ accept symbol for FoundationSpider
+Try to hide index.html desc on narrow screen
+
+20/08/2018
+Card width, height, rx, ry now set dynamically from baize constructor
+References removed from *.guts (with Notepad++)
+
+19/08/2018
+Implemented Australian, Brisbane
+Added favicon.ico, spade with a transparent background
+Trying event.stopPropagation() in drag() and drop()
+
+18/08/2018
+Using SVG symbols from Wikipedia Commons for suit symbols
+Different logic for click - onclick not set in Card.g,
+face down cards now have id set so they can be grabbed (Edge can't use symbol/use element);
+all clicks come through grabber;
+solves Firefox/mobile phantom double click problem.
+
+16/08/2018
+Fixed scrunch by using c.animate() instead of c.position()
+Fixed mouseup := pointerup
+Nearly got make.exe; will only build first target in a list of targets
+
+15/08/2018
+Fix Agnes B so set a_accept, so FoundationAgnes is now same as FoundationPenguin (!)
+Fix Agnes S so it uses FoundationCanfield (doesn't set tab a_accept)
+FoundationAgnes retired; Agnes B now uses FoundationPenguin
+Implemented Breeze, Fan, Trefoil, La Belle Lucie
+Added Promise in waitForCards
+
+14/08/2018
+Retire ACCEPT_SPIDER_SYMBOL because it doesn't always display and looks cartoonish on mobile
+Don't display any toast if there is already toast
+
+12/08/2018
+Scorpion, Spider foundations made visible and added Unicode Spider symbol to a_accept, fan no longer overriden so 
+completed games won't save.
+Retired TableauScorpion
+
+08/08/2018
+Reimplemented multiMove with per card flag, cleared after animate finished
+Polyfill index.html (and remove =>) so it works in IE, long enough to give browser warning
+
+07/08/2018
+Reintroduced aniSpeed
+Implemented stats reset
+Implemented classes Baize, Random, Mover, Util
+Implemented Constants
+Retired multimove (it didn't do anything because global flag)
+
+06/08/2018
+Implemented Usk and Somerset
+Added Tableau.a_deal sensitivity to StockCruel
+Added rules.Stock.redeals sensitivity to StockCruel
+Implemented Blind Freecell
+
+05/08/2018
+Changed grab to listen Card event listener
+Added event.stopPropagation to fix Firefox click weirdness
+Added doshowinfo(), retired baize onclick
+Tried setTimeout grab but it causes delay before dragging
+Simplified gameOver logic; will now save stuck games
+
+03/08/2018
+Fix FoundationSpider autoCollect()
+
+02/08/2018
+Implemented Storehouse
+Added tableau "rankwrap":1 to all Canfield variants
+
+31/07/2018
+Implemented Unusual
+
+29/07/2018
+Rewrote autoSolve logic, now use Foundation methods, so Spider can override base method
+Experimenting with only allowing auto collection from Tableaux
+Implemented Simple Simon
+Fiddled with gameover stats and load/save
+Using toast instead of modalStuck
+
+28/07/2018
+Retired daemon, implemented robot
+
+27/07/2018
+Implemented Forty and Eight
+Added modalSettings to index.html
+
+26/07/2018
+Changed Waste availableMoves() logic
+Removed Carpet
+Implemented TripleScorpion
+Implemented DoubleEasthaven
+
+24/07/2018
+Changed Stock availbleMoves() logic to test each card, ignoring faceDown
+
+23/07/2018
+Added modalStatistics
+Added rules.Stock.hidden (mostly for english)
+Implemented Maria, Number Ten, Indian (52 variants)
+
+22/07/2018
+More work on english()
+Implemented Foundation fan="Right" for beleaguered castle, stronghold
+
+19/07/2018
+Implemented Tuxedo
+
+18/07/2018
+Implemented Ripple Fan
+Changed "not accept" symbol to ·
+Started adding english() methods
+
+17/07/2018
+Implemented Cruel and Perseverance
+
+16/07/2018
+Implemented Stronghold
+Bug fixes to scrunching
+Experimental deamon to handle scrunching, autoCollect, availableMoves, isComplete, isSolveable
+
+15/07/2018
+Change seed to use Math.random
+Change shuffle to use Knuth Fisher Yates
+Added rules.Tableau.fan="Right"
+Implemented Beleaguered Castle
+
+12/07/2018
+Implmented sensoryCues
+
+09/07/2018
+Tableau rules now split into build and move
+Retire TableauYukon
+Implement Whitehead
+
+08/07/2018
+Polishing and bug fixing
+
+07/07/2018
+Retired aniSpeed
+Implemented Baker's Game
+Moved scrunchCards to end of autoCollect
+Implemented Big Freecell
+Implemented Double Freecell
+Implemented Seahaven Towers
+Game over logic (delicate)
+Implemented Brigade
+Fixed deal 3 cards bug in Scorpion by adding class StockScorpion
+Impemented Double Scorpion
+Fixed long-standing "cards left wobbly in tableau" problem
+
+06/07/2018
+Implemented multiMoving
+Implemented smootherstep
+
+05/07/2018
+COMBINING_ENCLOSING_CIRCLE_BACKSLASH added to a_accept, Agnes Sorel updated
+Added aniSpeed in modalSettings and Card.animate()
+
+04/07/2018
+Fixed bug in dostar() loading of redeals - was looking in stats rather than rules
+
+02/07/2018
+Implemented load/save game; game is saved when leaving page and returned to when loading page
+Experiment with window.addEventListener
+Refactor undo so it can be JSON'd
+Implemented DoubleYukon
+Implemented Agnes Bernauer (Agnes) - doesn't seem right yet
+Got oddstream.droppages.com working
+Retired redeals option from settings
+
+30/06/2018
+Went back to navbar and sidenav instead of FAB
+Fixed Penguin deal with 'p' in deal for the beak
+
+29/06/2018
+Implemented American Toad (doesn't look right, it's too easy)
+Changed index.html to use a collapsible list
+Added faq.html
+Implemented Penguin (TODO deal is not correct)
+Remove stockcircle thingy from games that don't have Waste
+
+28/06/2018
+Retire Waste3, fold into Waste and added rules.Waste.cards
+Tried baize background image. Eugh.
+StockEasthaven renamed StockSpider
+Noticed Freecell bug in availableMoves() col empty
+Undo freeze and thaw to undo Stock click on empty and StockSpider
+Added "out of redeals" indicator
+Added Lucas variant
+
+27/06/2018
+Bug fixes to Golf
+Implemented modalAreYouSure
+.css class name in German to prevent clashes with materialize.css
+Started Canfield
+Debugged CanfieldImplemented Rainbow
+
+26/06/2018
+Implemented autoCollect and redeals set by game type
+Added redeals to modalSettings
+Move packs, cards, suitfilter &c out of <Stock> to JSON
+Bug fixes
+
+25/06/2018
+Fiddle with dynamic index.html
+Implement Josephine
+Set Forty Thieves stock redeals=0
+
+24/06/2018
+Dynamic index.html using Materialize cards
+Dynamically set viewBox (experimental)
+
+23/06/2018
+Switched from MDL to materialize
+
+21/06/2018
+Finally got Materialize side menu working thanks to Codepen demo
+
+20/06/2018
+Thought about Demon/Canfield
+Implemented autoFlip flag
+
+19/06/2018
+Thought about Forth
+Extended a_suitfilter to filter >1 suit
+Implemented Sipderette 1, 2 and 4
+Implemented Spider 2
+Tinkered with Materialize cards
+
+18/06/2018
+Custom canAcceptCard() in TableauFreecell when moving to empty column
+Added custom canAcceptCard() to TableauSpider()
+Noticed Spider rules are wrong
+Fiddled with Materialize
+Remove foundations from Scorpion guts
+Reinstate Scorpion isComplete()
+
+17/06/2018
+Fiddled with Materialize
+Implement Spider isComplete()
+Implemented Alternation and Flower Garden
+Added Reserve class (for Flower Garden)
+
+16/06/2018

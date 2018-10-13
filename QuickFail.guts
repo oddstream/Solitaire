@@ -1,0 +1,29 @@
+<script type="application/json" id="rules">
+{
+    "Name":"Quick Fail",
+    "Wikipedia":"",
+    "Winnable":[],
+    "Stock":{"packs":1, "cards":1, "redeals":0},
+    "Foundation":{"suit":2, "rank":1, "accept":1},
+    "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":"\u00D7"}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="StockKlondike">
+      <rect x="10" y="10"></rect>
+    </g>
+    <g class="Waste"><rect x="77" y="10"></rect></g>
+
+    <g class="Reserve" deal="dddddddddddddddu"><rect x="10" y="110"></rect></g>
+    <g class="Reserve" deal="dddddddddddddddu"><rect x="77" y="110"></rect></g>
+
+    <g class="Foundation"><rect x="211" y="10"></rect></g>
+    <g class="Foundation"><rect x="278" y="10"></rect></g>
+    <g class="Foundation"><rect x="345" y="10"></rect></g>
+    <g class="Foundation"><rect x="412" y="10"></rect></g>
+
+    <g class="TableauTail" deal="dddu"><rect x="211" y="110"></rect></g>
+    <g class="TableauTail" deal="dddu"><rect x="278" y="110"></rect></g>
+    <g class="TableauTail" deal="dddu"><rect x="345" y="110"></rect></g>
+    <g class="TableauTail" deal="dddu"><rect x="412" y="110"></rect></g>

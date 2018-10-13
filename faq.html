@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="description" content="Free Solitaire Games in Material Design; Klondike, Freecell, Spider, Yukon"/>
+    <meta name="keywords" content="Solitaire, Patience, Klondike, Freecell, Yukon, Spider, Scorpion, Canfield"/>
+    <meta name="author" content="Gilbert Oddstream"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Solitaire FAQ</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen"/>
+    <style>
+    .steelblue {
+        background-color: #4682b4;
+    }
+    </style>
+</head>
+<body>
+
+<ul class="collapsible">
+    <li>
+      <div class="collapsible-header"><i class="material-icons">star</i>What makes this different from the other solitaire implementations?</div>
+      <div class="collapsible-body"><span>
+      <p>This solitaire is all about <a href="https://en.wikipedia.org/wiki/Flow_(psychology)">flow</a>. 
+      Anything that distracts from your interaction with the flow of the game has been either been tried and removed or not included. 
+      Crucially, the games can be played by single-clicking the card you wish to move, and the software figures out where you want the card to go 
+      (mostly to the foundation if possible, and if not, the biggest tableau). If you don't like where the card goes, 
+      just try clicking it again or drag it.
+      </p>
+      <p>Also, I'm trying to make games authentic, by taking the rules from reputable sources
+      and implementing them exactly. For example, the tableau shuffling algorithm for Cruel and Perseverance
+      has been <a href="https://politaire.com/article/cruel.html" target="_blank">chosen carefully</a>,
+      Penguin works as the author intended, 
+      Blockade refills empty tableaux from the stock,
+      Baker's Dozen shuffles kings to he bottom of each tableau and
+      Frog/Toad moves aces out of the reserve and only allows cards to be moved to certain places.
+      </p>
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">photo</i>Why are the graphics so basic?</div>
+      <div class="collapsible-body"><span> 
+      Anything that distracts from your interaction with the flow of the game, 
+      or the ability to scan a deck of cards,
+      has either been tried and removed, or not included. 
+      This includes: 
+      fancy card designs (front and back), 
+      changing the screen/baize background, 
+      animating card flips, 
+      keeping an arbitrary score, 
+      distracting graphics on the screen, 
+      and forcing you to drag the cards to move them. 
+      The user interface tries to stick to the Material Design guidelines, and so is minimal and tactile.
+      I looked at a lot of the other solitaire websites out there, and think how distracting some of them are. 
+      Features seem to have been added because the developers thought they were cool; 
+      they never seem to have stopped to 
+      consider that just because they <em>could</em> implement a feature, that they <em>should</em>.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">format_size</i>Sometimes the cards are really huge or really tiny</div>
+      <div class="collapsible-body"><span>
+      Resize your browser window. 
+      <em>If the cards are big and you can't see the ones at the the bottom, try making your browser
+      window narrower.</em> 
+      The cards and playing area will scale automatically.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">format_list_numbered</i>The rules for a variation are wrong</div>
+      <div class="collapsible-body"><span>
+      There's no ISO or ANSI or FIDE-like governing body for solitaire; so there's no standard set of rules.
+      Other implementations vary in how they interpret each variant.
+      For example, some variants of American Toad build the tableau down by suit, some by alternate color.
+      So, rather than just making this stuff up, I've tried to find a well researched set of rules for each variant and stick to them,
+      leaning heavily on Jan Wolter (RIP, and thanks for all the fish), David Parlett and Thomas Warfield.
+      Where possible, I've implemented the games from the book 
+      "The Complete Book of Solitaire and Patience Games" by Albert Morehead and Geoffrey Mott-Smith.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">bookmark</i>Can I get to the individual games directly?</div>
+      <div class="collapsible-body"><span>Yes. Each game variant has it's own web page; just bookmark the game you like in your browser.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">data_usage</i>Can I play offline?</div>
+      <div class="collapsible-body"><span>Yes. There's no traffic between the game and the server once it's loaded.
+      Game scores are stored in your web browser, not on a server. 
+      There's no login, no cookies, and the software doesn't know who or where you are.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">favorite</i>My favourite variation is not included</div>
+      <div class="collapsible-body"><span>Email me with the name of the variation, and why you like it so much. 
+      I'm aiming for a well chosen collection of 100 variations. Easthaven and Ages Sorel might be taken out because,
+      although well known, they're just about unwinnable. Unless someone can explain the virtue of that.
+      
+      For some reason I don't like the games where you have to match pairs of cards that make a certain number, like 13 (Pyramid).
+      <a href="https://en.wikipedia.org/wiki/Accordion_(solitaire)">Accordian</a> is just about the stupidest thing I've ever seen.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">score</i>What about scores?</div>
+      <div class="collapsible-body"><span>Nope, the software doesn't keep an arbitary score. Too confusing. 
+      Just the number of moves made, number of wins, and your winning streak. Streaks are great.
+      A game isn't counted at all until you move a card. 
+      Thereafter, if you ask for a new deal, or to replay the current deal, that counts as a loss.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">timer</i>What about a timer?</div>
+      <div class="collapsible-body"><span>Nope, there isn't one of those. Too stressful.
+      Solitaire is also called patience; it's hard to feel patient when you're pressured by a clock.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">keyboard</i>Keyboard or mouse shortcuts?</div>
+      <div class="collapsible-body"><span>
+      Ctrl-z or 'u' to undo.
+      (Life is about trying things and learning from the result, so undo plently.)
+      'a' to show the number of available moves. 'r' to show the rules for the current game. 's' to show the statistics.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">casino</i>Is the game rigged?</div>
+      <div class="collapsible-body"><span>
+        No. The cards are shuffled randomly using a <a href="https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle)">Fisher-Yates</a> shuffle 
+        driven by a <a href="https://en.wikipedia.org/wiki/Lehmer_random_number_generator)">Park-Miller</a> pseudo random number generator, 
+        which is in itself seeded by a random number. This mechanism was tested and analysed to make sure it produced an even distribution of shuffled cards. 
+        There are <a href="http://qi.com/infocloud/playing-cards">80658175170943878571660636856403766975289505440883277824000000000000</a> 
+        possible deals of a pack of 52 playing cards; you're never going to play the same game twice, nor indeed play the same game 
+        that anyone else ever has, or ever will.      
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">settings</i>Settings</div>
+      <div class="collapsible-body"><span>
+        <p><em>Animation speed</em> different browsers animate at different speeds, and folks differ in how fast they expect
+        the cards to move around.
+        It's fun to set the animation to it's slowest speed and see how many cards you can have animating at the same time.
+        </p>
+        <p><em>Highlight movable cards</em> if a card has an available move, then it will appear lighter than one that doesn't.
+        It makes moveable cards easier to see. Whether or not the move is useful is up to you.
+        </p>
+        <p><em>Allow single click to move a card</em> instead of having to drag the cards around.
+        </p>
+        <p><em>Automatically turn over exposed tableau cards</em> instead of clicking them to turn them over.
+        </p>
+        <p><em>Auto collection</em> to encourage the software to move a card from the tableau to the foundations.
+        The cards do not auto collect from the waste, cell or reserve piles; that would make it too easy.
+        Having this turned on sometimes makes games more difficult to win, as it prevents you from building up
+        sequences in the tableau.
+        </p>
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">music_note</i>There's no sound</div>
+      <div class="collapsible-body"><span>
+      No, I'm still thinking about that. 
+      A mouse makes a click when you, er, click it. So do you really need a 'clicked card' sound?
+      The riffle sound when dealing a deck of cards might be nice, though.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">bug_report</i>I found a bug</div>
+      <div class="collapsible-body"><span>
+      Yes, I know about dragging cards on phone/tablet browsers. I'm working on it.
+      Otherwise, please email odd.stream@googlemail.com. 
+      Please mention that your user agent is <span id="user-agent"></span>.</span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">phone</i>The game is weird on my phone/tablet</div>
+      <div class="collapsible-body"><span>
+      The game is aimed at modern desktop browers (Chrome, Edge and Firefox seem good, 
+      Internet Explorer is a complete non-starter).
+      Full support for mobile devices is what's being done now.
+      If this works (especially card dragging) on your phone or tablet, that's by accident.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">attach_money</i>Is the game free?</div>
+      <div class="collapsible-body"><span>Yes, but please drop a coin in my <a href="https://paypal.me/oddstream">tip jar</a>
+      if you enjoy the games.</span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">info</i>About</div>
+      <div class="collapsible-body">
+      <span>
+      <p>Written as a general-purpose solitaire engine, capable of playing any variation, in vanilla ECMAScript 2017 (ES8).
+      The graphics are done in SVG (which would have been easier if SVG supported z-indexing).
+      </p>
+      <p>Front-end CSS framework by <a href="https://materializecss.com/" target="_blank">Materialize</a>.
+      <a href="https://material.io/tools/icons/?style=baseline" target="_blank">Icons</a> and 
+      <a href="https://fonts.google.com/specimen/Acme" target="_blank">Acme font</a> by Google.
+      </p>
+      <p>Original games by 
+      <a href="https://unixpapa.com/" target="_blank">Jan Wolter</a>,
+      <a href="http://parlettgames.uk/" target="_blank">David Parlett</a>,
+      <a href="https://www.freecell.net/f/c/alfille.html" target="_blank">Paul Alfille</a>,
+      <a href="http://webstore.longwood.com/pmwiki.php/Guild/Home" target="_blank">Art Cabral</a>,
+      Albert Morehead, Geoffrey Mott-Smith and 
+      <a href="http://www.goodsol.com/" target="_blank">Thomas Warfield</a>.
+      </p>
+      <p>Original Javascript, HTML and CSS Copyright © 2018 Gilbert Oddstream. All rights reserved. 
+      In continuous development, so if you fork it, your copy is already out of date.
+      </p>
+      <!--
+      <p>
+      At the end of the last century, I started writing games for the BBC Microcomputer, then later wrote little games
+      as part of a Masters degree, and my first job was as a games programmer. Now, years and years later, I remain
+      oddly drawn to little games. Patience is the game that everyone who uses a computer knows about, and has probably played;
+      it is probably the most played computer game of all time. It also has a long and obfuscated history, with solitary humans
+      laying out a deck of cards ever since cards were invented.
+      </p>
+      -->
+      </span>
+      </div>
+    </li>
+  </ul>
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script type="text/javascript" >
+        M.AutoInit();
+        const pd = document.getElementById('user-agent');
+        if ( pd ) pd.innerHTML = navigator.userAgent;
+    </script>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Somerset",
+  "Wikipedia":"https://politaire.com/help/somerset",
+  "Winnable":[],
+  "Stock":{"packs":1, "hidden":1},
+  "Foundation":{"suit":2, "rank":1, "accept":1},
+  "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":4, "rank":2}}
+}
+</script>  
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="Stock">
+      <rect x="10" y="-100"></rect>
+    </g>
+
+    <g class="Foundation"><rect x="412" y="10"></rect></g>
+    <g class="Foundation"><rect x="479" y="10"></rect></g>
+    <g class="Foundation"><rect x="546" y="10"></rect></g>
+    <g class="Foundation"><rect x="613" y="10"></rect></g>
+
+    <g class="Tableau" deal="u"><rect x="10" y="110"></rect></g>
+    <g class="Tableau" deal="uu"><rect x="77" y="110"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="144" y="110"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="211" y="110"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="278" y="110"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="345" y="110"></rect></g>
+    <g class="Tableau" deal="uuuuuuu"><rect x="412" y="110"></rect></g>
+    <g class="Tableau" deal="uuuuuuuu"><rect x="479" y="110"></rect></g>
+    <g class="Tableau" deal="uuuuuuuu"><rect x="546" y="110"></rect></g>
+    <g class="Tableau" deal="uuuuuuuu"><rect x="613" y="110"></rect></g>

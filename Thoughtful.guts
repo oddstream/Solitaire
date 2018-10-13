@@ -1,0 +1,27 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Thoughtful",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)",
+  "Winnable":[182534],
+  "Stock":{"packs":1},
+  "Foundation":{"suit":2, "rank":1, "accept":1},
+  "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":4, "rank":2}, "accept":13}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="StockKlondike"><rect x="10" y="10"></rect></g>
+    <g class="Waste"><rect x="77" y="10"></rect></g>
+
+    <g class="Foundation"><rect x="211" y="10"></rect></g>
+    <g class="Foundation"><rect x="278" y="10"></rect></g>
+    <g class="Foundation"><rect x="345" y="10"></rect></g>
+    <g class="Foundation"><rect x="412" y="10"></rect></g>
+
+    <g class="TableauTail" deal="u"><rect x="10" y="110"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="77" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="144" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuu"><rect x="211" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuu"><rect x="278" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuu"><rect x="345" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuu"><rect x="412" y="110"></rect></g>

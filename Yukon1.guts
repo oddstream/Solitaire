@@ -1,0 +1,28 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Yukon One Suit",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)",
+  "Winnable":[392492],
+  "Stock":{"packs":4, "suitfilter":"♠"},
+  "Foundation":{"suit":2, "rank":1, "accept":1, "scatter":"Left"},
+  "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":5}, "accept":13}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="Stock">
+      <rect x="10" y="10"></rect>
+    </g>
+
+    <g class="TableauTail" deal="u"><rect x="10" y="10"></rect></g>
+    <g class="TableauTail" deal="duuuuu"><rect x="77" y="10"></rect></g>
+    <g class="TableauTail" deal="dduuuuu"><rect x="144" y="10"></rect></g>
+    <g class="TableauTail" deal="ddduuuuu"><rect x="211" y="10"></rect></g>
+    <g class="TableauTail" deal="dddduuuuu"><rect x="278" y="10"></rect></g>
+    <g class="TableauTail" deal="ddddduuuuu"><rect x="345" y="10"></rect></g>
+    <g class="TableauTail" deal="dddddduuuuu"><rect x="412" y="10"></rect></g>
+
+    <g class="Foundation"><rect x="546" y="10"></rect></g>
+    <g class="Foundation"><rect x="546" y="110"></rect></g>
+    <g class="Foundation"><rect x="546" y="210"></rect></g>
+    <g class="Foundation"><rect x="546" y="310"></rect></g>

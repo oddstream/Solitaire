@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-123485292-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-123485292-1');
+    </script>
+
+    <meta charset="utf-8"/>
+    <meta name="description" content="Free Solitaire Games in Material Design; Klondike, Freecell, Spider, Yukon"/>
+    <meta name="keywords" content="Solitaire, Patience, Klondike, Freecell, Yukon, Spider, Scorpion, Canfield, Forty Thieves"/>
+    <meta name="author" content="Gilbert Oddstream"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Solitaire Card Games</title>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+    <link rel="manifest" href="site.webmanifest">
+    <link rel="mask-icon" href="img/safari-pinned-tab.svg" color="dir#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <style>
+    .steelblue {
+        background-color: #4682b4;
+    }
+    </style>
+</head>
+<body>
+    <p style="display:none">Collection of authentic solitaire games, implemented for modern web browsers, 
+    following Material Design guidelines. 
+    Includes 
+    Agnes Bernauer,
+    Agnes Sorel,
+    Alaska,
+    Alternation,
+    American Toad,
+    Australian,
+    Baker's Dozen,
+    Baker's Game,
+    Beleaguered Castle,
+    Blockade,
+    Breeze,
+    Brigade,
+    Brisbane,
+    Canfield,
+    Castles in Spain,
+    Cruel,
+    Easthaven,
+    Eight Off,
+    Fan,
+    Flower Garden,
+    Forty and Eight,
+    Forty Thieves, 
+    Freecell,
+    Golf,
+    Grandfather's Clock,
+    Indefatigable,
+    Indian,
+    Josephine,
+    Klondike,
+    La Belle Lucie,
+    Lady Jane,
+    Limited,
+    Lucas,
+    Maria,
+    Martha,
+    Napoleon's Square,
+    Number Ten,
+    Osmosis,
+    Peek,
+    Penguin,
+    Perseverance,
+    Portuguese,
+    Rainbow,
+    Ripple Fan,
+    Scorpion,
+    Sea Towers,
+    Simple Simon,
+    Somerset,
+    Spanish Solitaire,
+    Spider,
+    Spiderette,
+    Squadron,
+    Stewart,
+    Storehouse,
+    Stronghold,
+    Trefoil,
+    Tuxedo,
+    Unusual,
+    Usk,
+    Wasp,
+    Westcliff,
+    Yukon
+    </p>
+    <nav>
+    <div class="nav-wrapper grey darken-3">
+    <div class="row">
+    <div class="col s12">
+<!--
+    <ul class="left">
+        <li>
+        <a class="tooltipped" data-position="bottom" data-tooltip="Search for a game"><i class="material-icons">search</i></a>
+        </li>
+    </ul>
+-->    
+    <ul class="left">
+        <li><i class="material-icons">apps</i></li>
+    </ul>
+    <ul class="right">
+        <li><a id="lastgame" class="tooltipped" data-position="bottom" data-tooltip="Go to last game"><i class="material-icons">redo</i></a></li>
+        <li><a class="modal-trigger tooltipped" href="#modalSettings" data-position="bottom" data-tooltip="Settings"><i class="material-icons">settings</i></a></li>
+        <li><a href="faq.html" class="tooltipped" data-position="bottom" data-tooltip="FAQ"><i class="material-icons">info</i></a></li>
+    </ul>
+    </div>
+    </div>
+    </div>
+    </nav>
+
+    <div id="modalSettings" class="modal">
+        <div class="modal-content">
+            <h4 class="noselect">Settings<a class="modal-close right noselect"><i class="material-icons">close</i></a></h4>
+            <p><label for="dealWinnable"><input type="checkbox" id="dealWinnable" class="filled-in steelblue"/><span>Use winnable deals when available</span></label></p>
+            <p><label for="loadSaved"><input type="checkbox" id="loadSaved" class="filled-in steelblue"/><span>Automatically load previous game</span></label></p>
+        </div>
+    </div>
+    
+    <div id="content" class="grey lighten-3">
+    </div>
+    
+    <script type="text/javascript" src="js/materialize.min.js"></script>
+    <script type="application/json" id="variants">
+    { "Variants":[
+        {
+            "Name":"Klondike",
+            "Type":"All,Klondike,Classic",
+            "Desc":"one pack, unlimited redeals",
+            "File":"Klondike1",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)"
+        },
+        {
+            "Name":"Klondike Hard",
+            "Type":"All,Klondike,Hard",
+            "Desc":"one pack, no redeals",
+            "File":"Klondike1-1",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)"
+        },
+        {
+            "Name":"Klondike Draw Three",
+            "Type":"All,Klondike",
+            "Desc":"one pack, draw three, unlimited redeals",
+            "File":"Klondike3",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)"
+        },
+        {
+            "Name":"Double Klondike",
+            "Type":"All,Klondike,Two Packs",
+            "Desc":"two packs, draw one, unlimited redeals",
+            "File":"DoubleKlondike",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)"
+        },
+        {
+            "Name":"Triple Klondike",
+            "Type":"All,Klondike,Three Packs",
+            "Desc":"three packs, draw one, unlimited redeals",
+            "File":"TripleKlondike",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)"
+        },
+        {
+            "Name":"Thoughtful",
+            "Type":"All,Klondike",
+            "Desc":"aka Saratoga. Klondike but with all tableau cards face up",
+            "File":"Thoughtful",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)"
+        },
+        {
+            "Name":"Lady Jane",
+            "Type":"All,Klondike,Two Packs",
+            "Desc":"an easy two-deck Spider/Klondike blend by Thomas Warfield",
+            "File":"LadyJane",
+            "Wikipedia":""
+        },
+        {
+            "Name":"Blockade",
+            "Type":"All,Easy,Spider,Two Packs",
+            "Desc":"an easy mix of Klondike and Spider",
+            "File":"Blockade",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Blockade_(solitaire)"
+        },
+        {
+            "Name":"Napoleon's Square",
+            "Type":"All,Easy,Forty Thieves,Two Packs",
+            "Desc":"an easier version of Forty Thieves",
+            "File":"NapSq",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Napoleon%27s_Square"
+        },
+        {
+            "Name":"Whitehead",
+            "Type":"All,Klondike,Easy",
+            "Desc":"build down regardless of color, can only move cards of same suit",
+            "File":"Whitehead",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)#Variations"
+        },
+        {
+            "Name":"Agnes Bernauer",
+            "Type":"All,Canfield",
+            "Desc":"aka Agnes, a variation of Klondike with reserve piles",
+            "File":"AgnesBernauer",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Agnes_(card_game)"
+        },
+        {
+            "Name":"Agnes Sorel",
+            "Type":"All,Canfield,Hard",
+            "Desc":"a David Parlett original which is almost impossible to win",
+            "File":"AgnesSorel",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Agnes_(card_game)"
+        },
+        {
+            "Name":"Easthaven",
+            "Type":"All,Klondike,Hard",
+            "Desc":"aka Aces Up - Klondike-like with a Spider-like stock",
+            "File":"Easthaven",
+            "Wikipedia":""
+        },
+        {
+            "Name":"Double Easthaven",
+            "Type":"All,Klondike,Hard,Two Packs",
+            "Desc":"aka Aces Up - Klondike-like with a Spider-like stock",
+            "File":"DoubleEasthaven",
+            "Wikipedia":""
+        },
+        {
+            "Name":"Westcliff",
+            "Type":"All,Klondike,Easy",
+            "Desc":"probably the easiest game in this collection",
+            "File":"Westcliff",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Westcliff_(solitaire)"
+        },
+        {
+            "Name":"Yukon",
+            "Type":"All,Yukon,Classic",
+            "Desc":"build the tableau down by alternate color",
+            "File":"Yukon",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)"
+        },
+        {
+            "Name":"Yukon One Suit",
+            "Type":"All,Easy,Yukon",
+            "Desc":"easy version of Yukon",
+            "File":"Yukon1",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)"
+        },
+        {
+            "Name":"Yukon Cells",
+            "Type":"All,Easy,Yukon",
+            "Desc":"easy version of Yukon with two free cells",
+            "File":"YukonCells",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)"
+        },
+        {
+            "Name":"Double Yukon",
+            "Type":"All,Yukon,Two Packs",
+            "Desc":"harder version of Yukon",
+            "File":"DoubleYukon",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)"
+        },
+        {
+        
+            "Name":"Alaska",
+            "Type":"All,Yukon,Hard",
+            "Desc":"a version of Yukon, but the tableau is built up or down by suit",
+            "File":"Alaska",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)"
+        },
+        {
+            "Name":"Brisbane",
+            "Type":"All,Easy,Yukon",
+            "Desc":"a version of Yukon, build the tableau down regardless of suit",
+            "File":"Brisbane",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)"
+        },
+        {
+            "Name":"Australian",
+            "Type":"All,Klondike,Yukon,Easy",
+            "Desc":"an easy mix of Klondike and Yukon, the tableau is built down by suit",
+            "File":"Australian",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Australian_Patience"
+        },
+        {
+            "Name":"Canfield",
+            "Type":"All,Canfield,Classic",
+            "Desc":"aka Fascination, Demon, Thirteen",
+            "File":"Canfield",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Canfield_(solitaire)"
+        },
+        {
+            "Name":"Rainbow",
+            "Type":"All,Canfield",
+            "Desc":"a slightly easier version of Canfield",
+            "File":"Rainbow",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Canfield_(solitaire)"
+        },
+        {
+            "Name":"Storehouse",
+            "Type":"All,Canfield",
+            "Desc":"an easier version of Canfield",
+            "File":"Storehouse",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Canfield_(solitaire)"
+        },
+        {
+            "Name":"American Toad",
+            "Type":"All,Canfield,Two Packs,Easy",
+            "Desc":"an easier version of Canfield",
+            "File":"AmericanToad",
+            "Wikipedia":"https://en.wikipedia.org/wiki/American_Toad_(solitaire)"
+        },
+        {
+            "Name":"Golf",
+            "Type":"All,Golf",
+            "Desc":"simple game - move cards that are one rank higher or one rank lower than the top card of the foundation",
+            "File":"Golf",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Golf_(patience)"
+        },
+        {
+            "Name":"Golf Relaxed",
+            "Type":"All,Golf",
+            "Desc":"Aces and Kings can go on each other",
+            "File":"GolfRelaxed",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Golf_(patience)"
+        },
+        {
+            "Name":"Alternation",
+            "Type":"All,Other,Two Packs",
+            "Desc":"alternate cards face down, built up alternate colors",
+            "File":"Alternation",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Alternation_(solitaire)"
+        },
+        {
+            "Name":"Flower Garden",
+            "Type":"All,Other",
+            "Desc":"aka The Garden or Bouquet",
+            "File":"FlowerGarden",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Flower_Garden_(solitaire)"
+        },
+        {
+            "Name":"Brigade",
+            "Type":"All,Other",
+            "Desc":"easier version of Flower Garden",
+            "File":"Brigade",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Flower_Garden_(solitaire)"
+        },
+        {
+            "Name":"Carpet",
+            "Type":"All,Easy,Other",
+            "Desc":"easy game with twenty reserve piles, no tableau and no building",
+            "File":"Carpet",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Carpet_(solitaire)"
+        },
+        {
+            "Name":"Forty Thieves",
+            "Type":"All,Forty Thieves,Classic,Two Packs,Hard",
+            "Desc":"aka Napoleon at St Helena",
+            "File":"FortyThieves",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Forty_Thieves_(card_game)"
+        },
+        {
+            "Name":"Squadron",
+            "Type":"All,Forty Thieves,Two Packs",
+            "Desc":"Forty Thieves with three free cells",
+            "File":"Squadron",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Forty_Thieves_(card_game)"
+        },
+        {
+            "Name":"Forty and Eight",
+            "Type":"All,Forty Thieves,Two Packs",
+            "Desc":"easier version of Forty Thieves, allows two stock redeals",
+            "File":"FortyAndEight",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Forty_Thieves_(card_game)"
+        },
+        {
+            "Name":"Josephine",
+            "Type":"All,Forty Thieves,Two Packs",
+            "Desc":"aka Forty Bandits - a slightly easier version of Forty Thieves, where sequences of cards can be moved",
+            "File":"Josephine",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Josephine_(solitaire)"
+        },
+        {
+            "Name":"Maria",
+            "Type":"All,Forty Thieves,Two Packs",
+            "Desc":"like Forty Thieves, but build tableau down in alternate colors",
+            "File":"Maria",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Forty_Thieves_(card_game)"
+        },
+        {
+            "Name":"Number Ten",
+            "Type":"All,Forty Thieves,Two Packs",
+            "Desc":"like Forty Thieves, but build tableau down in alternate colors",
+            "File":"NumberTen",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Forty_Thieves_(card_game)"
+        },
+        {
+            "Name":"Indian",
+            "Type":"All,Forty Thieves,Two Packs",
+            "Desc":"",
+            "File":"Indian",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Forty_Thieves_(card_game)"
+        },
+        {
+            "Name":"Lucas",
+            "Type":"All,Forty Thieves,Two Packs",
+            "Desc":"easier version of Forty Thieves where the foundation is seeded with aces",
+            "File":"Lucas",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Josephine_(solitaire)"
+        },
+        {
+            "Name":"Limited",
+            "Type":"All,Forty Thieves",
+            "Desc":"easier version of Forty Thieves with more tableaux piles",
+            "File":"Limited",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Forty_Thieves_(card_game)"
+        },
+        {
+            "Name":"Freecell",
+            "Type":"All,Freecell,Classic",
+            "Desc":"can move multiple tableau cards",
+            "File":"Freecell",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Freecell"
+        },
+        {
+            "Name":"Freecell Original",
+            "Type":"All,Freecell",
+            "Desc":"invented by Paul Alfille",
+            "File":"Freecell0",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Freecell"
+        },
+        {
+            "Name":"Blind Freecell",
+            "Type":"All,Freecell",
+            "Desc":"",
+            "File":"BlindFreecell",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Freecell"
+        },
+        {
+            "Name":"Sea Towers",
+            "Type":"All,Freecell",
+            "Desc":"aka Seahaven Towers or Seahaven, by Art Cabral",
+            "File":"SeaTowers",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Seahaven_Towers_(solitaire)"
+        },
+        {
+            "Name":"Big Freecell",
+            "Type":"All,Freecell,Two Packs,Easy",
+            "Desc":"a very easy straight-forward two-deck version of FreeCell",
+            "File":"BigFreecell",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Freecell"
+        },
+        {
+            "Name":"Double Freecell",
+            "Type":"All,Freecell,Two Packs",
+            "Desc":"Thomas Warfield's two-deck variation on Freecell",
+            "File":"DoubleFreecell",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Freecell"
+        },
+        {
+            "Name":"Eight Off",
+            "Type":"All,Freecell",
+            "Desc":"predates Freecell",
+            "File":"EightOff",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Eight_Off"
+        },
+        {
+            "Name":"Baker's Game",
+            "Type":"All,Freecell",
+            "Desc":"predates Freecell, tableau are built by suit",
+            "File":"Baker'sGame",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Baker%27s_Game"
+        },
+        {
+            "Name":"Penguin",
+            "Type":"All,Freecell",
+            "Desc":"a David Parlett original",
+            "File":"Penguin",
+            "Wikipedia":"http://www.parlettgames.uk/patience/penguin.html"
+        },
+        {
+            "Name":"Tuxedo",
+            "Type":"All,Freecell",
+            "Desc":"an easier version of Penguin",
+            "File":"Tuxedo",
+            "Wikipedia":"https://politaire.com/help/tuxedo"
+        },
+        {
+            "Name":"Scorpion",
+            "Type":"All,Scorpion,Classic",
+            "Desc":"related to Spider, the method of game play is like Yukon",
+            "File":"Scorpion",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Scorpion_(solitaire)"
+        },
+        {
+            "Name":"Three Blind Mice",
+            "Type":"All,Scorpion",
+            "Desc":"a variation of Scorpion with a two-card reserve",
+            "File":"ThreeBlindMice",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Scorpion_(solitaire)"
+        },
+        {
+            "Name":"Double Scorpion",
+            "Type":"All,Scorpion,Two Packs",
+            "Desc":"an easier two deck version of Scorpion, all cards are already dealt at the beginning",
+            "File":"DoubleScorpion",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Scorpion_(solitaire)"
+        },
+        {
+            "Name":"Triple Scorpion",
+            "Type":"All,Scorpion,Three Packs",
+            "Desc":"an easier three deck version of Scorpion, all cards are already dealt at the beginning",
+            "File":"TripleScorpion",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Scorpion_(solitaire)"
+        },
+        {
+            "Name":"Wasp",
+            "Type":"All,Easy,Scorpion",
+            "Desc":"easy version of Scorpion, allows any card to be placed on empty column",
+            "File":"Wasp",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Scorpion_(solitaire)"
+        },
+        {
+            "Name":"Spider One Suit",
+            "Type":"All,Spider,Easy,Classic",
+            "Desc":"easy version of Spider with only spades",
+            "File":"Spider1",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Spider_(solitaire)"
+        },
+        {
+            "Name":"Spider Two Suits",
+            "Type":"All,Spider",
+            "Desc":"easier version of Spider with only spades and hearts",
+            "File":"Spider2",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Spider_(solitaire)"
+        },
+        {
+            "Name":"Spider",
+            "Type":"All,Spider,Two Packs",
+            "Desc":"another game made famous by Microsoft, though it dates back at least to 1949",
+            "File":"Spider4",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Spider_(solitaire)"
+        },        
+        {
+            "Name":"Spiderette One Suit",
+            "Type":"All,Spider,Easy",
+            "Desc":"",
+            "File":"Spiderette1",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Spider_(solitaire)"
+        },
+        {
+            "Name":"Spiderette Two Suits",
+            "Type":"All,Spider",
+            "Desc":"",
+            "File":"Spiderette2",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Spider_(solitaire)"
+        },
+        {
+            "Name":"Spiderette",
+            "Type":"All,Spider,Hard",
+            "Desc":"",
+            "File":"Spiderette4",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Spider_(solitaire)"
+        },        
+        {
+            "Name":"Simple Simon",
+            "Type":"All,Spider",
+            "Desc":"like a one-deck Spider where all cards start face up in a triangular tableau",
+            "File":"SimpleSimon",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Simple_Simon_(solitaire)"
+        },        
+        {
+            "Name":"Cruel",
+            "Type":"All,Tableau Redeal",
+            "Desc":"originally for Microsoft Windows, based on Perseverance",
+            "File":"Cruel",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Cruel_(solitaire)"
+        },
+        {
+            "Name":"Unusual",
+            "Type":"All,Tableau Redeal,Two Packs",
+            "Desc":"a two-pack version of Cruel",
+            "File":"Unusual",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Cruel_(solitaire)"
+        },
+        {
+            "Name":"Ripple Fan",
+            "Type":"All,Tableau Redeal",
+            "Desc":"an easier version of Cruel",
+            "File":"RippleFan",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Cruel_(solitaire)"
+        },
+        {
+            "Name":"Perseverance",
+            "Type":"All,Tableau Redeal",
+            "Desc":"like Cruel, but a sequence of cards can be moved",
+            "File":"Perseverance",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Perseverance_(solitaire)"
+        },
+        {
+            "Name":"Indefatigable",
+            "Type":"All,Tableau Redeal",
+            "Desc":"variation of Royal Family, but the foundations build up from ace, and there is an extra redeal",
+            "File":"Indefatigable",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Perseverance_(solitaire)"
+        },
+        {
+            "Name":"Beleaguered Castle",
+            "Type":"All,Castle",
+            "Desc":"aka Laying Siege, Sham Battle",
+            "File":"BeleagueredCastle",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Beleaguered_Castle"
+        },
+        {
+            "Name":"Stronghold",
+            "Type":"All,Castle",
+            "Desc":"easier Beleaguered Castle with a free cell",
+            "File":"Stronghold",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Beleaguered_Castle"
+        },
+        {
+            "Name":"Somerset",
+            "Type":"All,Klondike,Hard",
+            "Desc":"Klondike variant without stock or waste",
+            "File":"Somerset",
+            "Wikipedia":"https://politaire.com/help/somerset"
+        },
+        {
+            "Name":"Somerset Relaxed",
+            "Type":"All,Klondike",
+            "Desc":"allows sequences of cards to be moved",
+            "File":"SomersetRelaxed",
+            "Wikipedia":"https://politaire.com/help/somerset"
+        },
+        {
+            "Name":"Usk",
+            "Type":"All,Klondike,Tableau Redeal",
+            "Desc":"Klondike variant with one tableau reshuffle and no stock or waste",
+            "File":"Usk",
+            "Wikipedia":"https://politaire.com/help/usk"
+        },
+        {
+            "Name":"Usk Relaxed",
+            "Type":"All,Klondike,Tableau Redeal",
+            "Desc":"allows unlimited tableau reshuffles",
+            "File":"UskRelaxed",
+            "Wikipedia":"https://politaire.com/help/usk"
+        },
+        {
+            "Name":"Breeze",
+            "Type":"All,Fan,Easy",
+            "Desc":"an easier version of Fan that allows sequences of cards to be moved",
+            "File":"Breeze",
+            "Wikipedia":""
+        },
+        {
+            "Name":"Fan",
+            "Type":"All,Fan",
+            "Desc":"the original fan-type game",
+            "File":"Fan",
+            "Wikipedia":"https://en.wikipedia.org/wiki/La_Belle_Lucie"
+        },
+        {
+            "Name":"La Belle Lucie",
+            "Type":"All,Fan,Tableau Redeal,Hard",
+            "Desc":"a classic game that was first published in the English language by Lady Adelaide Cadogan in 1870",
+            "File":"LaBelleLucie",
+            "Wikipedia":"https://en.wikipedia.org/wiki/La_Belle_Lucie"
+        },
+        {
+            "Name":"Trefoil",
+            "Type":"All,Fan,Tableau Redeal",
+            "Desc":"Fan with two tableau shuffles",
+            "File":"Trefoil",
+            "Wikipedia":"https://en.wikipedia.org/wiki/La_Belle_Lucie"
+        },
+        {
+            "Name":"Trefoil Relaxed",
+            "Type":"All,Fan,Tableau Redeal,Easy",
+            "Desc":"Fan with two tableau shuffles, sequences of cards can be moved together",
+            "File":"TrefoilRelaxed",
+            "Wikipedia":"https://en.wikipedia.org/wiki/La_Belle_Lucie"
+        },
+        {
+            "Name":"Bisley",
+            "Type":"All,Bisley",
+            "Desc":"one of the few one-deck games in which the player has options on which foundation a card can be placed",
+            "File":"Bisley",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Bisley_(solitaire)"
+        },
+        {
+            "Name":"Martha",
+            "Type":"All,Easy,Bisley",
+            "Desc":"easy game with no stock and half the cards start face down",
+            "File":"Martha",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Martha_(solitaire)"
+        },
+        {
+            "Name":"Stewart",
+            "Type":"All,Bisley",
+            "Desc":"a harder version of Martha",
+            "File":"Stewart",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Martha_(solitaire)"
+        },
+        {
+            "Name":"Baker's Dozen",
+            "Type":"All,Bisley",
+            "Desc":"so called because of the 13 columns in the game, the number in a baker's dozen",
+            "File":"Baker'sDozen",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Baker%27s_Dozen_(solitaire)"
+        },
+        {
+            "Name":"Spanish",
+            "Type":"All,Bisley",
+            "Desc":"any card can fill empty tableau spaces",
+            "File":"Spanish",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Baker%27s_Dozen_(solitaire)"
+        },
+        {
+            "Name":"Portuguese",
+            "Type":"All,Bisley",
+            "Desc":"halfway between Baker's Dozen and Spanish Patience because empty columns can only be filled with Kings",
+            "File":"Portuguese",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Baker%27s_Dozen_(solitaire)"
+        },
+        {
+            "Name":"Castles in Spain",
+            "Type":"All,Bisley",
+            "Desc":"like Spanish Patience, but the cards in the tableau are built down by alternate color",
+            "File":"CastlesInSpain",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Baker%27s_Dozen_(solitaire)"
+        },
+        {
+            "Name":"Frog",
+            "Type":"All,Frog,Two Packs",
+            "Desc":"aka Toad",
+            "File":"Frog",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Frog_(game)"
+        },
+        {
+            "Name":"Fly",
+            "Type":"All,Frog,Two Packs",
+            "Desc":"an easier version of Frog",
+            "File":"Fly",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Frog_(game)"
+        },
+        {
+            "Name":"Gnat",
+            "Type":"All,Frog",
+            "Desc":"a one deck version of Fly",
+            "File":"Gnat",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Frog_(game)"
+        },
+        {
+            "Name":"HouseFly",
+            "Type":"All,Frog",
+            "Desc":"an easier version of Gnat",
+            "File":"HouseFly",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Frog_(game)"
+        },
+        {
+            "Name":"Grandfather's Clock",
+            "Type":"All,Clock,Easy",
+            "Desc":"arrange cards in the foundations like a clock",
+            "File":"GClock",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Grandfather%27s_Clock"
+        },
+        {
+            "Name":"Osmosis",
+            "Type":"All,Other",
+            "Desc":"also known as Treasure Trove",
+            "File":"Osmosis",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Osmosis_(solitaire)"
+        },
+        {
+            "Name":"Peek",
+            "Type":"All,Other",
+            "Desc":"Osmosis with a visible reserve",
+            "File":"Peek",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Osmosis_(solitaire)"
+        },
+        {
+            "Name":"Busy Aces",
+            "Type":"All,Simple,Two Packs",
+            "Desc":"simple game dating from 1939",
+            "File":"BusyAces",
+            "Wikipedia":""
+        },
+        {
+            "Name":"Courtyard",
+            "Type":"All,Simple,Two Packs",
+            "Desc":"like Busy Aces, but empty tableau spaces are automatically filled",
+            "File":"Courtyard",
+            "Wikipedia":""
+        },
+        {
+            "Name":"Fortune's Favor",
+            "Type":"All,Simple",
+            "Desc":"like Busy Aces, but empty tableau spaces are automatically filled",
+            "File":"FortunesFavor",
+            "Wikipedia":"https://en.wikipedia.org/wiki/Fortune%27s_Favor"
+        },
+        {
+            "Name":"Stages",
+            "Type":"All,Simple,Two Packs",
+            "Desc":"like Busy Aces, but sequences of tableau cards can be moved",
+            "File":"Stages",
+            "Wikipedia":""
+        },
+        {
+            "Name":"Oddstream",
+            "Type":"All,Originals",
+            "Desc":"tidy the tableau as you go, or you won't win",
+            "File":"Oddstream",
+            "Wikipedia":""
+        },
+        {
+            "Name":"Oddstream K",
+            "Type":"All,Originals",
+            "Desc":"harder version of Oddstream",
+            "File":"OddstreamK",
+            "Wikipedia":""
+        },
+        {
+            "Name":"Oddstream S",
+            "Type":"All,Originals",
+            "Desc":"like Oddstream K, but build tableau down in suit",
+            "File":"OddstreamS",
+            "Wikipedia":""
+        },
+        {
+            "Name":"Quickly Fail",
+            "Type":"Debug",
+            "Desc":"",
+            "File":"QuickFail",
+            "Wikipedia":""
+        },
+        {
+            "Name":"Quickly Win",
+            "Type":"Debug",
+            "Desc":"",
+            "File":"QuickWin",
+            "Wikipedia":""
+        }
+      ]
+    }
+    
+    </script>
+    <script>
+'use strict';
+
+var isIE = false || !!document.documentMode;
+if ( isIE )
+    window.alert('Internet Explorer is not supported.\n\nPlease try again with a modern browser.');
+        
+if (!Array.prototype.forEach) {
+
+  Array.prototype.forEach = function(callback/*, thisArg*/) {
+
+    var T, k;
+
+    if (this == null) {
+      throw new TypeError('this is null or not defined');
+    }
+
+    // 1. Let O be the result of calling toObject() passing the
+    // |this| value as the argument.
+    var O = Object(this);
+
+    // 2. Let lenValue be the result of calling the Get() internal
+    // method of O with the argument "length".
+    // 3. Let len be toUint32(lenValue).
+    var len = O.length >>> 0;
+
+    // 4. If isCallable(callback) is false, throw a TypeError exception. 
+    // See: http://es5.github.com/#x9.11
+    if (typeof callback !== 'function') {
+      throw new TypeError(callback + ' is not a function');
+    }
+
+    // 5. If thisArg was supplied, let T be thisArg; else let
+    // T be undefined.
+    if (arguments.length > 1) {
+      T = arguments[1];
+    }
+
+    // 6. Let k be 0.
+    k = 0;
+
+    // 7. Repeat while k < len.
+    while (k < len) {
+
+      var kValue;
+
+      // a. Let Pk be ToString(k).
+      //    This is implicit for LHS operands of the in operator.
+      // b. Let kPresent be the result of calling the HasProperty
+      //    internal method of O with argument Pk.
+      //    This step can be combined with c.
+      // c. If kPresent is true, then
+      if (k in O) {
+
+        // i. Let kValue be the result of calling the Get internal
+        // method of O with argument Pk.
+        kValue = O[k];
+
+        // ii. Call the Call internal method of callback with T as
+        // the this value and argument list containing kValue, k, and O.
+        callback.call(T, kValue, k, O);
+      }
+      // d. Increase k by 1.
+      k++;
+    }
+    // 8. return undefined.
+  };
+}
+if (!Array.prototype.includes) {
+  Object.defineProperty(Array.prototype, 'includes', {
+    value: function(searchElement, fromIndex) {
+
+      if (this == null) {
+        throw new TypeError('"this" is null or not defined');
+      }
+
+      // 1. Let O be ? ToObject(this value).
+      var o = Object(this);
+
+      // 2. Let len be ? ToLength(? Get(O, "length")).
+      var len = o.length >>> 0;
+
+      // 3. If len is 0, return false.
+      if (len === 0) {
+        return false;
+      }
+
+      // 4. Let n be ? ToInteger(fromIndex).
+      //    (If fromIndex is undefined, this step produces the value 0.)
+      var n = fromIndex | 0;
+
+      // 5. If n ≥ 0, then
+      //  a. Let k be n.
+      // 6. Else n < 0,
+      //  a. Let k be len + n.
+      //  b. If k < 0, let k be 0.
+      var k = Math.max(n >= 0 ? n : len - Math.abs(n), 0);
+
+      function sameValueZero(x, y) {
+        return x === y || (typeof x === 'number' && typeof y === 'number' && isNaN(x) && isNaN(y));
+      }
+
+      // 7. Repeat, while k < len
+      while (k < len) {
+        // a. Let elementK be the result of ? Get(O, ! ToString(k)).
+        // b. If SameValueZero(searchElement, elementK) is true, return true.
+        if (sameValueZero(o[k], searchElement)) {
+          return true;
+        }
+        // c. Increase k by 1. 
+        k++;
+      }
+
+      // 8. Return false
+      return false;
+    }
+  });
+}
+        
+function crel(nm, cl)
+{
+    const ele  = document.createElement(nm);
+    if ( cl ) ele.setAttribute('class', cl);
+    return ele;
+}
+const vs = JSON.parse(document.getElementById('variants').innerText);
+const cont = document.getElementById('content');
+    
+const types = [];
+vs.Variants.forEach( function(v) {  
+    v.Type.split(',').forEach( function(t) {
+        if ( !types.includes(t) )
+            types.push(t);
+    });
+});
+types.sort();
+
+const ulOuter = crel('ul', 'collapsible');
+cont.appendChild(ulOuter);
+for ( let i=0; i<types.length; i++ )
+{
+    const liOuter = crel('li', null);
+        ulOuter.appendChild(liOuter);
+        
+    const ch = crel('div', 'collapsible-header');
+        ch.innerHTML = types[i];
+        liOuter.appendChild(ch);
+        
+    const cb = crel('div', 'collapsible-body');
+        liOuter.appendChild(cb);            
+    let ulInner = crel('ul', null);
+        cb.appendChild(ulInner);
+
+        let ty = vs.Variants.filter( function(v) {
+            return v.Type.split(',').includes(types[i]);
+        });
+            
+        ty.sort(function(a, b) { return a.Name.localeCompare(b.Name); });
+        ty.forEach( function(t) {
+            let listItem = crel('li', null);
+                let a = crel('a', null);
+                a.setAttribute('href', t.File + '.html');
+                a.innerHTML = t.Name;
+                listItem.appendChild(a);
+                if ( window.innerWidth > 640 )
+                {
+                    let s = crel('span', 'right');
+                    s.innerHTML = t.Desc;
+                    listItem.appendChild(s);
+                }
+            ulInner.appendChild(listItem);
+        });
+}
+
+M.AutoInit();
+
+const stats = JSON.parse(localStorage.getItem('Solitaire')) || new Object;
+if ( stats.Options )
+{
+    if ( stats.Options.lastGame )
+    {
+        document.getElementById('lastgame').setAttributeNS(null, 'href', stats.Options.lastGame);
+    }
+    else
+    {
+        document.getElementById('lastgame').display = 'none';
+    }
+}
+    
+const modalSettings = M.Modal.getInstance(document.getElementById('modalSettings'));
+modalSettings.options.onOpenStart = function()
+{
+    document.getElementById("dealWinnable").checked = stats.Options.dealWinnable;
+    document.getElementById("loadSaved").checked = stats.Options.loadSaved;
+};
+
+modalSettings.options.onCloseEnd = function()
+{
+    stats.Options.dealWinnable = document.getElementById("dealWinnable").checked;
+    stats.Options.loadSaved = document.getElementById("loadSaved").checked;
+
+    try {
+        localStorage.setItem('Solitaire', JSON.stringify(stats));
+    } catch(e) {
+        console.error(e);
+    }
+};
+        
+    </script>
+</body>
+</html>

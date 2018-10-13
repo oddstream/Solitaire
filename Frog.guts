@@ -1,0 +1,34 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Frog",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Frog_(game)",
+  "Winnable":[],
+  "Stock":{"packs":2, "redeals":0},
+  "Waste":{"maxcards":1},
+  "Reserve":{"target":"Foundation"},
+  "Foundation":{"suit":2, "rank":1, "accept":1},
+  "Tableau":{"build":{"suit":1, "rank":5}, "move":{"suit":1, "rank":5}, "target":"Foundation"}
+}
+</script>
+  
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="StockKlondike"><rect x="10" y="10"></rect></g>
+    <g class="Waste"><rect x="77" y="10"></rect></g>
+    
+    <g class="ReserveFrog"><rect x="10" y="110"></rect></g>
+
+    <g class="Foundation"><rect x="211" y="10"></rect></g>
+    <g class="Foundation"><rect x="278" y="10"></rect></g>
+    <g class="Foundation"><rect x="345" y="10"></rect></g>
+    <g class="Foundation"><rect x="412" y="10"></rect></g>
+
+    <g class="Foundation"><rect x="479" y="10"></rect></g>
+    <g class="Foundation"><rect x="546" y="10"></rect></g>
+    <g class="Foundation"><rect x="613" y="10"></rect></g>
+    <g class="Foundation"><rect x="680" y="10"></rect></g>
+
+    <g class="Tableau"><rect x="211" y="110"></rect></g>
+    <g class="Tableau"><rect x="278" y="110"></rect></g>
+    <g class="Tableau"><rect x="345" y="110"></rect></g>
+    <g class="Tableau"><rect x="412" y="110"></rect></g>
+    <g class="Tableau"><rect x="479" y="110"></rect></g>

@@ -1,0 +1,36 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Tuxedo",
+  "Wikipedia":"https://politaire.com/help/tuxedo",
+  "Winnable":[515682,553785,751595],
+  "Stock":{"packs":1, "hidden":1},
+  "Foundation":{"suit":2, "rank":1, "rankwrap":1, "accept":1, "scatter":"Left"},
+  "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":13}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="Stock">
+        <rect x="250" y="-100"></rect>
+    </g>
+  
+    <g class="Cell"><rect x="10" y="10"></rect></g>
+    <g class="Cell"><rect x="77" y="10"></rect></g>
+    <g class="Cell"><rect x="144" y="10"></rect></g>
+    <g class="Cell"><rect x="211" y="10"></rect></g>
+    <g class="Cell"><rect x="278" y="10"></rect></g>
+    <g class="Cell"><rect x="345" y="10"></rect></g>
+    <g class="Cell"><rect x="412" y="10"></rect></g>
+
+    <g class="TableauTail" deal="uuuuuuuu"><rect x="10" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuu"><rect x="77" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuu"><rect x="144" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuuu"><rect x="211" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuu"><rect x="278" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuu"><rect x="345" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuuu"><rect x="412" y="110"></rect></g>
+
+    <g class="Foundation"><rect x="479" y="10"></rect></g>
+    <g class="Foundation"><rect x="479" y="110"></rect></g>
+    <g class="Foundation"><rect x="479" y="210"></rect></g>
+    <g class="Foundation"><rect x="479" y="310"></rect></g>

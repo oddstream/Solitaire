@@ -1,0 +1,41 @@
+<script type="application/json" id="rules">
+{
+    "Name":"Trefoil Relaxed",
+    "Wikipedia":"https://en.wikipedia.org/wiki/La_Belle_Lucie",
+    "Winnable":[296641,482871],
+    "Cards":{"suit":"BottomLeft"},
+    "Stock":{"packs":1, "redeals":1},
+    "Foundation":{"suit":2, "rank":1},
+    "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":"\u00D7", "fan":"Right", "maxfan":290}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="StockFan"><rect x="10" y="10"></rect></g>
+    
+    <rect x="1310" style="display:none"></rect>  <!-- dummy invisible rect for viewBox -->
+
+    <g class="Foundation" deal="♥01"><rect x="110" y="10"></rect></g>
+    <g class="Foundation" deal="♦01"><rect x="410" y="10"></rect></g>
+    <g class="Foundation" deal="♣01"><rect x="710" y="10"></rect></g>
+    <g class="Foundation" deal="♠01"><rect x="1010" y="10"></rect></g>
+
+    <g class="TableauTail" deal="uuu"><rect x="110" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="410" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="710" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="1010" y="110"></rect></g>
+    
+    <g class="TableauTail" deal="uuu"><rect x="110" y="210"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="410" y="210"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="710" y="210"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="1010" y="210"></rect></g>
+
+    <g class="TableauTail" deal="uuu"><rect x="110" y="310"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="410" y="310"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="710" y="310"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="1010" y="310"></rect></g>
+    
+    <g class="TableauTail" deal="uuu"><rect x="110" y="410"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="410" y="410"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="710" y="410"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="1010" y="410"></rect></g>

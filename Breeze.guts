@@ -1,0 +1,46 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Breeze",
+  "Wikipedia":"",
+  "Winnable":[589700,812647],
+  "Cards":{"suit":"BottomLeft"},
+  "Stock":{"packs":1, "hidden":1},
+  "Foundation":{"suit":2, "rank":1, "accept":1},
+  "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":13, "fan":"Right", "maxfan":300}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="Stock">
+      <rect x="10" y="-110"></rect>
+    </g>
+    <rect x="1100" style="display:none"></rect>  <!-- dummy invisible rect for viewBox -->
+
+    <g class="Foundation"><rect x="210" y="10"></rect></g>
+    <g class="Foundation"><rect x="410" y="10"></rect></g>
+    <g class="Foundation"><rect x="610" y="10"></rect></g>
+    <g class="Foundation"><rect x="810" y="10"></rect></g>
+
+    <g class="TableauTail" deal="uuu"><rect x="10"  y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="410" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="810" y="110"></rect></g>
+    
+    <g class="TableauTail" deal="uuu"><rect x="10" y="210"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="410" y="210"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="810" y="210"></rect></g>
+    
+    <g class="TableauTail" deal="uuu"><rect x="10"  y="310"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="410" y="310"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="810" y="310"></rect></g>
+    
+    <g class="TableauTail" deal="uuu"><rect x="10" y="410"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="410" y="410"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="810" y="410"></rect></g>
+
+    <g class="TableauTail" deal="uuu"><rect x="10"  y="510"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="410" y="510"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="810" y="510"></rect></g>
+    
+    <g class="TableauTail" deal="uuu"><rect x="10" y="610"></rect></g>
+    <g class="TableauTail" deal="uu" ><rect x="410" y="610"></rect></g>
+    <g class="TableauTail" deal="uu" ><rect x="810" y="610"></rect></g>

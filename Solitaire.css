@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css?family=Acme');
+
+@media (pointer:none), (pointer:coarse) {
+    body {
+        overflow-y: hidden;
+        touch-action: none;
+    }
+}
+
+svg { 
+    background-color: var(--bg-color, darkgreen);   /* cascades to children */
+    width: 100%;
+    height: 100%;
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+      -moz-user-select: none; /* Firefox */
+       -ms-user-select: none; /* Internet Explorer/Edge */
+           user-select: none; /* Non-prefixed version, currently
+                                 supported by Chrome and Opera */
+    touch-action: none;
+}
+
+.spielkarte {
+    fill:white;
+    stroke-width: 1;
+    stroke:silver;
+    pointer-events: all;
+    touch-action: none;
+}
+
+.spielkarte0 {
+    fill:rgb(233,233,233);
+    stroke-width: 1;
+    stroke:silver;
+    pointer-events: all;
+    touch-action: none;
+}
+
+.spielkarteback {
+    fill:steelblue;
+    stroke-width: 1;
+    stroke:silver;
+    pointer-events: all;
+    touch-action: none;
+}
+
+.spielkartevalue {
+    font-family: var(--ffont), sans-serif;
+    font-size: 24px /*2.1vw*/;
+    /* fill here gets ignored */
+    pointer-events: none;
+}
+
+.spielkartesuit {
+    font-family: sans-serif;
+    font-size: 28px /*2.6vw*/;
+    /* fill here gets ignored */
+    pointer-events: none;
+}
+/*
+@media (pointer:none), (pointer:coarse) {
+    .spielkartevalue {
+        font-family: sans-serif;
+        font-size: 22px;
+        pointer-events: none;
+    }
+    .spielkartesuit {
+        font-family: sans-serif;
+        font-size: 22px;
+        pointer-events: none;
+    }
+}
+*/
+.Reserve, .ReserveFrog, .Stock, .StockAgnes, .StockCruel, .StockFan, .StockGolf, .StockKlondike, .StockScorpion, .StockSpider, .Waste {
+    fill: var(--bg-color, darkgreen);
+    stroke: none;
+}
+
+.Cell, .CellCarpet {
+    fill: var(--bg-color, darkgreen);
+    stroke: white;
+    stroke-width: 1;
+}
+
+.Tableau, .TableauBlockade, .TableauCanfield, .TableauFortunesFavor, .TableauFreecell, .TableauGolf, .TableauTail {
+    fill: var(--bg-color, darkgreen);
+    stroke: var(--hi-color, lightgreen);
+    stroke-width: 1;
+}
+
+.Foundation, .FoundationCanfield, .FoundationGolf, .FoundationOsmosis, .FoundationPenguin, .FoundationSpider {
+    fill: var(--bg-color, darkgreen);
+    stroke: var(--hi-color, lightgreen);
+    stroke-width: 1;
+}
+
+.accepts {
+    font-family: var(--ffont), sans-serif;
+    font-size: 24px;
+    stroke: none;
+    fill: var(--hi-color, lightgreen);
+}
+
+.stockredeals {
+    font-family: 'Ariel', sans-serif;
+    font-size: 48px;
+    stroke: none;
+    fill: var(--hi-color, lightgreen);
+}
+/*
+.stocknoredeals {
+    font-family: 'Ariel', sans-serif;
+    font-size: 48px;
+    stroke: none;
+    fill: red;
+}
+*/
+.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+      -webkit-user-select: none; /* Safari */
+       -khtml-user-select: none; /* Konqueror HTML */
+         -moz-user-select: none; /* Firefox */
+          -ms-user-select: none; /* Internet Explorer/Edge */
+              user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome and Opera */
+}
+
+.steelblue {
+    background-color: #4682b4 !important;
+}

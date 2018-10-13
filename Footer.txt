@@ -1,0 +1,86 @@
+<div id="modalSettings" class="modal">
+    <div class="modal-content">
+        <h4 class="noselect">Settings<a class="modal-close right noselect hide-on-small-only"><i class="material-icons">close</i></a></h4>
+
+        <p class="range-field">
+            <label for="aniSpeed"><input type="range" id="aniSpeed" min="1" max="5"/><span>Animation speed</span></label>
+        </p>
+        
+        <p><label for="sensoryCues"><input type="checkbox" id="sensoryCues" class="filled-in steelblue"/><span>Highlight movable cards</span></label></p>
+        <p><label for="autoPlay"><input type="checkbox" id="autoPlay" class="filled-in steelblue"/><span>Allow single click to move a card</span></label></p>
+        <p><label for="autoFlip"><input type="checkbox" id="autoFlip" class="filled-in steelblue"/><span>Automatically turn over exposed tableau cards</span></label></p>
+<!--
+        <p><label for="playFromFoundation"><input type="checkbox" id="playFromFoundation" class="filled-in steelblue"/><span>Allow play from foundation<span></label></p>
+-->       
+        <div class="row">
+        <div class="col s6">
+        <p><label for="autoOff"><input type="radio" id="autoOff" name="auto" value="off"/><span>No auto collect</span></label></p>
+        <p><label for="autoSolve"><input type="radio" id="autoSolve" name="auto" value="solve"/><span>Auto collect when solveable</span></label></p>
+<!--        
+        <p><label for="autoAces"><input type="radio" id="autoAces" name="auto" value="aces"/><span>Auto collect aces</span></label></p>
+-->        
+        <p><label for="autoAny"><input type="radio" id="autoAny" name="auto" value="any"/><span>Auto collect any card</span></label></p>
+        </div>
+        </div>
+    </div>
+    <!--
+    <div class="modal-footer">
+      <a class="modal-close btn-small steelblue noselect">CLOSE</a>
+    </div>
+    -->
+</div>
+
+<div id="modalStatistics" class="modal">
+    <div class="modal-content">
+      <h4 class="noselect">Statistics<a class="modal-close right noselect hide-on-small-only"><i class="material-icons">close</i></a></h4>
+      <p id="gamesPlayedStats"></p>
+      <p id="thisGameStats"></p>
+      <p id="gamesStreakStats"></p>
+      <p id="gamesTotalStats"></p>
+      <a class="modal-close noselect" onclick="areYouSure('dostatsreset')">reset statistics for this game</a>
+    </div>
+</div>
+  
+<div id="modalGameOver" class="modal">
+    <div class="modal-content">
+      <h4 class="noselect hide-on-small-only">Complete</h4>
+      <p id="movesMade"></p>
+      <p id="gamesPlayed"></p>
+      <p id="gamesStreak"></p>
+    </div>
+    <div class="modal-footer">
+      <a class="modal-close btn-small steelblue" href="index.html"><i class="material-icons">apps</i> New game</a>
+      <a class="modal-close btn-small steelblue" onclick="dostar()"><i class="material-icons">star</i> New deal</a>
+      <a class="modal-close btn-small steelblue" onclick="doreplay()"><i class="material-icons">replay</i> Replay</a>
+    </div>
+</div>
+
+<div id="modalAreYouSure" class="modal">
+    <div class="modal-content">
+      <h4 class="noselect">Are you sure?</h4>
+    </div>
+    <div class="modal-footer">
+      <a id="modalAreYouSureYes" class="modal-close btn-small steelblue">Yes</a>
+      <a id="modalAreYouSureNo"  class="modal-close btn-small steelblue">No</a>
+    </div>
+</div>
+
+<div id="modalShowRules" class="modal">
+    <div class="modal-content">
+        <h4>Rules<a class="modal-close right noselect hide-on-small-only"><i class="material-icons">close</i></a></h4>
+        <div id="therules"></div>
+        <a id="theruleswikipedia" href="" target="_blank" rel="noopener">Wikipedia</a>
+    </div>
+</div>
+  
+<!-- <script type="text/javascript" src="https://code.jquery.com/pep/0.4.3/pep.js"></script> -->
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<script>
+M.Sidenav.init(document.querySelectorAll('.sidenav'));
+M.Modal.init(document.querySelectorAll('.modal'));
+M.Tooltip.init(document.querySelectorAll('.tooltipped'));
+</script>
+<script type="text/javascript" src="Solitaire.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Triple Scorpion",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Scorpion_(solitaire)",
+  "Winnable":[],
+  "Stock":{"packs":3, "hidden":1},
+  "Foundation":{"suit":2, "rank":2, "accept":"\u2261"},
+  "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":1, "rank":5}, "accept":13}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="FoundationSpider"><rect  x="77" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="144" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="211" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="278" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="345" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="412" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="479" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="546" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="613" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="680" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="747" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="814" y="10"></rect></g>
+
+    <g class="TableauTail" deal="ddddduuuuuuu"><rect x="10"  y="110"></rect></g>
+    <g class="TableauTail" deal="ddddduuuuuuu"><rect x="77"  y="110"></rect></g>
+    <g class="TableauTail" deal="ddddduuuuuuu"><rect x="144" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddduuuuuuu"><rect x="211" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddduuuuuuu"><rect x="278" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddduuuuuuu"><rect x="345" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuuuuuuu"><rect x="412" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuuuuuuu"><rect x="479" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuuuuuuu"><rect x="546" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuuuuuuu"><rect x="613" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuuuuuuu"><rect x="680" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuuuuuuu"><rect x="747" y="110"></rect></g>
+    <g class="TableauTail" deal="uuuuuuuuuuuu"><rect x="814" y="110"></rect></g>
+
+    <g class="StockScorpion">
+      <rect x="10" y="-100"></rect>
+    </g>

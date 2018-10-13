@@ -1,0 +1,38 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Bisley",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Bisley_(solitaire)",
+  "Winnable":[210950],
+  "Stock":{"packs":1, "hidden":1},
+  "Foundation":{"suit":2, "rank":1, "scatter":"None"},
+  "Tableau":{"build":{"suit":2, "rank":4}, "move":{"suit":2, "rank":4}, "accept":"\u00D7"}
+}
+</script>  
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="Stock"><rect x="814" y="10"></rect></g>
+
+    <g class="Foundation" accept="13" reverse="1"><rect  x="10" y="10"></rect></g>
+    <g class="Foundation" accept="13" reverse="1"><rect  x="77" y="10"></rect></g>
+    <g class="Foundation" accept="13" reverse="1"><rect x="144" y="10"></rect></g>
+    <g class="Foundation" accept="13" reverse="1"><rect x="211" y="10"></rect></g>
+
+    <g class="Foundation" deal="♥01"><rect  x="10" y="110"></rect></g>
+    <g class="Foundation" deal="♦01"><rect  x="77" y="110"></rect></g>
+    <g class="Foundation" deal="♣01"><rect x="144" y="110"></rect></g>
+    <g class="Foundation" deal="♠01"><rect x="211" y="110"></rect></g>
+
+    <g class="Tableau" deal="uuu"><rect  x="10" y="210"></rect></g>
+    <g class="Tableau" deal="uuu"><rect  x="77" y="210"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="144" y="210"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="211" y="210"></rect></g>
+
+    <g class="Tableau" deal="uuuu"><rect x="278" y="210"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="345" y="210"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="412" y="210"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="479" y="210"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="546" y="210"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="613" y="210"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="680" y="210"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="747" y="210"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="814" y="210"></rect></g>

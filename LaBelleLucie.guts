@@ -1,0 +1,44 @@
+<script type="application/json" id="rules">
+{
+    "Name":"La Belle Lucie",
+    "Wikipedia":"https://en.wikipedia.org/wiki/La_Belle_Lucie",
+    "Winnable":[],
+    "Cards":{"suit":"BottomLeft"},
+    "Stock":{"packs":1, "redeals":2},
+    "Foundation":{"suit":2, "rank":1, "accept":1},
+    "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":"\u00D7", "fan":"Right", "maxfan":190}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="StockFan">
+      <rect x="10" y="10"></rect>
+    </g>
+    
+    <rect x="1100" style="display:none"></rect>  <!-- dummy invisible rect for viewBox -->
+
+    <g class="Foundation"><rect x="210" y="10"></rect></g>
+    <g class="Foundation"><rect x="410" y="10"></rect></g>
+    <g class="Foundation"><rect x="610" y="10"></rect></g>
+    <g class="Foundation"><rect x="810" y="10"></rect></g>
+
+    <g class="Tableau" deal="uuu"><rect x="10"  y="110"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="210" y="110"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="410" y="110"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="610" y="110"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="810" y="110"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="1010" y="110"></rect></g>
+
+    <g class="Tableau" deal="uuu"><rect x="10"  y="210"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="210" y="210"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="410" y="210"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="610" y="210"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="810" y="210"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="1010" y="210"></rect></g>
+
+    <g class="Tableau" deal="uuu"><rect  x="10" y="310"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="210" y="310"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="410" y="310"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="610" y="310"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="810" y="310"></rect></g>
+    <g class="Tableau" deal="u"><rect x="1010" y="310"></rect></g>

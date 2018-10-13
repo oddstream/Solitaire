@@ -1,0 +1,28 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Gnat",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Frog_(game)",
+  "Winnable":[],
+  "Stock":{"packs":1, "redeals":0},
+  "Waste":{"maxcards":1},
+  "Reserve":{"target":"Foundation"},
+  "Foundation":{"suit":2, "rank":1, "accept":1},
+  "Tableau":{"build":{"suit":1, "rank":5}, "move":{"suit":1, "rank":5}, "target":"Foundation"}
+}
+</script>
+  
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="StockKlondike"><rect x="10" y="10"></rect></g>
+    <g class="Waste"><rect x="77" y="10"></rect></g>
+    
+    <g class="Reserve" deal="uuuuuu"><rect x="10" y="110"></rect></g>
+
+    <g class="Foundation" deal="♥01""><rect x="144" y="10"></rect></g>
+    <g class="Foundation" deal="♦01""><rect x="211" y="10"></rect></g>
+    <g class="Foundation" deal="♣01""><rect x="278" y="10"></rect></g>
+    <g class="Foundation" deal="♠01""><rect x="345" y="10"></rect></g>
+
+    <g class="Tableau"><rect x="144" y="110"></rect></g>
+    <g class="Tableau"><rect x="211" y="110"></rect></g>
+    <g class="Tableau"><rect x="278" y="110"></rect></g>
+    <g class="Tableau"><rect x="345" y="110"></rect></g>
