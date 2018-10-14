@@ -1,0 +1,19 @@
+# ignore generated html files
+*.html
+# except ones which are maintained by hand
+!faq.html
+!index.html
+
+# ignore old gulp node_modules folder
+node_modules/*
+
+# ignore js and css folders containing Materialize
+js/*
+css/*
+
+test/*
+img/*
+.vscode/*
+make.exe
+package*.json
+desktop.ini

@@ -97,12 +97,12 @@ const Util = {
         }
         return pt;
     },
-/*
-    samePoint: function(pt1, pt2)
-    {
-        return ( (pt1.x === pt2.x) && (pt1.y === pt2.y) );
-    },
-*/
+
+    // samePoint: function(pt1, pt2)
+    // {
+    //     return ( (pt1.x === pt2.x) && (pt1.y === pt2.y) );
+    // },
+
     nearlySamePoint: function(pt1, pt2)
     {
         const xMin = pt1.x - 2;
@@ -466,7 +466,7 @@ class Card
                 }
                 else
                 {
-                    console.error('Unknown rules.Cards.suit', rules.Cards.suit)
+                    console.error('Unknown rules.Cards.suit', rules.Cards.suit);
                 }
                 g.appendChild(u);
             }
@@ -491,7 +491,7 @@ class Card
                 }
                 else
                 {
-                    console.error('Unknown rules.Cards.suit', rules.Cards.suit)
+                    console.error('Unknown rules.Cards.suit', rules.Cards.suit);
                 }
                 t.setAttributeNS(null, 'fill', this.color);
                 t.innerHTML = this.suit;
@@ -1108,14 +1108,14 @@ class CardContainer
     {
         console.error('onclick not implemented in base CardContainer', c);
     }
-/*
-    dump()
-    {
-        let str = '';
-        this.cards.forEach( c => str = str.concat(c.id + ' ') );
-        console.log(str);
-    }
-*/
+
+    // dump()
+    // {
+    //     let str = '';
+    //     this.cards.forEach( c => str = str.concat(c.id + ' ') );
+    //     console.log(str);
+    // }
+
     sort(seed)
     {   // seed may be undefined or 0
         if ( seed )
@@ -1401,11 +1401,12 @@ class CardContainer
 
     _resetStackFactor(rules)
     {
-        switch ( rules.fan ) {
-            case 'Right':
-            case 'Left':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;    break;
-            case 'Down':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_Y;    break;
-            case 'None':    this.stackFactor = 0;                                   break;
+        switch ( rules.fan )
+        {
+        case 'Right':
+        case 'Left':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;    break;
+        case 'Down':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_Y;    break;
+        case 'None':    this.stackFactor = 0;                                   break;
         }
     }
 
@@ -2764,8 +2765,6 @@ class TableauTail extends Tableau
 {
     canGrab(c)
     {   // override to grab a conformant tail
-        // if ( c.faceDown )
-            // return null;
         const tail = c.getTail();
         if ( !isConformant(rules.Tableau.move, tail) )
         {
@@ -3146,7 +3145,7 @@ function englishRules(rules)
 
 function isComplete()
 {
-   return listOfCardContainers.every( cc => cc.isComplete() );
+    return listOfCardContainers.every( cc => cc.isComplete() );
 }
 
 function isSolveable()
@@ -3157,21 +3156,6 @@ function isSolveable()
 function autoSolve(ord=0)
 {
     let cardMoved = false;
-/*
-    let min = 13;
-    let max = 0;
-    foundations.forEach( f => {
-        let c = f.cards.peek();
-        if ( c )
-        {
-            if ( c.ordinal > max )
-                max = c.ordinal;
-            else if ( c.ordinal < min )
-                min = c.ordinal;
-        }
-    });
-    console.log('foundation spread', min, max);
-*/
     foundations.forEach( f => {
         waitForCards().then( () => {
             if ( f.autoSolve(ord) )
@@ -3405,8 +3389,8 @@ modalSettings.options.onCloseEnd = function()
 const modalStatistics = M.Modal.getInstance(document.getElementById('modalStatistics'));
 modalStatistics.options.onOpenStart = function() {
     document.getElementById('gamesPlayedStats').innerHTML = stats[rules.Name].totalGames === 0
-    ? `You've not played ${rules.Name} before`
-    : `You've played ${rules.Name} ${stats[rules.Name].totalGames} times, and won ${stats[rules.Name].gamesWon} (${Math.round(stats[rules.Name].gamesWon/stats[rules.Name].totalGames*100)}%)`;
+        ? `You've not played ${rules.Name} before`
+        : `You've played ${rules.Name} ${stats[rules.Name].totalGames} times, and won ${stats[rules.Name].gamesWon} (${Math.round(stats[rules.Name].gamesWon/stats[rules.Name].totalGames*100)}%)`;
 
     {
         let s = 'In this game you\'ve made ';
@@ -3525,7 +3509,7 @@ function displayToast(msg)
     //     }
     // }
     // for (let toastIndex in M.Toast._toasts) {
-        // M.Toast._toasts[toastIndex].dismiss();
+    //      M.Toast._toasts[toastIndex].dismiss();
     // }
 
     if ( !toastElement )
@@ -3564,7 +3548,7 @@ document.getElementById('nav-title').innerHTML = rules.Name;
 document.getElementById('sidenav-title').innerHTML = rules.Name;
 
 ['Name','Cards','Stock','Waste','Foundation','Tableau','Cell','Reserve','Winnable','Wikipedia']
-.forEach( ele => { if ( !rules.hasOwnProperty(ele)) rules[ele] = {}; });
+    .forEach( ele => { if ( !rules.hasOwnProperty(ele)) rules[ele] = {}; });
 if ( !rules.Cards.hasOwnProperty('suit') )          rules.Cards.suit = 'TopRight';  // where to display suit symbol
 
 if ( !rules.Stock.hasOwnProperty('packs') )         rules.Stock.packs = 1;
