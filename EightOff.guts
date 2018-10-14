@@ -2,7 +2,7 @@
 {
     "Name":"Eight Off",
     "Wikipedia":"https://en.wikipedia.org/wiki/Eight_Off",
-    "Winnable":[866871],
+    "Winnable":[198382,866871],
     "Stock":{"packs":1},        
     "Foundation":{"suit":2, "rank":1, "scatter":"Left", "accept":1},
     "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":13}

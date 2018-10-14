@@ -5,7 +5,9 @@ objects := $(patsubst %.guts,%.html,$(sources))
 
 %.html: %.guts $(deps)
 #>if exist $@ del $@
->@copy /Y header.txt+$(patsubst %.html,%.guts,$@)+symbols.svg+footer.txt $@
+# SUB is a control character; ASCII 26 decimal, 1A hex, also called Control-Z.
+# It is appended by the copy command in text (default) mode. To avoid it use copy with the /b (binary) switch.
+>@copy /B /Y header.txt+$(patsubst %.html,%.guts,$@)+symbols.svg+footer.txt $@
 #>type header.txt >> $@
 #>type $(patsubst %.html,%.guts,$@) >> $@
 #>type symbols.svg >> $@

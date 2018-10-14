@@ -2,7 +2,7 @@
 {
   "Name":"Limited",
   "Wikipedia":"https://en.wikipedia.org/wiki/Forty_Thieves_(card_game)",
-  "Winnable":[288659,291907,510257,666345,763505],
+  "Winnable":[288659,291907,321482,510257,666345,763505],
   "Stock":{"packs":2, "redeals":0},      
   "Foundation":{"suit":2, "rank":1, "accept":1},
   "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}}

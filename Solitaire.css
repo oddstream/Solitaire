@@ -2,7 +2,7 @@
 
 @media (pointer:none), (pointer:coarse) {
     body {
-        overflow-y: hidden;
+        overflow: hidden;
         touch-action: none;
     }
 }

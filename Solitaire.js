@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.11.0',
+    GAME_VERSION: '0.10.14.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -510,9 +510,9 @@ class Card
         // http://www.open.ac.uk/blogs/brasherblog/?p=599
         // the ordinal and suit symbols use css pointer-event: none so the events pass through to their parent (the rect)
         g.addEventListener('pointerover', this.overHandler);
+        console.assert(!g.hasDownListener);
         g.addEventListener('pointerdown', this.downHandler);
-        // g.addEventListener('mousedown', this.downHandler);
-        // g.addEventListener('touchstart', this.downHandler);
+        g.hasDownListener = true;
     }
 
     _removeListeners(g)
@@ -523,26 +523,16 @@ class Card
 
     _addDragListeners()
     {
-        window.addEventListener('pointermove', this.moveHandler, {passive:false});
-        // window.addEventListener('mousemove', this.moveHandler);
-        // window.addEventListener('touchmove', this.moveHandler);
-        window.addEventListener('pointerup', this.upHandler, {passive:false});
-        // window.addEventListener('mouseup', this.upHandler);
-        // window.addEventListener('touchend', this.upHandler);
+        window.addEventListener('pointermove', this.moveHandler);
+        window.addEventListener('pointerup', this.upHandler);
         window.addEventListener('pointercancel', this.cancelHandler);
-        // window.addEventListener('touchcancel', this.cancelHandler);
     }
 
     _removeDragListeners()
     {
         window.removeEventListener('pointermove', this.moveHandler);
-        // window.removeEventListener('mousemove', this.moveHandler);
-        // window.removeEventListener('touchmove', this.moveHandler);
         window.removeEventListener('pointerup', this.upHandler);
-        // window.removeEventListener('mouseup', this.upHandler);
-        // window.removeEventListener('touchend', this.upHandler);
         window.removeEventListener('pointercancel', this.cancelHandler);
-        // window.removeEventListener('touchcancel', this.cancelHandler);
         // this.g.releasePointerCapture(event.pointerId);  /// useless
     }
 
@@ -576,8 +566,31 @@ class Card
 
     onpointerdown(event)
     {   console.assert(this instanceof Card);
-        // event.stopPropagation();
+        event.stopImmediatePropagation();
         event.preventDefault();
+
+        /*
+            https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Supporting_both_TouchEvent_and_MouseEvent#Event_order
+
+            touchstart
+            zero or more touchmove events
+            touchend
+            mousemove
+            mousedown
+            mouseup
+            click
+
+            ... so Firefox sends a "touch" event followed by a "mouse" event, which we interpret as two seperate events
+            ... so we need to stifle the second event
+            ... event.preventDefault() and/or event.preventDefault(event) don't stop it
+            ... Chrome and Edge don't do this
+        */
+        if ( this.owner.lastEvent )
+        {
+            if ( event.pointerType !== this.owner.lastEvent.pointerType && event.timeStamp < this.owner.lastEvent.timeStamp + 1000 )
+                return;
+        }
+        this.owner.lastEvent = event;
 
         if ( event.pointerType === 'mouse' )
         {
@@ -647,7 +660,7 @@ class Card
     onpointermove(event)
     {   console.assert(this instanceof Card);
         console.assert(this.grabbedTail);
-        // event.stopPropagation();
+        event.stopImmediatePropagation();
         event.preventDefault();
 
         const ptNew = this._getPointerPoint(event);
@@ -664,7 +677,7 @@ class Card
     onpointerup(event)
     {   console.assert(this instanceof Card);
         console.assert(this.grabbedTail);
-        // event.stopPropagation();
+        event.stopImmediatePropagation();
         event.preventDefault();
 
         const ptNew = this._getPointerPoint(event);
@@ -3267,6 +3280,8 @@ function restart(seed)
     undo.length = 0;
     tallyMan.reset();
     foundations.forEach( f => f.scattered = false );
+    if ( stats[rules.Name].saved )
+        delete stats[rules.Name].saved; // .saved will now be 'undefined'
     dealCards();
 }
 
