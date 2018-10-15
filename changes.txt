@@ -1,3 +1,7 @@
+15/10/2018
+Stifle second Firefox touch/mouse pointerdown event
+autoSolve from cells (as well as tableaux)
+
 11/10/2018
 Retired AUTOCOLLECT_ACES
 

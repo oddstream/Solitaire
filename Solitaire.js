@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.14.0',
+    GAME_VERSION: '0.10.15.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -45,10 +45,10 @@ const Constants = {
     AUTOCOLLECT_ANY: 3
 };
 
-if ( !(Constants.CHROME || Constants.EDGE || Constants.FIREFOX) )
-    window.alert('Browser not recognised; if this works, it\'s by accident');
-else if ( !window.PointerEvent )
-    window.alert('Pointer events not supported');
+// if ( !(Constants.CHROME || Constants.EDGE || Constants.FIREFOX) )
+//     window.alert(`Browser (${navigator.userAgent}) not supported`);
+// else if ( !window.PointerEvent )
+//     window.alert('Pointer events not supported');
 
 // @ts-ignore
 if ('function' !== typeof Array.prototype.peek) {
@@ -152,6 +152,15 @@ findCard: function(target)
     return card;
 }
 */
+    absorbEvent: function(event)
+    {
+        var e = event || window.event;
+        e.preventDefault && e.preventDefault();
+        e.stopPropagation && e.stopPropagation();
+        e.cancelBubble = true;
+        e.returnValue = false;
+        return false;
+    }
 };
 
 /**
@@ -217,6 +226,9 @@ class Baize
         this._gutsWidth += Constants.CARD_WIDTH + 10;
 
         this._setBox();
+
+        console.log(this._ele.style.touchAction);
+        this._ele.style.touchAction = 'none';
     }
 
     _addBorder()
@@ -341,6 +353,9 @@ class Mover
 
 const tallyMan = new Mover;
 
+// https://stackoverflow.com/questions/20368071/touch-through-an-element-in-a-browser-like-pointer-events-none/20387287#20387287
+function dummyTouchStartHandler(e) {e.preventDefault();};
+
 class Card
 {
     constructor(pack, suit, ordinal, faceDown, pt)
@@ -408,6 +423,7 @@ class Card
     {
         const r = document.createElementNS(Constants.SVG_NAMESPACE, 'rect');
         r.classList.add(cl);
+        r.style.touchAction = 'none';
         if ( Constants.PEP )
             r.setAttributeNS(null, 'touch-action', 'none'); // https://github.com/jquery/PEP
         r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
@@ -510,15 +526,15 @@ class Card
         // http://www.open.ac.uk/blogs/brasherblog/?p=599
         // the ordinal and suit symbols use css pointer-event: none so the events pass through to their parent (the rect)
         g.addEventListener('pointerover', this.overHandler);
-        console.assert(!g.hasDownListener);
         g.addEventListener('pointerdown', this.downHandler);
-        g.hasDownListener = true;
+        g.addEventListener('touchstart', dummyTouchStartHandler);
     }
 
     _removeListeners(g)
     {
-        g.removeEventListener('pointerdown', this.downHandler);
         g.removeEventListener('pointerover', this.overHandler);
+        g.removeEventListener('pointerdown', this.downHandler);
+        g.removeEventListener('touchstart', dummyTouchStartHandler);
     }
 
     _addDragListeners()
@@ -533,7 +549,6 @@ class Card
         window.removeEventListener('pointermove', this.moveHandler);
         window.removeEventListener('pointerup', this.upHandler);
         window.removeEventListener('pointercancel', this.cancelHandler);
-        // this.g.releasePointerCapture(event.pointerId);  /// useless
     }
 
     onclick(event)
@@ -566,8 +581,7 @@ class Card
 
     onpointerdown(event)
     {   console.assert(this instanceof Card);
-        event.stopImmediatePropagation();
-        event.preventDefault();
+        Util.absorbEvent(event);
 
         /*
             https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Supporting_both_TouchEvent_and_MouseEvent#Event_order
@@ -588,7 +602,7 @@ class Card
         if ( this.owner.lastEvent )
         {
             if ( event.pointerType !== this.owner.lastEvent.pointerType && event.timeStamp < this.owner.lastEvent.timeStamp + 1000 )
-                return;
+                return false;
         }
         this.owner.lastEvent = event;
 
@@ -597,30 +611,29 @@ class Card
             if ( !(event.button === 0) )
             {
                 console.log('don\'t care about mouse button', event.button);
-                return;
+                return false;
             }
         }
 
         if ( this.grabbedTail )
         {
             console.warn('grabbing a grabbed card', this.id);
-            return;
+            return false;
         }
 
         if ( this.inTransit )
         {
             console.warn('grabbing a moving card', this.id);
-            return;
+            return false;
         }
 
         this.grabbedTail = this.owner.canGrab(this);
         if ( !this.grabbedTail )
         {
             console.log('can\'t grab', this.id);
-            return;
+            return false;
         }
 
-        // this.g.setPointerCapture(event.pointerId);  // useless
         this.ptOriginalPointerDown = this._getPointerPoint(event);
         this.grabbedTail.forEach( c =>
         {
@@ -660,16 +673,15 @@ class Card
     onpointermove(event)
     {   console.assert(this instanceof Card);
         console.assert(this.grabbedTail);
-        event.stopImmediatePropagation();
-        event.preventDefault();
+        Util.absorbEvent(event);
 
         const ptNew = this._getPointerPoint(event);
         this._scalePointer(ptNew);
         this.grabbedTail.forEach( c =>
         {
             c.position0(ptNew.x - c.ptOffset.x, ptNew.y - c.ptOffset.y);
-            console.assert(c.ptOffset.x===ptNew.x - c.pt.x);
-            console.assert(c.ptOffset.y===ptNew.y - c.pt.y);
+            // console.assert(c.ptOffset.x===ptNew.x - c.pt.x);
+            // console.assert(c.ptOffset.y===ptNew.y - c.pt.y);
         });
         return false;
     }
@@ -677,8 +689,7 @@ class Card
     onpointerup(event)
     {   console.assert(this instanceof Card);
         console.assert(this.grabbedTail);
-        event.stopImmediatePropagation();
-        event.preventDefault();
+        Util.absorbEvent(event);
 
         const ptNew = this._getPointerPoint(event);
         const ptNewCard = Util.newPoint(
@@ -774,6 +785,7 @@ class Card
             this.pt.x = x;
             this.pt.y = y;
         }
+        
         this.g.setAttributeNS(null, 'transform', `translate(${this.pt.x} ${this.pt.y})`);
     }
 
@@ -1193,9 +1205,16 @@ class CardContainer
             if ( dst === this )
                 continue;
             if ( c.owner.canTarget(dst) && dst.canAcceptCard(c) )
-            {   // console.log(dst, 'can accept', c.id);
-                count += 1;
-                c.markMoveable(true);
+            {
+                if ( dst.cards.length === 0 && 0 === c.owner.cards.findIndex( e => e === c ) )
+                {
+                    // moving empty tab to empty tab - legal but not useful
+                }
+                else
+                {
+                    count += 1;
+                    c.markMoveable(true);
+                }
             }
         }
         return count;
@@ -2361,9 +2380,7 @@ class Foundation extends CardContainer
 
     autoSolve(ord)
     {
-        let cardMoved = false;
-        tableaux.forEach( t => {
-            const c = t.peek();
+        const _solve = (c) => {
             if ( c && !c.faceDown )
             {
                 if ( ord === 0 || c.ordinal === ord )
@@ -2375,6 +2392,14 @@ class Foundation extends CardContainer
                     }
                 }
             }
+        }
+
+        let cardMoved = false;
+        cells.forEach( cc => {
+            _solve(cc.peek());
+        });
+        tableaux.forEach( t => {
+            _solve(t.peek());
         });
         return cardMoved;
     }
@@ -3645,6 +3670,8 @@ const reserve = reserves[0];
 document.documentElement.style.setProperty('--bg-color', 'darkgreen');
 document.documentElement.style.setProperty('--hi-color', 'lightgreen');
 document.documentElement.style.setProperty('--ffont', 'Acme');
+
+document.addEventListener('contextmenu', event => event.preventDefault());
 
 window.onbeforeunload = function(e) {
     // if scattered, force a new game, otherwise loaded game won't be scattered

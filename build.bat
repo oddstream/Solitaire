@@ -3,8 +3,9 @@
 for %%f in (*.guts) do (
     echo %%~nf
     del %%~nf.html
-    type Header.txt >> %%~nf.html
-    type %%~nf.guts >> %%~nf.html
-    type symbols.svg >> %%~nf.html
-    type Footer.txt >> %%~nf.html
+    @copy /B /Y header.txt+%%~nf.guts+symbols.svg+footer.txt %%~nf.html
+REM    type Header.txt >> %%~nf.html
+REM    type %%~nf.guts >> %%~nf.html
+REM    type symbols.svg >> %%~nf.html
+REM    type Footer.txt >> %%~nf.html
 )

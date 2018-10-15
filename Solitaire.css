@@ -18,13 +18,14 @@ svg {
            user-select: none; /* Non-prefixed version, currently
                                  supported by Chrome and Opera */
     touch-action: none;
+    position: static;
 }
 
 .spielkarte {
     fill:white;
     stroke-width: 1;
     stroke:silver;
-    pointer-events: all;
+    pointer-events: fill;
     touch-action: none;
 }
 
@@ -32,7 +33,7 @@ svg {
     fill:rgb(233,233,233);
     stroke-width: 1;
     stroke:silver;
-    pointer-events: all;
+    pointer-events: fill;
     touch-action: none;
 }
 
@@ -40,7 +41,7 @@ svg {
     fill:steelblue;
     stroke-width: 1;
     stroke:silver;
-    pointer-events: all;
+    pointer-events: fill;
     touch-action: none;
 }
 
@@ -49,6 +50,7 @@ svg {
     font-size: 24px /*2.1vw*/;
     /* fill here gets ignored */
     pointer-events: none;
+    touch-action: none;
 }
 
 .spielkartesuit {
@@ -56,21 +58,9 @@ svg {
     font-size: 28px /*2.6vw*/;
     /* fill here gets ignored */
     pointer-events: none;
+    touch-action: none;
 }
-/*
-@media (pointer:none), (pointer:coarse) {
-    .spielkartevalue {
-        font-family: sans-serif;
-        font-size: 22px;
-        pointer-events: none;
-    }
-    .spielkartesuit {
-        font-family: sans-serif;
-        font-size: 22px;
-        pointer-events: none;
-    }
-}
-*/
+
 .Reserve, .ReserveFrog, .Stock, .StockAgnes, .StockCruel, .StockFan, .StockGolf, .StockKlondike, .StockScorpion, .StockSpider, .Waste {
     fill: var(--bg-color, darkgreen);
     stroke: none;
