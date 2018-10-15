@@ -580,7 +580,7 @@ class Card
             mouseup
             click
 
-            ... so Firefox sends a "touch" event followed by a "mouse" event, which we interpret as two seperate events
+            ... so Firefox sends a "touch" event followed by a "mouse" event, which we interpret as two separate events
             ... so we need to stifle the second event
             ... event.preventDefault() and/or event.preventDefault(event) don't stop it
             ... Chrome and Edge don't do this
