@@ -2,6 +2,9 @@
 Stifle second Firefox touch/mouse pointerdown event
 autoSolve from cells (as well as tableaux)
 added dummyTouchStart handler for Chrome/Anroid dragging false pointercancel
+Golf Foundation counts % complete properly (bit of a kludge)
+Delete saved game when redealing
+Don't highlight empty tab -> empty tabs moves
 
 11/10/2018
 Retired AUTOCOLLECT_ACES

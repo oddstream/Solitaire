@@ -1206,7 +1206,10 @@ class CardContainer
                 continue;
             if ( c.owner.canTarget(dst) && dst.canAcceptCard(c) )
             {
-                if ( dst.cards.length === 0 && 0 === c.owner.cards.findIndex( e => e === c ) )
+                if ( dst instanceof Tableau
+                    && c.owner instanceof Tableau
+                    && 0 === dst.cards.length
+                    && 0 === c.owner.cards.findIndex( e => e === c ) )
                 {
                     // moving empty tab to empty tab - legal but not useful
                 }
