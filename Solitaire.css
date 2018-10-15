@@ -1,10 +1,7 @@
 @import url('https://fonts.googleapis.com/css?family=Acme');
 
-@media (pointer:none), (pointer:coarse) {
-    body {
-        overflow: hidden;
-        touch-action: none;
-    }
+body {
+    overflow: auto;
 }
 
 svg { 
@@ -17,7 +14,7 @@ svg {
        -ms-user-select: none; /* Internet Explorer/Edge */
            user-select: none; /* Non-prefixed version, currently
                                  supported by Chrome and Opera */
-    touch-action: none;
+    /*touch-action: none;*/
     position: static;
 }
 

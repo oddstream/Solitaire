@@ -3450,7 +3450,10 @@ modalStatistics.options.onOpenStart = function() {
         let n = 0, c = 0;
         foundations.forEach( f => {
             n += f.cards.length;
-            c += 13;    // TODO Grandfather's Clock
+            if ( f instanceof FoundationGolf )
+                c += 52;
+            else
+                c += 13;    // TODO Grandfather's Clock
         });
         s += `, and ${Math.round(n/c*100)}% of the foundation is complete`;
         document.getElementById('thisGameStats').innerHTML = s;
@@ -3671,7 +3674,7 @@ document.documentElement.style.setProperty('--bg-color', 'darkgreen');
 document.documentElement.style.setProperty('--hi-color', 'lightgreen');
 document.documentElement.style.setProperty('--ffont', 'Acme');
 
-document.addEventListener('contextmenu', event => event.preventDefault());
+// document.addEventListener('contextmenu', event => event.preventDefault());
 
 window.onbeforeunload = function(e) {
     // if scattered, force a new game, otherwise loaded game won't be scattered

@@ -2,7 +2,7 @@
 {
   "Name":"Unusual",
   "Wikipedia":"https://en.wikipedia.org/wiki/Cruel_(solitaire)",
-  "Winnable":[3624,925991,984024],
+  "Winnable":[3624,39079,925991,984024],
   "Stock":{"packs":2},
   "Foundation":{"suit":2, "rank":1},
   "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":"\u00D7"}
