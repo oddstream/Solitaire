@@ -2,7 +2,7 @@
 {
     "Name":"Trefoil Relaxed",
     "Wikipedia":"https://en.wikipedia.org/wiki/La_Belle_Lucie",
-    "Winnable":[296641,482871],
+    "Winnable":[296641,482871,953793],
     "Cards":{"suit":"BottomLeft"},
     "Stock":{"packs":1, "redeals":1},
     "Foundation":{"suit":2, "rank":1},

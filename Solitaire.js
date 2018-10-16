@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.15.0',
+    GAME_VERSION: '0.10.16.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -13,7 +13,7 @@ const Constants = {
     EDGE:       navigator.userAgent.indexOf('Edge/') != -1,
     FIREFOX:    navigator.userAgent.indexOf('Firefox/') != -1,
 
-    PEP: false,
+    // PEP: false,
 
     SPADE: '\u2660',     // ♠ Alt 6
     CLUB: '\u2663',      // ♣ Alt 5
@@ -246,21 +246,21 @@ class Baize
         }
     }
 
-    _removeBorder()
-    {
-        if ( this._borderWidth )
-        {   console.log('removing', this._borderWidth);
-            document.querySelectorAll('rect').forEach( r => {
-                let x = Number.parseInt(r.getAttribute('x')) || 0;
-                r.setAttributeNS(null, 'x', String(x - this._borderWidth));
-            });
-            document.querySelectorAll('rect text').forEach( r => {
-                let x = Number.parseInt(r.getAttribute('x')) || 0;
-                r.setAttributeNS(null, 'x', String(x - this._borderWidth));
-            });
-        }
-        this._borderWidth = 0;
-    }
+    // _removeBorder()
+    // {
+    //     if ( this._borderWidth )
+    //     {   console.log('removing', this._borderWidth);
+    //         document.querySelectorAll('rect').forEach( r => {
+    //             let x = Number.parseInt(r.getAttribute('x')) || 0;
+    //             r.setAttributeNS(null, 'x', String(x - this._borderWidth));
+    //         });
+    //         document.querySelectorAll('rect text').forEach( r => {
+    //             let x = Number.parseInt(r.getAttribute('x')) || 0;
+    //             r.setAttributeNS(null, 'x', String(x - this._borderWidth));
+    //         });
+    //     }
+    //     this._borderWidth = 0;
+    // }
 
     _setBox()
     {
@@ -269,7 +269,6 @@ class Baize
 
         if ( window.screen.height > window.screen.width /*|| screen.orientation.angle === 0*/ )
         {   // portrait
-
         }
         else
         {   // landscape
@@ -285,7 +284,6 @@ class Baize
         this._ele.setAttributeNS(null, 'height', String(this._height));
 
         this._ele.setAttributeNS(null, 'viewBox', `0 0 ${this._width} ${this._height}`);
-        // this._ele.setAttributeNS(null, 'viewBox', `0 0 ${window.innerWidth} ${window.innerHeight}`);
         this._ele.setAttributeNS(null, 'preserveAspectRatio', 'xMinYMin slice');
 
         // console.log('guts', this._gutsWidth)
@@ -294,11 +292,11 @@ class Baize
         // console.log('window', window.innerWidth, window.innerHeight);
     }
 
-    onOrientationChange()
-    {
-        this._removeBorder();
-        this._setBox();
-    }
+    // onOrientationChange()
+    // {
+    //     this._removeBorder();
+    //     this._setBox();
+    // }
 
     get ele()
     {
@@ -424,8 +422,8 @@ class Card
         const r = document.createElementNS(Constants.SVG_NAMESPACE, 'rect');
         r.classList.add(cl);
         r.style.touchAction = 'none';
-        if ( Constants.PEP )
-            r.setAttributeNS(null, 'touch-action', 'none'); // https://github.com/jquery/PEP
+        // if ( Constants.PEP )
+        //     r.setAttributeNS(null, 'touch-action', 'none'); // https://github.com/jquery/PEP
         r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
         r.setAttributeNS(null, 'height', String(Constants.CARD_HEIGHT));
         r.setAttributeNS(null, 'rx', Constants.CARD_RADIUS);
@@ -436,9 +434,8 @@ class Card
     createSVG()
     {   console.assert(this instanceof Card);
         let g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
-        if ( Constants.PEP )
-            g.setAttributeNS(null, 'touch-action', 'none'); // https://github.com/jquery/PEP
-        // g.classList.add('spielkarteg');
+        // if ( Constants.PEP )
+        //     g.setAttributeNS(null, 'touch-action', 'none'); // https://github.com/jquery/PEP
 
         if ( this.faceDown )
         {
@@ -1452,9 +1449,9 @@ class CardContainer
         if ( rules.fan === 'Down' )
         {
             this.stackFactor = Constants.DEFAULT_STACK_FACTOR_Y;
-            const max = rules.maxfan === 0 ? baize._width : rules.maxfan;
+            const max = rules.maxfan === 0 ? baize._height - this.pt.y : rules.maxfan;
 
-            while ( this._dynamicY() + (Constants.CARD_HEIGHT/this.stackFactor) > max && this.stackFactor < Constants.MAX_STACK_FACTOR )
+            while ( this._dynamicY() > max && this.stackFactor < Constants.MAX_STACK_FACTOR )
                 this.stackFactor += (1.0/3.0);
             if ( this.stackFactor !== oldStackFactor )
             {
@@ -1470,9 +1467,9 @@ class CardContainer
         else if ( rules.fan === 'Right' )
         {
             this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;
-            const max = rules.maxfan === 0 ? baize._height : rules.maxfan;
+            const max = rules.maxfan === 0 ? baize._width - this.pt.x : rules.maxfan;
 
-            while ( this._dynamicX() + (Constants.CARD_WIDTH/this.stackFactor) > max && this.stackFactor < Constants.MAX_STACK_FACTOR )
+            while ( this._dynamicX() > max && this.stackFactor < Constants.MAX_STACK_FACTOR )
                 this.stackFactor += (1.0/3.0);
             if ( this.stackFactor !== oldStackFactor )
             {

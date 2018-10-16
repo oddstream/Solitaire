@@ -6,7 +6,7 @@
   "Cards":{"suit":"BottomLeft"},
   "Stock":{"packs":1, "redeals":0},
   "Foundation":{"suit":2, "rank":1, "accept":1, "scatter":"Right"},
-  "Tableau":{"build":{"suit":1, "rank":2}, "move":{"suit":1, "rank":2}, "fan":"Right", "maxfan":300}
+  "Tableau":{"build":{"suit":1, "rank":2}, "move":{"suit":1, "rank":2}, "fan":"Right", "maxfan":266}
 }
 </script>
 
