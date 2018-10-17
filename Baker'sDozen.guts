@@ -2,7 +2,7 @@
 {
   "Name":"Baker's Dozen",
   "Wikipedia":"https://en.wikipedia.org/wiki/Baker%27s_Dozen_(solitaire)",
-  "Winnable":[],
+  "Winnable":[289584],
   "Stock":{"packs":1, "hidden":1},
   "Foundation":{"suit":2, "rank":1, "accept":1},
   "Tableau":{"build":{"suit":1, "rank":2}, "move":{"suit":1, "rank":2}, "accept":"\u00D7", "bury":13}

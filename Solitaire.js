@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.16.0',
+    GAME_VERSION: '0.10.17.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -41,7 +41,7 @@ const Constants = {
 
     AUTOCOLLECT_OFF: 0,
     AUTOCOLLECT_SOLVEABLE: 1,
-    // AUTOCOLLECT_ACES: 2,
+    AUTOCOLLECT_ACES: 2,        // retired, keep around for startup legacy check
     AUTOCOLLECT_ANY: 3
 };
 
@@ -51,7 +51,8 @@ const Constants = {
 //     window.alert('Pointer events not supported');
 
 // @ts-ignore
-if ('function' !== typeof Array.prototype.peek) {
+if ( 'function' !== typeof Array.prototype.peek )
+{
     // @ts-ignore
     Array.prototype.peek = function() {
         return this[this.length-1];
@@ -173,7 +174,8 @@ findCard: function(target)
  */
 class Random
 {
-    constructor(seed) {
+    constructor(seed)
+    {
         this._seed = seed % 2147483647;
         if (this._seed <= 0) this._seed += 2147483646;
     }
@@ -182,7 +184,8 @@ class Random
      * Returns a pseudo-random value between 1 and 2^32 - 2.
      * @return {number}
     */
-    next() {
+    next()
+    {
         return this._seed = this._seed * 16807 % 2147483647;
     }
 
@@ -190,7 +193,8 @@ class Random
      * Returns a pseudo-random floating point number in range [0, 1].
      * @return {number}
     */
-    nextFloat() {
+    nextFloat()
+    {
         // We know that result of next() will be 1 to 2147483646 (inclusive).
         return (this.next() - 1) / 2147483646;
     }
@@ -200,7 +204,8 @@ class Random
     * Using Math.round() will give you a non-uniform distribution!
     * @return {number}
     */
-    nextInt(min, max) {
+    nextInt(min, max)
+    {
         return Math.floor(this.nextFloat() * (max - min + 1)) + min;
     }
 }
@@ -1203,12 +1208,11 @@ class CardContainer
                 continue;
             if ( c.owner.canTarget(dst) && dst.canAcceptCard(c) )
             {
-                if ( dst instanceof Tableau
-                    && c.owner instanceof Tableau
+                if ( ((dst instanceof Tableau && c.owner instanceof Tableau) || (dst instanceof Cell && c.owner instanceof Cell))
                     && 0 === dst.cards.length
-                    && 0 === c.owner.cards.findIndex( e => e === c ) )
+                    && c === c.owner.cards[0] )
                 {
-                    // moving empty tab to empty tab - legal but not useful
+                    // moving empty cell/tab to empty cell/tab - legal but not useful
                 }
                 else
                 {
@@ -3427,7 +3431,8 @@ modalSettings.options.onCloseEnd = function()
 };
 
 const modalStatistics = M.Modal.getInstance(document.getElementById('modalStatistics'));
-modalStatistics.options.onOpenStart = function() {
+modalStatistics.options.onOpenStart = function()
+{
     document.getElementById('gamesPlayedStats').innerHTML = stats[rules.Name].totalGames === 0
         ? `You've not played ${rules.Name} before`
         : `You've played ${rules.Name} ${stats[rules.Name].totalGames} times, and won ${stats[rules.Name].gamesWon} (${Math.round(stats[rules.Name].gamesWon/stats[rules.Name].totalGames*100)}%)`;
@@ -3476,17 +3481,21 @@ modalStatistics.options.onOpenStart = function() {
     if ( totalPlayed )
         document.getElementById('gamesTotalStats').innerHTML = `In total, you have played ${totalPlayed} games and won ${totalWon} of them (${Math.round(totalWon/totalPlayed*100)}%)`;
 };
-modalStatistics.options.onCloseEnd = function() {
+
+modalStatistics.options.onCloseEnd = function()
+{
 };
 
 const modalGameOver = M.Modal.getInstance(document.getElementById('modalGameOver'));
-modalGameOver.options.onOpenStart = function() {
+modalGameOver.options.onOpenStart = function()
+{
     document.getElementById('movesMade').innerHTML = `Game ${stats[rules.Name].seed} of ${rules.Name} solved in ${tallyMan.count} moves; your average is ${Math.round(stats[rules.Name].totalMoves/stats[rules.Name].gamesWon)}`;
     document.getElementById('gamesPlayed').innerHTML = `You've played ${rules.Name} ${stats[rules.Name].totalGames} times, and won ${stats[rules.Name].gamesWon}`;
     document.getElementById('gamesStreak').innerHTML = `Your current winning streak is ${stats[rules.Name].currStreak}, your best winning streak is ${stats[rules.Name].bestStreak}, your worst is ${stats[rules.Name].worstStreak}`;
 };
 
-modalGameOver.options.onCloseEnd = function() {
+modalGameOver.options.onCloseEnd = function()
+{
 };
 
 const modalAreYouSure = M.Modal.getInstance(document.getElementById('modalAreYouSure'));
@@ -3499,7 +3508,8 @@ function areYouSure(f)
 }
 
 const modalShowRules = M.Modal.getInstance(document.getElementById('modalShowRules'));
-modalShowRules.options.onOpenStart = function() {
+modalShowRules.options.onOpenStart = function()
+{
     let r = '<p>' + stock.english() + '</p>';
     [waste,foundations[0],tableaux[0],cells[0],reserve].forEach( cc => {
         if ( cc )
@@ -3646,6 +3656,8 @@ if ( !stats.Options )
 
 if ( stats.Options.aniSpeed < 1 || stats.Options.aniSpeed > 5 )
     stats.Options.aniSpeed = 3;
+if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_ACES )
+    stats.Options.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
 
 if ( !stats[rules.Name] )               stats[rules.Name] = {};
 if ( !stats[rules.Name].totalMoves )    stats[rules.Name].totalMoves = 0;
@@ -3676,7 +3688,8 @@ document.documentElement.style.setProperty('--ffont', 'Acme');
 
 // document.addEventListener('contextmenu', event => event.preventDefault());
 
-window.onbeforeunload = function(e) {
+window.onbeforeunload = function(e)
+{
     // if scattered, force a new game, otherwise loaded game won't be scattered
     if ( foundations.some( f => f.scattered ) )
         delete stats[rules.Name].saved;
@@ -3691,7 +3704,8 @@ window.onbeforeunload = function(e) {
 //    e.returnValue = stats[rules.Name];
 };
 
-function someCardsInTransit() {
+function someCardsInTransit()
+{
     listOfCardContainers.forEach( cc => {
         if ( cc.cards.some( c => c.inTransit ) )
             return true;
@@ -3712,7 +3726,8 @@ var waitForCards = () => new Promise((resolve,reject) => {
     window.setTimeout(check, 1);
 });
 
-function robot() {
+function robot()
+{
     waitForCards().then ( () => {
         autoCollect();
     });
@@ -3742,7 +3757,8 @@ document.addEventListener('keyup', function(ev) {
     // console.log(ev,ev.keyCode);
 });
  */
-document.addEventListener('keypress', function(ev) {
+document.addEventListener('keypress', function(ev)
+{
     // console.log(ev,ev.keyCode);
     if ( ev.keyCode === 26 && ev.ctrlKey )           // Chrome
         doundo();
