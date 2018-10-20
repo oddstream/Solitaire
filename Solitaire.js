@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.17.0',
+    GAME_VERSION: '0.10.19.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -2245,7 +2245,7 @@ class Waste extends CardContainer
 
     canAcceptCard(c)
     {
-        return false;
+        return c.owner instanceof Stock;
     }
 
     canTarget(cc)
@@ -2757,7 +2757,7 @@ class Tableau extends CardContainer
             return;
 
         let cc = null;
-        if ( foundations[0] instanceof FoundationSpider )
+        if ( foundations[0] instanceof FoundationSpider )   // TODO subclass to get rid of this ugly hack
             cc = c.findFullestAcceptingContainer(foundations);
         else if ( this.cards.peek() === c )
             cc = c.findFullestAcceptingContainer(foundations);
@@ -3704,26 +3704,26 @@ window.onbeforeunload = function(e)
 //    e.returnValue = stats[rules.Name];
 };
 
-function someCardsInTransit()
-{
+const someCardsInTransit = () => {
     listOfCardContainers.forEach( cc => {
         if ( cc.cards.some( c => c.inTransit ) )
             return true;
     });
     return false;
-}
+};
 
-var waitForCards = () => new Promise((resolve,reject) => {
+const waitForCards = () => new Promise((resolve,reject) => {
+    const timeoutStep = 250;
     let timeoutMs = 10000;
-    var check = () => {
+    const check = () => {
         if ( !someCardsInTransit() )
             resolve();
-        else if ( (timeoutMs -= 100) < 0 )
+        else if ( (timeoutMs -= timeoutStep) < 0 )
             reject('timed out');
         else
-            window.setTimeout(check, 100);
+            window.setTimeout(check, timeoutStep);
     };
-    window.setTimeout(check, 1);
+    window.setTimeout(check, 0);
 });
 
 function robot()

@@ -1,7 +1,7 @@
 <script type="application/json" id="rules">
 {
   "Name":"Courtyard",
-  "Winnable":[258739],
+  "Winnable":[223090,258739],
   "Wikipedia":"",
   "Stock":{"packs":2, "redeals":0},
   "Foundation":{"suit":2, "rank":1, "accept":1},

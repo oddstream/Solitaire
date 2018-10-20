@@ -51,7 +51,7 @@
     <div class="modal-footer">
       <a class="modal-close btn-small steelblue" href="index.html"><i class="material-icons">apps</i> New game</a>
       <a class="modal-close btn-small steelblue" onclick="dostar()"><i class="material-icons">star</i> New deal</a>
-      <a class="modal-close btn-small steelblue" onclick="doreplay()"><i class="material-icons">replay</i> Replay</a>
+      <!-- <a class="modal-close btn-small steelblue" onclick="doreplay()"><i class="material-icons">replay</i> Replay</a> -->
     </div>
 </div>
 
