@@ -680,8 +680,7 @@ class Card
     }
 
     onpointermove(event)
-    {   console.assert(this instanceof Card);
-        console.assert(this.grabbedTail);
+    {
         Util.absorbEvent(event);
 
         if ( this.revealed )
@@ -699,8 +698,7 @@ class Card
     }
 
     onpointerup(event)
-    {   console.assert(this instanceof Card);
-        console.assert(this.grabbedTail);
+    {
         Util.absorbEvent(event);
 
         if ( this.revealed )
@@ -708,6 +706,7 @@ class Card
             this.owner.cards.forEach( c => c.bringToTop() );
             this.revealed = false;
             this._removeDragListeners();
+            return false;
         }
 
         const ptNew = this._getPointerPoint(event);
@@ -743,6 +742,7 @@ class Card
 
         this.grabbedTail = null;
         this._removeDragListeners();
+        return false;
     }
 
     onpointercancel(event)
@@ -1045,10 +1045,8 @@ function doundo()
         }
     }
     undo = undo.filter( e => e.move !== m );
-    waitForCards().then( () => {    // TODO DRY
-        tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-        reserves.forEach( res => res.scrunchCards(rules.Reserve) );
-    });
+    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
     availableMoves();   // repaint moveable cards
 }
 
@@ -3752,6 +3750,8 @@ function robot()
     waitForCards().then ( () =>
     {
         autoCollect();
+        tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+        reserves.forEach( res => res.scrunchCards(rules.Reserve) );
         waitForCards().then( () =>
         {
             if ( (stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY || stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE)
@@ -3777,11 +3777,6 @@ function robot()
                 else if ( !availableMoves() )
                 {
                     displayToastNoAvailableMoves();
-                }
-                else
-                {
-                    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-                    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
                 }
             });
         });

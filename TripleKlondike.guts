@@ -2,7 +2,7 @@
 {
   "Name":"Triple Klondike",
   "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)",
-  "Winnable":[120620,585168,790911,847729,954457],
+  "Winnable":[120620,328679,585168,790911,847729,954457],
   "Stock":{"packs":3},
   "Foundation":{"suit":2, "rank":1, "accept":1},
   "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":4, "rank":2}, "accept":13}

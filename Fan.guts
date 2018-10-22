@@ -2,7 +2,7 @@
 {
   "Name":"Fan",
   "Wikipedia":"",
-  "Winnable":[],
+  "Winnable":[228768,658020],
   "Cards":{"suit":"BottomLeft"},
   "Stock":{"packs":1, "hidden":1},
   "Foundation":{"suit":2, "rank":1, "accept":1},
