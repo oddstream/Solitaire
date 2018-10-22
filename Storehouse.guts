@@ -2,7 +2,7 @@
 {
   "Name":"Storehouse",
   "Wikipedia":"https://en.wikipedia.org/wiki/Canfield_(solitaire)",
-  "Winnable":[128330,145458,891345],
+  "Winnable":[106425,128330,145458,891345],
   "Stock":{"packs":1, "redeals":2},
   "Foundation":{"suit":2, "rank":1, "rankwrap":1},
   "Tableau":{"build":{"suit":2, "rank":2, "rankwrap":1}, "move":{"suit":2, "rank":2, "rankwrap":1}}

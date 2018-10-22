@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.19.0',
+    GAME_VERSION: '0.10.21.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -623,11 +623,12 @@ class Card
             return false;
         }
 
-        if ( this.inTransit )
-        {
-            console.warn('grabbing a moving card', this.id);
-            return false;
-        }
+        // where's the harm in grabbing a moving card?
+        // if ( this.inTransit )
+        // {
+        //     console.warn('grabbing a moving card', this.id);
+        //     return false;
+        // }
 
         this.grabbedTail = this.owner.canGrab(this);
         if ( !this.grabbedTail )
@@ -1391,12 +1392,12 @@ class CardContainer
 
     _dynamicX(lim = this.cards.length)
     {
-        let w = 0;
+        let x = this.pt.x;
         for ( let i=0; i<lim; i++ )
-            w += this.cards[i].faceDown
+            x += this.cards[i].faceDown
                 ? Constants.FACEDOWN_STACK_WIDTH
                 : Math.round(Constants.CARD_WIDTH/this.stackFactor);
-        return w;
+        return x;
     }
 
     _dynamicArrayX()
@@ -1412,14 +1413,20 @@ class CardContainer
         return arr;
     }
 
-    _dynamicY(lim = this.cards.length)
+    /**
+     * returns the y position of a stacked card
+     * 
+     * @param {Number} n - the card whose position we want;
+     * if not specified, the position of the next card to be pushed is returned 
+     */
+    _dynamicY(n = this.cards.length)
     {
-        let h = 0;
-        for ( let i=0; i<lim; i++ )
-            h += this.cards[i].faceDown
+        let y = this.pt.y;
+        for ( let i=0; i<n; i++ )
+            y += this.cards[i].faceDown
                 ? Constants.FACEDOWN_STACK_HEIGHT
                 : Math.round(Constants.CARD_HEIGHT/this.stackFactor);
-        return h;
+        return y;
     }
 
     _dynamicArrayY()
@@ -1453,36 +1460,42 @@ class CardContainer
         if ( rules.fan === 'Down' )
         {
             this.stackFactor = Constants.DEFAULT_STACK_FACTOR_Y;
-            const max = rules.maxfan === 0 ? baize._height - this.pt.y : rules.maxfan;
+            const max = rules.maxfan === 0 ? baize._height - this.pt.y : this.pt.y + rules.maxfan;
 
-            while ( this._dynamicY() > max && this.stackFactor < Constants.MAX_STACK_FACTOR )
+            let arr = this._dynamicArrayY();
+            while ( arr.peek() + Constants.CARD_HEIGHT > max && this.stackFactor < Constants.MAX_STACK_FACTOR )
+            {
                 this.stackFactor += (1.0/3.0);
+                arr = this._dynamicArrayY();
+            }
             if ( this.stackFactor !== oldStackFactor )
             {
-                const arr = this._dynamicArrayY();
                 for ( let i=0; i<this.cards.length; i++ )
                 {
                     const c = this.cards[i];
-                    const pt = Util.newPoint(this.pt.x, arr[i]);
-                    c.animate(pt);  // can't use c.position0() (why not?)
+                    c.position0(this.pt.x, arr[i]);
+                    // const pt = Util.newPoint(this.pt.x, arr[i]);
+                    // c.animate(pt);
                 }
             }
         }
         else if ( rules.fan === 'Right' )
         {
             this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;
-            const max = rules.maxfan === 0 ? baize._width - this.pt.x : rules.maxfan;
+            const max = rules.maxfan === 0 ? baize._width - this.pt.x : this.pt.x + rules.maxfan;
 
-            while ( this._dynamicX() > max && this.stackFactor < Constants.MAX_STACK_FACTOR )
+            let arr = this._dynamicArrayX();
+            while ( arr.peek() + Constants.CARD_WIDTH > max && this.stackFactor < Constants.MAX_STACK_FACTOR )
+            {
                 this.stackFactor += (1.0/3.0);
+                arr = this._dynamicArrayX();
+            }
             if ( this.stackFactor !== oldStackFactor )
             {
-                const arr = this._dynamicArrayX();
                 for ( let i=0; i<this.cards.length; i++ )
                 {
                     const c = this.cards[i];
-                    const pt = Util.newPoint(arr[i], this.pt.y);
-                    c.animate(pt);  // can't use c.position0() (why not?)
+                    c.position0(arr[i], this.pt.y);
                 }
             }
         }
@@ -1604,9 +1617,9 @@ class Reserve extends CardContainer
 
         let pt = null;
         if ( rules.Reserve.fan === 'Down' )
-            pt = Util.newPoint(this.pt.x, this.pt.y + this._dynamicY());
+            pt = Util.newPoint(this.pt.x, this._dynamicY());
         else if ( rules.Reserve.fan === 'Right' )
-            pt = Util.newPoint(this.pt.x + this._dynamicX(), this.pt.y);
+            pt = Util.newPoint(this._dynamicX(), this.pt.y);
         else if ( rules.Reserve.fan === 'None' )
             pt = Util.newPoint(this.pt.x, this.pt.y);
         this.cards.push(c);
@@ -2061,9 +2074,9 @@ class StockCruel extends Stock
                 c.owner = tab;
                 c.bringToTop();
                 if ( rules.Tableau.fan === 'Down' )
-                    c.animate(Util.newPoint(tab.pt.x, tab.pt.y + tab._dynamicY(j)));
+                    c.animate(Util.newPoint(tab.pt.x, tab._dynamicY(j)));
                 else if ( rules.Tableau.fan === 'Right' )
-                    c.animate(Util.newPoint(tab.pt.x + tab._dynamicX(j), tab.pt.y));
+                    c.animate(Util.newPoint(tab._dynamicX(j), tab.pt.y));
             }
         }
     }
@@ -2309,9 +2322,9 @@ class Foundation extends CardContainer
     {   // override to fan
         let pt = null;
         if ( rules.Foundation.fan === 'Down' )
-            pt = Util.newPoint(this.pt.x, this.pt.y + this._dynamicY());
+            pt = Util.newPoint(this.pt.x, this._dynamicY());
         else if ( rules.Foundation.fan === 'Right' )
-            pt = Util.newPoint(this.pt.x + this._dynamicX(), this.pt.y);
+            pt = Util.newPoint(this._dynamicX(), this.pt.y);
         else if ( rules.Foundation.fan === 'None' )
             pt = Util.newPoint(this.pt.x, this.pt.y);
         this.cards.push(c);
@@ -2682,9 +2695,9 @@ class Tableau extends CardContainer
 
         let pt = null;
         if ( rules.Tableau.fan === 'Down' )
-            pt = Util.newPoint(this.pt.x, this.pt.y + this._dynamicY());
+            pt = Util.newPoint(this.pt.x, this._dynamicY());
         else if ( rules.Tableau.fan === 'Right' )
-            pt = Util.newPoint(this.pt.x + this._dynamicX(), this.pt.y);
+            pt = Util.newPoint(this._dynamicX(), this.pt.y);
         this.cards.push(c);
         c.owner = this;
         c.animate(pt);
@@ -3190,11 +3203,6 @@ function isComplete()
     return listOfCardContainers.every( cc => cc.isComplete() );
 }
 
-function isSolveable()
-{
-    return !listOfCardContainers.some( f => !f.isSolveable() );
-}
-
 function autoSolve(ord=0)
 {
     let cardMoved = false;
@@ -3322,16 +3330,6 @@ function dostar()
 function doreplay()
 {
     restart(stats[rules.Name].seed);
-}
-
-function docelebrate()
-{
-    foundations.forEach( f => f.scatter() );
-    waitForCards().then( () => {
-        undo.length = 0;
-        gameOver(true);
-        modalGameOver.open();
-    });
 }
 
 class Saved
@@ -3704,16 +3702,19 @@ window.onbeforeunload = function(e)
 //    e.returnValue = stats[rules.Name];
 };
 
-const someCardsInTransit = () => {
-    listOfCardContainers.forEach( cc => {
+const someCardsInTransit = () =>
+{
+    listOfCardContainers.forEach( cc =>
+    {
         if ( cc.cards.some( c => c.inTransit ) )
             return true;
     });
     return false;
 };
 
-const waitForCards = () => new Promise((resolve,reject) => {
-    const timeoutStep = 250;
+const waitForCards = () => new Promise((resolve,reject) =>
+{
+    const timeoutStep = 200;
     let timeoutMs = 10000;
     const check = () => {
         if ( !someCardsInTransit() )
@@ -3728,24 +3729,42 @@ const waitForCards = () => new Promise((resolve,reject) => {
 
 function robot()
 {
-    waitForCards().then ( () => {
+    waitForCards().then ( () =>
+    {
         autoCollect();
-    });
-    waitForCards().then( () => {
-        if ( (stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY || stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE)
-            && isSolveable() ) {
-            dotick();   // TODO could display toast [solve]
-        }
-        if ( isComplete() ) {
-            if ( foundations.every( f => !f.scattered ) )
-                docelebrate();
-        } else if ( !availableMoves() ) {
-            displayToastNoAvailableMoves();
-        }
-    });
-    waitForCards().then( () => {    // TODO DRY
-        tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-        reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+        waitForCards().then( () =>
+        {
+            if ( (stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY || stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE)
+                && listOfCardContainers.every( f => f.isSolveable() ) )
+            {
+                dotick();   // TODO could display toast [solve]
+            }
+            waitForCards().then( () =>
+            {
+                if ( isComplete() )
+                {
+                    if ( foundations.every( f => !f.scattered ) )
+                    {
+                        foundations.forEach( f => f.scatter() );
+                        waitForCards().then( () =>
+                        {
+                            undo.length = 0;
+                            gameOver(true);
+                            modalGameOver.open();
+                        });
+                    }
+                }
+                else if ( !availableMoves() )
+                {
+                    displayToastNoAvailableMoves();
+                }
+                else
+                {
+                    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+                    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+                }
+            });
+        });
     });
 }
 

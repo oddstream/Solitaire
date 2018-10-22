@@ -5,7 +5,7 @@
   "Winnable":[],
   "Stock":{"packs":1, "hidden":1},
   "Foundation":{"suit":2, "rank":1},
-  "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":4, "rank":2}, "maxfan":260}
+  "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":4, "rank":2}, "maxfan":200}
 }
 </script>
 
@@ -32,15 +32,15 @@
     <g class="TableauTail" deal="uu"><rect x="680" y="110"></rect></g>
     <g class="TableauTail" deal="uu"><rect x="747" y="110"></rect></g>
 
-    <g class="TableauTail" deal="uu"><rect x="10"  y="410"></rect></g>
-    <g class="TableauTail" deal="uu"><rect x="77"  y="410"></rect></g>
-    <g class="TableauTail" deal="uu"><rect x="144" y="410"></rect></g>
-    <g class="TableauTail" deal="uu"><rect x="211" y="410"></rect></g>
-    <g class="TableauTail" deal="uu"><rect x="278" y="410"></rect></g>
-    <g class="TableauTail" deal="uu"><rect x="345" y="410"></rect></g>
-    <g class="TableauTail" deal="uu"><rect x="412" y="410"></rect></g>
-    <g class="TableauTail" deal="uu"><rect x="479" y="410"></rect></g>
-    <g class="TableauTail" deal="uu"><rect x="546" y="410"></rect></g>
-    <g class="TableauTail" deal="uu"><rect x="613" y="410"></rect></g>
-    <g class="TableauTail" deal="uu"><rect x="680" y="410"></rect></g>
-    <g class="TableauTail" deal="uu"><rect x="747" y="410"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="10"  y="310"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="77"  y="310"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="144" y="310"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="211" y="310"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="278" y="310"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="345" y="310"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="412" y="310"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="479" y="310"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="546" y="310"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="613" y="310"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="680" y="310"></rect></g>
+    <g class="TableauTail" deal="uu"><rect x="747" y="310"></rect></g>

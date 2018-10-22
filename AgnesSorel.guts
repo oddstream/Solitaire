@@ -5,7 +5,7 @@
   "Winnable":[],
   "Stock":{"packs":1, "redeals":0},
   "Foundation":{"suit":2, "rank":1, "rankwrap":1},
-  "Reserve":{"maxfan":100},
+  "Reserve":{"maxfan":150},
   "Tableau":{"build":{"suit":3, "rank":2}, "move":{"suit":3, "rank":2}, "accept":"\u00D7"}
 }
 </script>
