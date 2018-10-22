@@ -1,5 +1,7 @@
 22/10/2018
 More work on scrunch
+Hold mouse down on ungrabbale card to show it
+Scrunch after undo
 
 19/10/2018
 Allow dragging from stock to waste

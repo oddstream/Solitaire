@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.21.0',
+    GAME_VERSION: '0.10.21.1',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -393,6 +393,7 @@ class Card
 
         this.inTransit = false;                 // set when moving
         this.multiMove = false;                 // part of a large group being moved
+        this.revealed = false;                  // user is holding mouse on a buried non-grabbable card
 
         this.g = this.createSVG();
         /*
@@ -633,7 +634,12 @@ class Card
         this.grabbedTail = this.owner.canGrab(this);
         if ( !this.grabbedTail )
         {
-            console.log('can\'t grab', this.id);
+            if ( !this.faceDown )
+            {
+                this.bringToTop();
+                this.revealed = true;
+            }
+            this._addDragListeners();
             return false;
         }
 
@@ -678,6 +684,9 @@ class Card
         console.assert(this.grabbedTail);
         Util.absorbEvent(event);
 
+        if ( this.revealed )
+            return false;
+
         const ptNew = this._getPointerPoint(event);
         this._scalePointer(ptNew);
         this.grabbedTail.forEach( c =>
@@ -693,6 +702,13 @@ class Card
     {   console.assert(this instanceof Card);
         console.assert(this.grabbedTail);
         Util.absorbEvent(event);
+
+        if ( this.revealed )
+        {
+            this.owner.cards.forEach( c => c.bringToTop() );
+            this.revealed = false;
+            this._removeDragListeners();
+        }
 
         const ptNew = this._getPointerPoint(event);
         const ptNewCard = Util.newPoint(
@@ -1029,6 +1045,10 @@ function doundo()
         }
     }
     undo = undo.filter( e => e.move !== m );
+    waitForCards().then( () => {    // TODO DRY
+        tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+        reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+    });
     availableMoves();   // repaint moveable cards
 }
 
