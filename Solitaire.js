@@ -13,8 +13,6 @@ const Constants = {
     EDGE:       navigator.userAgent.indexOf('Edge/') != -1,
     FIREFOX:    navigator.userAgent.indexOf('Firefox/') != -1,
 
-    // PEP: false,
-
     SPADE: '\u2660',     // ♠ Alt 6
     CLUB: '\u2663',      // ♣ Alt 5
     HEART: '\u2665',     // ♥ Alt 3
@@ -428,8 +426,6 @@ class Card
         const r = document.createElementNS(Constants.SVG_NAMESPACE, 'rect');
         r.classList.add(cl);
         r.style.touchAction = 'none';
-        // if ( Constants.PEP )
-        //     r.setAttributeNS(null, 'touch-action', 'none'); // https://github.com/jquery/PEP
         r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
         r.setAttributeNS(null, 'height', String(Constants.CARD_HEIGHT));
         r.setAttributeNS(null, 'rx', Constants.CARD_RADIUS);
@@ -440,8 +436,6 @@ class Card
     createSVG()
     {   console.assert(this instanceof Card);
         let g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
-        // if ( Constants.PEP )
-        //     g.setAttributeNS(null, 'touch-action', 'none'); // https://github.com/jquery/PEP
 
         if ( this.faceDown )
         {
@@ -450,14 +444,12 @@ class Card
             u.setAttributeNS(null, 'href', '#spielkarteback');
             g.appendChild(u);
             */
-            const r = this._createRect('spielkarteback');
-            g.appendChild(r);
+            g.appendChild(this._createRect('spielkarteback'));
         }
         else
         {   // TODO use a viewBox to centre ordinal?
             const ordOffset = [0,9,9,9,9,9,9,10,9,9,4,11,8,9];
-            const r = this._createRect('spielkarte');
-            g.appendChild(r);
+            g.appendChild(this._createRect('spielkarte'));
 
             const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
             t.classList.add('spielkartevalue');
