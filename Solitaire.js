@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.21.1',
+    GAME_VERSION: '0.10.24.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -636,6 +636,7 @@ class Card
         {
             if ( !this.faceDown )
             {
+                this.markGrabbed();
                 this.bringToTop();
                 this.revealed = true;
             }
@@ -646,6 +647,7 @@ class Card
         this.ptOriginalPointerDown = this._getPointerPoint(event);
         this.grabbedTail.forEach( c =>
         {
+            c.markGrabbed();
             c.ptOriginal = Util.newPoint(c.pt);
             c.ptOffset = Util.newPoint(
                 this.ptOriginalPointerDown.x - c.pt.x,
@@ -703,6 +705,7 @@ class Card
 
         if ( this.revealed )
         {
+            this.unmarkGrabbed();
             this.owner.cards.forEach( c => c.bringToTop() );
             this.revealed = false;
             this._removeDragListeners();
@@ -717,7 +720,8 @@ class Card
         if ( Util.nearlySamePoint(ptNewCard, this.ptOriginal) )
         {
             // console.log('nearly same point', ptNewCard, this.ptOriginal);
-            this.grabbedTail.forEach( c => {
+            this.grabbedTail.forEach( c =>
+            {
                 c.position0(c.ptOriginal.x, c.ptOriginal.y);
             });
             // a click on a card just sends the click to it's owner, so we do that directly
@@ -740,8 +744,14 @@ class Card
             }
         }
 
-        this.grabbedTail = null;
         this._removeDragListeners();
+        waitForCards().then(
+            this.grabbedTail.forEach( c =>
+            {
+                c.unmarkGrabbed();
+            })
+        );
+        this.grabbedTail = null;
         return false;
     }
 
@@ -968,18 +978,30 @@ class Card
         if ( this.g.firstChild.localName !== 'rect' )
             return;
         const cl = this.g.firstChild.classList;
+        const UN = 'unmoveable';
         if ( stats.Options.sensoryCues )
         {
-            cl.toggle('spielkarte0', !moveable);
-            cl.toggle('spielkarte', moveable);
+            if ( moveable )
+                cl.remove(UN);
+            else
+                cl.add(UN);     // ignored if class already there
         }
         else
         {
-            if ( cl.contains('spielkarte0') )
-            {
-                cl.replace('spielkarte0', 'spielkarte');
-            }
+            cl.remove(UN);
         }
+    }
+
+    markGrabbed()
+    {
+        const cl = this.g.firstChild.classList;
+        cl.add('grabbed');
+    }
+
+    unmarkGrabbed()
+    {
+        const cl = this.g.firstChild.classList;
+        cl.remove('grabbed');
     }
 
     getSaveableCard()
@@ -2276,7 +2298,7 @@ class Waste extends CardContainer
 
     canAcceptCard(c)
     {
-        return c.owner instanceof Stock;
+        return (c.owner instanceof Stock) && (1 === rules.Stock.cards);
     }
 
     canTarget(cc)

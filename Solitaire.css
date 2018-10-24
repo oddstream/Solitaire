@@ -26,20 +26,20 @@ svg {
     touch-action: none;
 }
 
-.spielkarte0 {
-    fill:rgb(233,233,233);
-    stroke-width: 1;
-    stroke:silver;
-    pointer-events: fill;
-    touch-action: none;
-}
-
 .spielkarteback {
     fill:steelblue;
     stroke-width: 1;
     stroke:silver;
     pointer-events: fill;
     touch-action: none;
+}
+
+.grabbed {
+    stroke-width: 2 !important;
+}
+
+.unmoveable {
+    fill:rgb(233,233,233) !important;
 }
 
 .spielkartevalue {

@@ -1,3 +1,7 @@
+24/10/2018
+Change css class of cards being grabbed
+Simplify CSS moveable/grabbed by using !important
+
 22/10/2018
 More work on scrunch
 Hold mouse down on ungrabbale card to show it
