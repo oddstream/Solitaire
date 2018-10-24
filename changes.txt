@@ -1,6 +1,8 @@
 24/10/2018
 Change css class of cards being grabbed
 Simplify CSS moveable/grabbed by using !important
+Removed baize touchaction (touch-action) to enable mobile vscrolling/dragging
+Increase height of baize to 1200 for Grandfather's Clock
 
 22/10/2018
 More work on scrunch

@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.24.0',
+    GAME_VERSION: '0.10.24.1',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -229,9 +229,6 @@ class Baize
         this._gutsWidth += Constants.CARD_WIDTH + 10;
 
         this._setBox();
-
-        console.log(this._ele.style.touchAction);
-        this._ele.style.touchAction = 'none';
     }
 
     _addBorder()
@@ -268,7 +265,7 @@ class Baize
     _setBox()
     {
         this._width = this._gutsWidth;
-        this._height = Math.max(1000,window.screen.height);
+        this._height = Math.max(1200,window.screen.height);
 
         if ( window.screen.height > window.screen.width /*|| screen.orientation.angle === 0*/ )
         {   // portrait
@@ -288,11 +285,6 @@ class Baize
 
         this._ele.setAttributeNS(null, 'viewBox', `0 0 ${this._width} ${this._height}`);
         this._ele.setAttributeNS(null, 'preserveAspectRatio', 'xMinYMin slice');
-
-        // console.log('guts', this._gutsWidth)
-        // console.log('border', this._borderWidth);
-        // console.log('svg', this._width, this._height);
-        // console.log('window', window.innerWidth, window.innerHeight);
     }
 
     // onOrientationChange()
