@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.24.1',
+    GAME_VERSION: '0.10.24.2',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -859,10 +859,11 @@ class Card
         to.push(this);
         if ( undoable )
         {
-            undo.push({move:tallyMan.count,
-                from:listOfCardContainers.findIndex(e => e === from),
-                to:listOfCardContainers.findIndex(e => e === to),
-                count:1});
+            undoPush(from, to, 1);
+            // undo.push({move:tallyMan.count,
+            //     from:listOfCardContainers.findIndex(e => e === from),
+            //     to:listOfCardContainers.findIndex(e => e === to),
+            //     count:1});
             tallyMan.increment();
         }
     }
@@ -887,10 +888,11 @@ class Card
         }
         if ( undoable )
         {
-            undo.push({move:tallyMan.count,
-                from:listOfCardContainers.findIndex(e => e === from),
-                to:listOfCardContainers.findIndex(e => e === to),
-                count:nOfCards-nCard});
+            undoPush(from, to, nOfCards-nCard);
+            // undo.push({move:tallyMan.count,
+            //     from:listOfCardContainers.findIndex(e => e === from),
+            //     to:listOfCardContainers.findIndex(e => e === to),
+            //     count:nOfCards-nCard});
             tallyMan.increment();
         }
     }
@@ -1001,6 +1003,14 @@ class Card
 }
 
 let undo = [];
+
+function undoPush(f, t, c)
+{
+    undo.push({move:tallyMan.count,
+        from:listOfCardContainers.findIndex(e => e === f),
+        to:listOfCardContainers.findIndex(e => e === t),
+        count:c});
+}
 
 function doundo()
 {
@@ -1909,10 +1919,19 @@ class StockKlondike extends Stock
             if ( !(waste.cards.length < rules.Waste.maxcards) )
                 return;
 
+        /*
+            Can't use the obvious ...
+            for ( let n=0; n<rules.Stock.cards; n++ )
+            {
+                const c = this.peek();
+                if ( c )
+                    c.moveTop(waste);
+            }
+            ... because of undo
+        */
         const tmp = [];
-        tmp.push(this.pop());
-        for ( let nCard = rules.Stock.cards - 1; nCard > 0; nCard-- )
-        {   // we already popped one
+        for ( let n=0; n<rules.Stock.cards; n++ )
+        {
             if ( stock.peek() )
                 tmp.push(this.pop());
         }
@@ -1923,10 +1942,11 @@ class StockKlondike extends Stock
             c.bringToTop();
             waste.push(c);
         }
-        undo.push({move:tallyMan.count,
-            from:listOfCardContainers.findIndex(e => e === stock),
-            to:listOfCardContainers.findIndex(e => e === waste),
-            count:nCardsMoved});
+        undoPush(stock, waste, nCardsMoved);
+        // undo.push({move:tallyMan.count,
+        //     from:listOfCardContainers.findIndex(e => e === stock),
+        //     to:listOfCardContainers.findIndex(e => e === waste),
+        //     count:nCardsMoved});
         tallyMan.increment();
     }
 
@@ -2150,23 +2170,27 @@ class StockFan extends Stock
     {
         if ( this.redealsAvailable() )
         {
-            // TODO surely we could moveTail the whole tab stack to stock?
+            // move all cards back to stock, can't use pop and push
+            // because that will register in undo
             tableaux.forEach( t => {
-                for ( let c=t.peek(); c; c=t.peek() )
-                    c.moveTop(stock, false);
+                stock.cards = stock.cards.concat(t.cards);
+                t.cards = [];
             });
-
-            waitForCards()
-                .then ( () => {
-                    const oldSeed = stats[rules.Name].seed;
-                    stock.sort(123456);         // just some made up, reproduceable seed
-                    stats[rules.Name].seed = oldSeed;   // sort(n) over-writes this
-                    undo.length = 0;            // can't undo a jumble
-                });
+            stock.cards.forEach( c => {
+                c.owner = stock;
+                // all fan games are all face up?
+                // if ( !c.faceDown )
+                //     c.turnDown();
+                c.position0(stock.pt.x, stock.pt.y);
+            });
+        
+            const oldSeed = stats[rules.Name].seed;
+            stock.sort(123456);         // just some made up, reproduceable seed
+            stats[rules.Name].seed = oldSeed;   // sort(n) over-writes this
+            undo.length = 0;            // can't undo a jumble
 
             tableaux.forEach( t => {
-                // waitForCards().then( () => t.deal() );
-                window.setTimeout( () => t.deal(), 1 );
+                window.setTimeout( () => t.deal(), 0 );
             });
 
             waitForCards()

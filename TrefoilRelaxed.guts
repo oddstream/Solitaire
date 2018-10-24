@@ -4,7 +4,7 @@
     "Wikipedia":"https://en.wikipedia.org/wiki/La_Belle_Lucie",
     "Winnable":[296641,482871,953793],
     "Cards":{"suit":"BottomLeft"},
-    "Stock":{"packs":1, "redeals":1},
+    "Stock":{"packs":1, "redeals":2},
     "Foundation":{"suit":2, "rank":1},
     "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":"\u00D7", "fan":"Right", "maxfan":290}
 }
