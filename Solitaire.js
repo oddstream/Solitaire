@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.25.0',
+    GAME_VERSION: '0.10.25.1',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -393,14 +393,10 @@ class Card
         this.multiMove = false;                 // part of a large group being moved
         this.revealed = false;                  // user is holding mouse on a buried non-grabbable card
 
-        this.g = this.createSVG();
-        /*
-        this.gFront = this._createFrontSVG();
-        this.gFront.style.display = 'none';
-        this.gBack = this._createBackSVG();
-        this.gBack.style.display = 'none';
-        */
+        this.g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
+        this.putRectInG();
         this.position0();
+        this._addListeners();
     }
 
     get faceValue()
@@ -433,10 +429,9 @@ class Card
         return r;
     }
 
-    createSVG()
+    putRectInG()
     {   console.assert(this instanceof Card);
-        let g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
-
+        console.assert(!this.g.lastChild);
         if ( this.faceDown )
         {
             /*
@@ -444,12 +439,12 @@ class Card
             u.setAttributeNS(null, 'href', '#spielkarteback');
             g.appendChild(u);
             */
-            g.appendChild(this._createRect('spielkarteback'));
+            this.g.appendChild(this._createRect('spielkarteback'));
         }
         else
         {   // TODO use a viewBox to centre ordinal?
             const ordOffset = [0,9,9,9,9,9,9,10,9,9,4,11,8,9];
-            g.appendChild(this._createRect('spielkarte'));
+            this.g.appendChild(this._createRect('spielkarte'));
 
             const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
             t.classList.add('spielkartevalue');
@@ -457,7 +452,7 @@ class Card
             t.setAttributeNS(null, 'y', '23');
             t.setAttributeNS(null, 'fill', this.color);
             t.innerHTML = this.faceValue;
-            g.appendChild(t);
+            this.g.appendChild(t);
 
             if ( Constants.MOBILE )
             {
@@ -479,7 +474,7 @@ class Card
                 {
                     console.error('Unknown rules.Cards.suit', rules.Cards.suit);
                 }
-                g.appendChild(u);
+                this.g.appendChild(u);
             }
             else
             {
@@ -506,30 +501,26 @@ class Card
                 }
                 t.setAttributeNS(null, 'fill', this.color);
                 t.innerHTML = this.suit;
-                g.appendChild(t);
+                this.g.appendChild(t);
             }
         }
-
-        this._addListeners(g);
-
-        return g;
     }
 
-    _addListeners(g)
+    _addListeners()
     {
         // put the event handlers on the g, but the event happens on the rect inside
         // http://www.open.ac.uk/blogs/brasherblog/?p=599
         // the ordinal and suit symbols use css pointer-event: none so the events pass through to their parent (the rect)
-        g.addEventListener('pointerover', this.overHandler);
-        g.addEventListener('pointerdown', this.downHandler);
-        g.addEventListener('touchstart', dummyTouchStartHandler);
+        this.g.addEventListener('pointerover', this.overHandler);
+        this.g.addEventListener('pointerdown', this.downHandler);
+        this.g.addEventListener('touchstart', dummyTouchStartHandler);
     }
 
-    _removeListeners(g)
+    _removeListeners()
     {
-        g.removeEventListener('pointerover', this.overHandler);
-        g.removeEventListener('pointerdown', this.downHandler);
-        g.removeEventListener('touchstart', dummyTouchStartHandler);
+        this.g.removeEventListener('pointerover', this.overHandler);
+        this.g.removeEventListener('pointerdown', this.downHandler);
+        this.g.removeEventListener('touchstart', dummyTouchStartHandler);
     }
 
     _addDragListeners()
@@ -616,12 +607,7 @@ class Card
             return false;
         }
 
-        // where's the harm in grabbing a moving card?
-        // if ( this.inTransit )
-        // {
-        //     console.warn('grabbing a moving card', this.id);
-        //     return false;
-        // }
+        this.ptOriginalPointerDown = this._getPointerPoint(event);
 
         this.grabbedTail = this.owner.canGrab(this);
         if ( !this.grabbedTail )
@@ -636,7 +622,6 @@ class Card
             return false;
         }
 
-        this.ptOriginalPointerDown = this._getPointerPoint(event);
         this.grabbedTail.forEach( c =>
         {
             c.markGrabbed();
@@ -763,16 +748,16 @@ class Card
         baize.ele.appendChild(this.g);  // move card to end of baize (no SVG z-index)
     }
 
-    turnUp()
+    flipUp()
     {
         if ( this.faceDown )
         {
             this.faceDown = false;
-            this._removeListeners(this.g);
-            let newG = this.createSVG();
-            baize.ele.replaceChild(newG, this.g);
-            this.g = newG;  this.position0();   this.bringToTop();
-            undoPushTurn(this, 'up');
+            while ( this.g.hasChildNodes() )
+                this.g.removeChild(this.g.lastChild);
+            this.putRectInG();
+            // this.position0();
+            undoPushFlip(this, 'up');
         }
         else
         {
@@ -780,16 +765,16 @@ class Card
         }
     }
 
-    turnDown()
+    flipDown()
     {
         if ( !this.faceDown )
         {
             this.faceDown = true;
-            this._removeListeners(this.g);
-            let newG = this.createSVG();
-            baize.ele.replaceChild(newG, this.g);
-            this.g = newG;  this.position0();   this.bringToTop();
-            undoPushTurn(this, 'down');
+            while ( this.g.hasChildNodes() )
+                this.g.removeChild(this.g.lastChild);
+            this.putRectInG();
+            // this.position0();
+            undoPushFlip(this, 'down');
         }
         else
         {
@@ -990,7 +975,7 @@ class Card
 
     destructor()
     {
-        this._removeListeners(this.g);
+        this._removeListeners();
         baize.ele.removeChild(this.g);
     }
 }
@@ -1007,10 +992,10 @@ function undoPushMove(f, t, c)
             count:c});
 }
 
-function undoPushTurn(c, di)
+function undoPushFlip(c, di)
 {
     if ( !undoing )
-        undo.push({move:tallyMan.count, turn:c.id, dir:di});
+        undo.push({move:tallyMan.count, flip:c.id, dir:di});
 }
 
 function doundo()
@@ -1024,12 +1009,11 @@ function doundo()
     undoing = true;
 
     const m = undo[undo.length-1].move;
-    let ua = undo.filter( e => e.move === m );
-    // let ua = undo.filter( e => e.move === m ).reverse();
+    const ua = undo.filter( e => e.move === m );  // not .reverse()
 
     while ( ua.length )
     {
-        let u = ua.pop();       console.log('undo', u);
+        const u = ua.pop();       // console.log('undo', u);
 
         if ( u.hasOwnProperty('from') && u.hasOwnProperty('to') )
         {
@@ -1049,13 +1033,13 @@ function doundo()
                 src.push(c);
             }
         }
-        else if ( u.hasOwnProperty('turn') && u.hasOwnProperty('dir') )
+        else if ( (u.hasOwnProperty('turn') || u.hasOwnProperty('flip')) && u.hasOwnProperty('dir') )
         {
-            // const c = Util.id2Card(u.turn);
+            const c = Util.id2Card(u.hasOwnProperty('flip') ? u.flip : u.turn);
             // if ( u.dir === 'up' )
-            //     c.turnDown();
+            //     c.flipDown();
             // else if ( u.dir === 'down' )
-            //     c.turnUp();
+            //     c.flipUp();
             // else
             //     debugger;
         }
@@ -1383,7 +1367,7 @@ class CardContainer
                 c = stock.pop();
                 const stock3 = stock.cards.filter( sc => sc.ordinal === c.ordinal );
                 console.assert(stock3.length===3);
-                stock3.forEach( sc => sc.turnUp() );
+                stock3.forEach( sc => sc.flipUp() );
                 stock.cards = stock.cards.filter( sc => sc.ordinal !== c.ordinal );
                 for ( let i=0; i<stock3.length; i++ )
                     foundations[i].push(stock3[i]);
@@ -1397,7 +1381,7 @@ class CardContainer
                 if ( idx > -1 )
                 {
                     c = stock.cards.splice(idx, 1)[0];  // returns an array of deleted items
-                    c.turnUp();
+                    c.flipUp();
                 }
                 else
                 {
@@ -1415,11 +1399,11 @@ class CardContainer
 
             if ( 'd' === ch )
             {
-                c.turnDown();
+                c.flipDown();
             }
             else if ( 'u' === ch )
             {
-                // popping off stock turns card up
+                // popping off stock flips card up
             }
         }
 
@@ -1677,7 +1661,7 @@ class Reserve extends CardContainer
 
         const tc = this.peek();
         if ( tc && tc.faceDown && stats.Options.autoFlip )
-            tc.turnUp();
+            tc.flipUp();
         return c;
     }
 
@@ -1688,7 +1672,7 @@ class Reserve extends CardContainer
 
         if ( c.faceDown )
         {
-            c.turnUp();
+            c.flipUp();
             window.setTimeout(robot, 500);
             return;
         }
@@ -1749,7 +1733,7 @@ class ReserveFrog extends Reserve
             else
             {
                 c.bringToTop();
-                this.push(c);   // popping off stock turns card up
+                this.push(c);   // popping off stock flips card up
             }
         }
 
@@ -1758,7 +1742,7 @@ class ReserveFrog extends Reserve
             const idx = stock.cards.findIndex( c => 1 === c.ordinal );
             const c = stock.cards.splice(idx, 1)[0];    // returns array of deleted items
             foundations[0].push(c);
-            c.turnUp();
+            c.flipUp();
         }
     }
 }
@@ -1826,7 +1810,7 @@ class Stock extends CardContainer
     {   // extend, so something coming off stock can be turned up AUTOPOP?
         const c = super.pop();
         if ( c && c.faceDown )
-            c.turnUp();
+            c.flipUp();
         if ( 0 === this.cards.length )
         {
             this._updateRedealsSVG();
@@ -1838,7 +1822,7 @@ class Stock extends CardContainer
     {
         super.push(c);
         if ( !c.faceDown )
-            c.turnDown();
+            c.flipDown();
     }
 
     redealsAvailable()
@@ -2185,7 +2169,7 @@ class StockFan extends Stock
                 c.owner = stock;
                 // all fan games are all face up?
                 // if ( !c.faceDown )
-                //     c.turnDown();
+                //     c.flipDown();
                 c.position0(stock.pt.x, stock.pt.y);
             });
         
@@ -2260,7 +2244,7 @@ class Waste extends CardContainer
         c.owner = this;
         this.cards.push(c);
         if ( c.faceDown )
-            c.turnUp();
+            c.flipUp();
         c.animate(ptNew);
     }
 
@@ -2674,7 +2658,7 @@ class FoundationGolf extends Foundation
         this.cards.push(c);
         c.animate(pt);
         if ( c.faceDown )
-            c.turnUp();
+            c.flipUp();
     }
 }
 
@@ -2764,7 +2748,7 @@ class Tableau extends CardContainer
 
         const tc = this.peek();
         if ( tc && tc.faceDown && stats.Options.autoFlip )
-            tc.turnUp();
+            tc.flipUp();
         return c;
     }
 
@@ -2813,7 +2797,7 @@ class Tableau extends CardContainer
     {
         if ( c.faceDown && this.peek() === c )
         {
-            c.turnUp();
+            c.flipUp();
             window.setTimeout(robot, 500);
             return;
         }
@@ -3365,7 +3349,7 @@ function restart(seed)
     stock.cards.forEach( c => {
         c.owner = stock;
         if ( !c.faceDown )
-            c.turnDown();
+            c.flipDown();
         c.position0(stock.pt.x, stock.pt.y);
     });
 
