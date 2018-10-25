@@ -391,7 +391,7 @@ class Card
 
         this.inTransit = false;                 // set when moving
         this.multiMove = false;                 // part of a large group being moved
-        this.revealed = false;                  // user is holding mouse on a buried non-grabbable card
+        // this.revealed = false;                  // user is holding mouse on a buried non-grabbable card
 
         this.g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
         this.putRectInG();
@@ -612,13 +612,14 @@ class Card
         this.grabbedTail = this.owner.canGrab(this);
         if ( !this.grabbedTail )
         {
-            if ( !this.faceDown )
-            {
-                this.markGrabbed();
-                this.bringToTop();
-                this.revealed = true;
-            }
-            this._addDragListeners();
+            console.log('cannot grab', this.id);
+            // if ( !this.faceDown )
+            // {
+            //     this.markGrabbed();
+            //     this.bringToTop();
+            //     this.revealed = true;
+            // }
+            // this._addDragListeners();
             return false;
         }
 
@@ -662,8 +663,8 @@ class Card
     {
         Util.absorbEvent(event);
 
-        if ( this.revealed )
-            return false;
+        // if ( this.revealed )
+        //     return false;
 
         const ptNew = this._getPointerPoint(event);
         this._scalePointer(ptNew);
@@ -680,14 +681,14 @@ class Card
     {
         Util.absorbEvent(event);
 
-        if ( this.revealed )
-        {
-            this.unmarkGrabbed();
-            this.owner.cards.forEach( c => c.bringToTop() );
-            this.revealed = false;
-            this._removeDragListeners();
-            return false;
-        }
+        // if ( this.revealed )
+        // {
+            // this.unmarkGrabbed();
+            // this.owner.cards.forEach( c => c.bringToTop() );
+            // this.revealed = false;
+            // this._removeDragListeners();
+        //     return false;
+        // }
 
         const ptNew = this._getPointerPoint(event);
         const ptNewCard = Util.newPoint(
@@ -748,7 +749,7 @@ class Card
         baize.ele.appendChild(this.g);  // move card to end of baize (no SVG z-index)
     }
 
-    flipUp()
+    flipUp(undoable=true)
     {
         if ( this.faceDown )
         {
@@ -757,7 +758,8 @@ class Card
                 this.g.removeChild(this.g.lastChild);
             this.putRectInG();
             // this.position0();
-            undoPushFlip(this, 'up');
+            if ( undoable )
+                undoPushFlip(this, 'up');
         }
         else
         {
@@ -765,7 +767,7 @@ class Card
         }
     }
 
-    flipDown()
+    flipDown(undoable=true)
     {
         if ( !this.faceDown )
         {
@@ -774,7 +776,8 @@ class Card
                 this.g.removeChild(this.g.lastChild);
             this.putRectInG();
             // this.position0();
-            undoPushFlip(this, 'down');
+            if ( undoable )
+                undoPushFlip(this, 'down');
         }
         else
         {
@@ -1029,6 +1032,7 @@ function doundo()
             while ( tmp.length )
             {
                 const c = tmp.pop();
+                // console.log(c, 'going from', dst, 'to', src);
                 c.bringToTop();
                 src.push(c);
             }
@@ -1036,12 +1040,12 @@ function doundo()
         else if ( (u.hasOwnProperty('turn') || u.hasOwnProperty('flip')) && u.hasOwnProperty('dir') )
         {
             const c = Util.id2Card(u.hasOwnProperty('flip') ? u.flip : u.turn);
-            // if ( u.dir === 'up' )
-            //     c.flipDown();
-            // else if ( u.dir === 'down' )
-            //     c.flipUp();
-            // else
-            //     debugger;
+            if ( u.dir === 'up' )
+                c.flipDown(false);
+            else if ( u.dir === 'down' )
+                c.flipUp(false);
+            else
+                debugger;
         }
         else
         {
@@ -1367,7 +1371,7 @@ class CardContainer
                 c = stock.pop();
                 const stock3 = stock.cards.filter( sc => sc.ordinal === c.ordinal );
                 console.assert(stock3.length===3);
-                stock3.forEach( sc => sc.flipUp() );
+                stock3.forEach( sc => sc.flipUp(false) );
                 stock.cards = stock.cards.filter( sc => sc.ordinal !== c.ordinal );
                 for ( let i=0; i<stock3.length; i++ )
                     foundations[i].push(stock3[i]);
@@ -1381,7 +1385,7 @@ class CardContainer
                 if ( idx > -1 )
                 {
                     c = stock.cards.splice(idx, 1)[0];  // returns an array of deleted items
-                    c.flipUp();
+                    c.flipUp(false);
                 }
                 else
                 {
@@ -1399,7 +1403,7 @@ class CardContainer
 
             if ( 'd' === ch )
             {
-                c.flipDown();
+                c.flipDown(false);
             }
             else if ( 'u' === ch )
             {
@@ -1553,7 +1557,6 @@ class CardContainer
 
     autoMove()
     {
-
     }
 
     english()
@@ -1618,7 +1621,10 @@ class CellCarpet extends Cell
             if ( !c )
                 c = stock.peek();
             if ( c )
+            {
+                tallyMan.decrement();
                 c.moveTop(this);
+            }
         }
     }
 
@@ -1653,16 +1659,6 @@ class Reserve extends CardContainer
         this.cards.push(c);
         c.owner = this;
         c.animate(pt);
-    }
-
-    pop()
-    {   // same as Tableau.pop  AUTOPOP?
-        const c = super.pop();
-
-        const tc = this.peek();
-        if ( tc && tc.faceDown && stats.Options.autoFlip )
-            tc.flipUp();
-        return c;
     }
 
     onclick(c)
@@ -1705,6 +1701,17 @@ class Reserve extends CardContainer
         return this.cards.length === 0;
     }
 
+    autoMove()
+    {   // same as Tableau
+        const c = this.peek();
+        if ( c && c.faceDown && stats.Options.autoFlip )
+        {
+            tallyMan.decrement();
+            c.flipUp();
+            tallyMan.increment();
+        }
+    }
+
     english()
     {
         return `Reserve ${countInstances(Reserve)}. Stores multiple cards of any type. You cannot move a card to a reserve stack.`;
@@ -1742,7 +1749,7 @@ class ReserveFrog extends Reserve
             const idx = stock.cards.findIndex( c => 1 === c.ordinal );
             const c = stock.cards.splice(idx, 1)[0];    // returns array of deleted items
             foundations[0].push(c);
-            c.flipUp();
+            c.flipUp(false);
         }
     }
 }
@@ -1807,10 +1814,10 @@ class Stock extends CardContainer
     }
 
     pop()
-    {   // extend, so something coming off stock can be turned up AUTOPOP?
+    {   // extend, so something coming off stock can be turned up
         const c = super.pop();
         if ( c && c.faceDown )
-            c.flipUp();
+            c.flipUp(false);    // automatic
         if ( 0 === this.cards.length )
         {
             this._updateRedealsSVG();
@@ -1822,7 +1829,7 @@ class Stock extends CardContainer
     {
         super.push(c);
         if ( !c.faceDown )
-            c.flipDown();
+            c.flipDown(false);  // automatic
     }
 
     redealsAvailable()
@@ -1911,16 +1918,17 @@ class StockKlondike extends Stock
         if ( Number.isInteger(rules.Waste.maxcards) )
             if ( !(waste.cards.length < rules.Waste.maxcards) )
                 return;
-
         /*
-            Can't use the obvious ...
-            for ( let n=0; n<rules.Stock.cards; n++ )
+        for ( let n=0; n<rules.Stock.cards; n++ )
+        {
+            const c = this.peek();
+            if ( c )
             {
-                const c = this.peek();
-                if ( c )
-                    c.moveTop(waste);
+                c.moveTop(waste);
+                tallyMan.decrement();
             }
-            ... because of undo
+        }
+        tallyMan.increment();
         */
         const tmp = [];
         for ( let n=0; n<rules.Stock.cards; n++ )
@@ -2244,14 +2252,14 @@ class Waste extends CardContainer
         c.owner = this;
         this.cards.push(c);
         if ( c.faceDown )
-            c.flipUp();
+            c.flipUp(false);
         c.animate(ptNew);
     }
 
     pop()
     {   // AUTOPOP?
-        const c = super.pop();
-
+        const c = super.pop();      console.assert(!c.faceDown);
+        
         if ( this.cards.length > 2 )
         {
             // top card needs to go to right position
@@ -2651,14 +2659,13 @@ class FoundationGolf extends Foundation
 {
     push(c)
     {   // override to fan card to the right
+        console.assert(!c.faceDown);
         const pt = Util.newPoint(
             this.pt.x + (this.cards.length * 4),
             this.pt.y);
         c.owner = this;
         this.cards.push(c);
         c.animate(pt);
-        if ( c.faceDown )
-            c.flipUp();
     }
 }
 
@@ -2742,16 +2749,6 @@ class Tableau extends CardContainer
         c.animate(pt);
     }
 
-    pop()
-    {   // AUTOPOP?
-        const c = super.pop();
-
-        const tc = this.peek();
-        if ( tc && tc.faceDown && stats.Options.autoFlip )
-            tc.flipUp();
-        return c;
-    }
-
     canAcceptCard(c)
     {
         let accept = true;
@@ -2827,6 +2824,17 @@ class Tableau extends CardContainer
             return isConformant(rules.Tableau.build, this.cards);
         else
             return true;
+    }
+
+    autoMove()
+    {   // same as Reserve
+        const c = this.peek();
+        if ( c && c.faceDown && stats.Options.autoFlip )
+        {
+            tallyMan.decrement();
+            c.flipUp();
+            tallyMan.increment();
+        }
     }
 
     english()
@@ -3349,7 +3357,7 @@ function restart(seed)
     stock.cards.forEach( c => {
         c.owner = stock;
         if ( !c.faceDown )
-            c.flipDown();
+            c.flipDown(false);
         c.position0(stock.pt.x, stock.pt.y);
     });
 
@@ -3773,8 +3781,10 @@ function robot()
 {
     waitForCards().then( () =>
     {
-        tableaux.forEach( tab => tab.autoMove() );
-        cells.forEach( cel => cel.autoMove() );
+        [tableaux,reserves,cells].forEach( ccl =>
+            ccl.forEach(cc => cc.autoMove())
+        );
+
         waitForCards().then( () =>
             autoCollect()
         );
