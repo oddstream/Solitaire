@@ -1,7 +1,7 @@
 <script type="application/json" id="rules">
 {
-  "Name":"Congress",
-  "Winnable":[813248],
+  "Name":"Parliament",
+  "Winnable":[269668],
   "Wikipedia":"https://en.wikipedia.org/wiki/Congress_(solitaire)",
   "Stock":{"packs":2, "redeals":0},
   "Foundation":{"suit":2, "rank":1, "accept":1},
@@ -13,14 +13,14 @@
     <g class="StockKlondike"><rect x="10" y="10"></rect></g>
     <g class="Waste"><rect x="77" y="10"></rect></g>
 
-    <g class="Foundation"><rect x="211" y="10"></rect></g>
-    <g class="Foundation"><rect x="278" y="10"></rect></g>
-    <g class="Foundation"><rect x="345" y="10"></rect></g>
-    <g class="Foundation"><rect x="412" y="10"></rect></g>
-    <g class="Foundation"><rect x="479" y="10"></rect></g>
-    <g class="Foundation"><rect x="546" y="10"></rect></g>
-    <g class="Foundation"><rect x="613" y="10"></rect></g>
-    <g class="Foundation"><rect x="680" y="10"></rect></g>
+    <g class="Foundation" deal="♥01"><rect x="211" y="10"></rect></g>
+    <g class="Foundation" deal="♥01"><rect x="278" y="10"></rect></g>
+    <g class="Foundation" deal="♦01"><rect x="345" y="10"></rect></g>
+    <g class="Foundation" deal="♦01"><rect x="412" y="10"></rect></g>
+    <g class="Foundation" deal="♣01"><rect x="479" y="10"></rect></g>
+    <g class="Foundation" deal="♣01"><rect x="546" y="10"></rect></g>
+    <g class="Foundation" deal="♠01"><rect x="613" y="10"></rect></g>
+    <g class="Foundation" deal="♠01"><rect x="680" y="10"></rect></g>
 
     <g class="TableauFortunesFavor" deal="u"><rect x="211" y="110"></rect></g>
     <g class="TableauFortunesFavor" deal="u"><rect x="278" y="110"></rect></g>

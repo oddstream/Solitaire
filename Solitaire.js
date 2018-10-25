@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.24.2',
+    GAME_VERSION: '0.10.25.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -330,6 +330,14 @@ class Mover
         {
             this._count++;
             window.setTimeout(robot, 500);
+        }
+    }
+
+    decrement()
+    {
+        if ( !this._zzzz )
+        {
+            this._count--;
         }
     }
 
@@ -755,7 +763,7 @@ class Card
         baize.ele.appendChild(this.g);  // move card to end of baize (no SVG z-index)
     }
 
-    turnUp(undoable=true)
+    turnUp()
     {
         if ( this.faceDown )
         {
@@ -763,17 +771,16 @@ class Card
             this._removeListeners(this.g);
             let newG = this.createSVG();
             baize.ele.replaceChild(newG, this.g);
-            this.g = newG;  this.position0();
-            if ( undoable )
-                undo.push({move:tallyMan.count, turn:this.id, dir:'up'});
+            this.g = newG;  this.position0();   this.bringToTop();
+            undoPushTurn(this, 'up');
         }
         else
         {
-            console.error(this.id, 'is already up');
+            console.warn(this.id, 'is already up');
         }
     }
 
-    turnDown(undoable=true)
+    turnDown()
     {
         if ( !this.faceDown )
         {
@@ -781,13 +788,12 @@ class Card
             this._removeListeners(this.g);
             let newG = this.createSVG();
             baize.ele.replaceChild(newG, this.g);
-            this.g = newG;  this.position0();
-            if ( undoable )
-                undo.push({move:tallyMan.count, turn:this.id, dir:'down'});
+            this.g = newG;  this.position0();   this.bringToTop();
+            undoPushTurn(this, 'down');
         }
         else
         {
-            console.error(this.id, 'is already down');
+            console.warn(this.id, 'is already down');
         }
     }
 
@@ -851,24 +857,18 @@ class Card
         window.requestAnimationFrame(step);
     }
 
-    moveTop(to, undoable=true)
+    moveTop(to)
     {   console.assert(this===this.owner.peek());
         const from = this.owner;
         from.pop();
         this.bringToTop();
         to.push(this);
-        if ( undoable )
-        {
-            undoPush(from, to, 1);
-            // undo.push({move:tallyMan.count,
-            //     from:listOfCardContainers.findIndex(e => e === from),
-            //     to:listOfCardContainers.findIndex(e => e === to),
-            //     count:1});
-            tallyMan.increment();
-        }
+
+        undoPushMove(from, to, 1);
+        tallyMan.increment();
     }
 
-    moveTail(to, undoable=true)
+    moveTail(to)
     {
         const from = this.owner;
         let nCard = this.owner.cards.findIndex( e => e === this );
@@ -886,15 +886,8 @@ class Card
             c.bringToTop();
             to.push(c);
         }
-        if ( undoable )
-        {
-            undoPush(from, to, nOfCards-nCard);
-            // undo.push({move:tallyMan.count,
-            //     from:listOfCardContainers.findIndex(e => e === from),
-            //     to:listOfCardContainers.findIndex(e => e === to),
-            //     count:nOfCards-nCard});
-            tallyMan.increment();
-        }
+        undoPushMove(from, to, nOfCards-nCard);
+        tallyMan.increment();
     }
 
     _overlapArea(pt2)
@@ -1003,13 +996,21 @@ class Card
 }
 
 let undo = [];
+let undoing = false;
 
-function undoPush(f, t, c)
+function undoPushMove(f, t, c)
 {
-    undo.push({move:tallyMan.count,
-        from:listOfCardContainers.findIndex(e => e === f),
-        to:listOfCardContainers.findIndex(e => e === t),
-        count:c});
+    if ( !undoing )
+        undo.push({move:tallyMan.count,
+            from:listOfCardContainers.findIndex(e => e === f),
+            to:listOfCardContainers.findIndex(e => e === t),
+            count:c});
+}
+
+function undoPushTurn(c, di)
+{
+    if ( !undoing )
+        undo.push({move:tallyMan.count, turn:c.id, dir:di});
 }
 
 function doundo()
@@ -1020,12 +1021,15 @@ function doundo()
         return;
     }
 
+    undoing = true;
+
     const m = undo[undo.length-1].move;
-    let ua = undo.filter( e => e.move === m ).reverse();
+    let ua = undo.filter( e => e.move === m );
+    // let ua = undo.filter( e => e.move === m ).reverse();
 
     while ( ua.length )
     {
-        let u = ua.pop();       // console.log('undo', u);
+        let u = ua.pop();       console.log('undo', u);
 
         if ( u.hasOwnProperty('from') && u.hasOwnProperty('to') )
         {
@@ -1045,22 +1049,25 @@ function doundo()
                 src.push(c);
             }
         }
-        // else if ( u.hasOwnProperty('redeals') )
-        // {
-        //     console.assert(u.redeals===-1);
-        //     stock.redeals += 1;
-        //     stock._updateRedealsSVG();
-        // }
-        else if ( u.turn && u.dir )
+        else if ( u.hasOwnProperty('turn') && u.hasOwnProperty('dir') )
         {
-            const c = Util.id2Card(u.turn);
-            if ( u.dir === 'up' )
-                c.turnDown(false);
-            else if ( u.dir === 'down' )
-                c.turnUp(false);
+            // const c = Util.id2Card(u.turn);
+            // if ( u.dir === 'up' )
+            //     c.turnDown();
+            // else if ( u.dir === 'down' )
+            //     c.turnUp();
+            // else
+            //     debugger;
+        }
+        else
+        {
+            debugger;
         }
     }
     undo = undo.filter( e => e.move !== m );
+    undoing = false;
+
+    // robot will cause an autoMove/autoCollect loop
     tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
     reserves.forEach( res => res.scrunchCards(rules.Reserve) );
     availableMoves();   // repaint moveable cards
@@ -1390,7 +1397,7 @@ class CardContainer
                 if ( idx > -1 )
                 {
                     c = stock.cards.splice(idx, 1)[0];  // returns an array of deleted items
-                    c.turnUp(false);
+                    c.turnUp();
                 }
                 else
                 {
@@ -1560,6 +1567,11 @@ class CardContainer
         return o;
     }
 
+    autoMove()
+    {
+
+    }
+
     english()
     {
         return 'There is no explanation for this';
@@ -1607,25 +1619,23 @@ class Cell extends CardContainer
 }
 
 class CellCarpet extends Cell
-{   // TODO DRY TableauFortunesFavor
-    pop()
-    {
-        const c = super.pop();
-        if ( this.cards.length === 0 )
-        {
-            let c2 = waste.peek();
-            if ( !c2 )
-                c2 = stock.peek();
-            if ( c2 )
-                c2.moveTop(this);
-        }
-        return c;
-    }
-
+{
     availableMoves()
     {   // total fudge
         this.cards.forEach( c => c.markMoveable(true) );
         return this.cards.length;
+    }
+
+    autoMove()
+    {
+        if ( this.cards.length === 0 )
+        {
+            let c = waste.peek();
+            if ( !c )
+                c = stock.peek();
+            if ( c )
+                c.moveTop(this);
+        }
     }
 
     english()
@@ -1645,7 +1655,7 @@ class Reserve extends CardContainer
     }
 
     push(c)
-    {   // same as Tableau.push
+    {   // DRY same as Tableau.push
         if ( 0 === this.cards.length )
             this._resetStackFactor(rules.Reserve);
 
@@ -1662,7 +1672,7 @@ class Reserve extends CardContainer
     }
 
     pop()
-    {   // same as Tableau.pop
+    {   // same as Tableau.pop  AUTOPOP?
         const c = super.pop();
 
         const tc = this.peek();
@@ -1813,7 +1823,7 @@ class Stock extends CardContainer
     }
 
     pop()
-    {   // extend, so something coming off stock can be turned up
+    {   // extend, so something coming off stock can be turned up AUTOPOP?
         const c = super.pop();
         if ( c && c.faceDown )
             c.turnUp();
@@ -1843,7 +1853,6 @@ class Stock extends CardContainer
         {
             this.redeals -= 1;
             this._updateRedealsSVG();
-            // undo.push({move:tallyMan.count, redeals:-1});
             undo.length = 0;
         }
     }
@@ -1942,11 +1951,7 @@ class StockKlondike extends Stock
             c.bringToTop();
             waste.push(c);
         }
-        undoPush(stock, waste, nCardsMoved);
-        // undo.push({move:tallyMan.count,
-        //     from:listOfCardContainers.findIndex(e => e === stock),
-        //     to:listOfCardContainers.findIndex(e => e === waste),
-        //     count:nCardsMoved});
+        undoPushMove(stock, waste, nCardsMoved);
         tallyMan.increment();
     }
 
@@ -2260,7 +2265,7 @@ class Waste extends CardContainer
     }
 
     pop()
-    {
+    {   // AUTOPOP?
         const c = super.pop();
 
         if ( this.cards.length > 2 )
@@ -2737,7 +2742,7 @@ class Tableau extends CardContainer
     }
 
     push(c)
-    {
+    {   // DRY same as Reserve.push
         if ( 0 === this.cards.length )
             this._resetStackFactor(rules.Tableau);
 
@@ -2746,13 +2751,15 @@ class Tableau extends CardContainer
             pt = Util.newPoint(this.pt.x, this._dynamicY());
         else if ( rules.Tableau.fan === 'Right' )
             pt = Util.newPoint(this._dynamicX(), this.pt.y);
+        else if ( rules.Tableau.fan === 'None' )
+            pt = Util.newPoint(this.pt.x, this.pt.y);
         this.cards.push(c);
         c.owner = this;
         c.animate(pt);
     }
 
     pop()
-    {
+    {   // AUTOPOP?
         const c = super.pop();
 
         const tc = this.peek();
@@ -2893,16 +2900,17 @@ class TableauTail extends Tableau
 class TableauBlockade extends TableauTail
 // "Fill each space at once with the top card from the stock"
 {
-    pop()
+    autoMove()
     {
-        const c = super.pop();
         if ( this.cards.length === 0 )
         {
-            const sc = stock.peek();
-            if ( sc )
-                sc.moveTop(this);
+            const c = stock.peek();
+            if ( c )
+            {
+                tallyMan.decrement();
+                c.moveTop(this);
+            }
         }
-        return c;
     }
 
     english()
@@ -2922,18 +2930,19 @@ class TableauFortunesFavor extends Tableau
     Only one card may moved at a time, never sequences.
 */
 {
-    pop()
+    autoMove()
     {
-        const c = super.pop();
         if ( this.cards.length === 0 )
         {
-            let c2 = waste.peek();
-            if ( !c2 )
-                c2 = stock.peek();
-            if ( c2 )
-                c2.moveTop(this);
+            let c = waste.peek();
+            if ( !c )
+                c = stock.peek();
+            if ( c )
+            {
+                tallyMan.decrement();
+                c.moveTop(this);
+            }
         }
-        return c;
     }
 
     english()
@@ -2949,16 +2958,17 @@ class TableauCanfield extends TableauTail
 // "The top cards are available for play on foundations, but never into spaces" TODO
 // Politaire says empty tableau can accept any card if reserve is empty TODO
 {
-    pop()
+    autoMove()
     {
-        const c = super.pop();
         if ( this.cards.length === 0 )
         {
-            const rc = reserve.peek();
-            if ( rc )
-                rc.moveTop(this);
+            const c = reserve.peek();
+            if ( c )
+            {
+                tallyMan.decrement();
+                c.moveTop(this);
+            }
         }
-        return c;
     }
 
     english()
@@ -3777,9 +3787,13 @@ const waitForCards = () => new Promise((resolve,reject) =>
 
 function robot()
 {
-    waitForCards().then ( () =>
+    waitForCards().then( () =>
     {
-        autoCollect();
+        tableaux.forEach( tab => tab.autoMove() );
+        cells.forEach( cel => cel.autoMove() );
+        waitForCards().then( () =>
+            autoCollect()
+        );
         tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
         reserves.forEach( res => res.scrunchCards(rules.Reserve) );
         waitForCards().then( () =>

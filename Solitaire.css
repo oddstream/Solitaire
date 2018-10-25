@@ -43,7 +43,7 @@ svg {
 }
 
 .spielkartevalue {
-    font-family: var(--ffont), sans-serif;
+    font-family: var(--ffont, 'Acme'), sans-serif;
     font-size: 24px /*2.1vw*/;
     /* fill here gets ignored */
     pointer-events: none;
