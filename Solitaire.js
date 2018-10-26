@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.26.1',
+    GAME_VERSION: '0.10.26.2',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
