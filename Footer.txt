@@ -8,8 +8,8 @@
         
         <p><label for="sensoryCues"><input type="checkbox" id="sensoryCues" class="filled-in steelblue"/><span>Highlight movable cards</span></label></p>
         <p><label for="autoPlay"><input type="checkbox" id="autoPlay" class="filled-in steelblue"/><span>Allow single click to move a card</span></label></p>
-        <p><label for="autoFlip"><input type="checkbox" id="autoFlip" class="filled-in steelblue"/><span>Automatically turn over exposed tableau cards</span></label></p>
 <!--
+        <p><label for="autoFlip"><input type="checkbox" id="autoFlip" class="filled-in steelblue"/><span>Automatically turn over exposed tableau cards</span></label></p>
         <p><label for="playFromFoundation"><input type="checkbox" id="playFromFoundation" class="filled-in steelblue"/><span>Allow play from foundation<span></label></p>
 -->       
         <div class="row">

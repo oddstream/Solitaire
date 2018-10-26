@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.25.1',
+    GAME_VERSION: '0.10.26.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -1704,7 +1704,7 @@ class Reserve extends CardContainer
     autoMove()
     {   // same as Tableau
         const c = this.peek();
-        if ( c && c.faceDown && stats.Options.autoFlip )
+        if ( c && c.faceDown )
         {
             tallyMan.decrement();
             c.flipUp();
@@ -2124,12 +2124,13 @@ class StockCruel extends Stock
 
     clickOnEmpty()
     {
-        // infinite redeals when this.redeals is null
         if ( this.redealsAvailable() )
         {
             const tmp = this._part1();
             this._part2(tmp);
             this._part3();
+            
+            undo.length = 0;
 
             if ( 1 === availableMoves() )   // repaint moveable cards
                 displayToastNoAvailableMoves();
@@ -2829,7 +2830,7 @@ class Tableau extends CardContainer
     autoMove()
     {   // same as Reserve
         const c = this.peek();
-        if ( c && c.faceDown && stats.Options.autoFlip )
+        if ( c && c.faceDown )
         {
             tallyMan.decrement();
             c.flipUp();
@@ -3449,7 +3450,7 @@ modalSettings.options.onOpenStart = function()
     document.getElementById('aniSpeed').value = stats.Options.aniSpeed;
     document.getElementById('sensoryCues').checked = stats.Options.sensoryCues;
     document.getElementById('autoPlay').checked = stats.Options.autoPlay;
-    document.getElementById('autoFlip').checked = stats.Options.autoFlip;
+    // document.getElementById('autoFlip').checked = stats.Options.autoFlip;
     // document.getElementById('playFromFoundation').checked = stats.Options.playFromFoundation;
 
     document.getElementById('autoOff').checked = stats.Options.autoCollect === Constants.AUTOCOLLECT_OFF;
@@ -3463,7 +3464,7 @@ modalSettings.options.onCloseEnd = function()
     stats.Options.aniSpeed = document.getElementById('aniSpeed').value;
     stats.Options.sensoryCues = document.getElementById('sensoryCues').checked;
     stats.Options.autoPlay = document.getElementById('autoPlay').checked;
-    stats.Options.autoFlip = document.getElementById('autoFlip').checked;
+    // stats.Options.autoFlip = document.getElementById('autoFlip').checked;
     // stats.Options.playFromFoundation = document.getElementById('playFromFoundation').checked;
 
     if ( document.getElementById('autoOff').checked )
@@ -3694,8 +3695,8 @@ if ( !stats.Options )
         aniSpeed:3,
         autoCollect:Constants.AUTOCOLLECT_SOLVEABLE,
         sensoryCues:false,
-        autoFlip:false,
-        playFromFoundation:false,
+        autoFlip:true,              // retired
+        playFromFoundation:false,   // retired
         autoPlay:true,
         dealWinnable:false,
         loadSaved:true
