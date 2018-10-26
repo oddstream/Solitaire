@@ -1,5 +1,7 @@
 26/10/2018
 retire autoFlip setting
+retire onclick on a facedown card
+Bug fixes and refactoring of undo
 
 25/10/2018
 Replace derived class pop() with autoMove

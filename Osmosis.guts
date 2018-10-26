@@ -2,7 +2,7 @@
 {
   "Name":"Osmosis",
   "Wikipedia":"https://en.wikipedia.org/wiki/Osmosis_(solitaire)",
-  "Winnable":[329967,579978],
+  "Winnable":[315489,329967,579978],
   "Cards":{"suit":"BottomLeft"},
   "Reserve":{"fan":"Right"},
   "Foundation":{"suit":2, "rank":5, "fan":"Right"},

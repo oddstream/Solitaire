@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.26.0',
+    GAME_VERSION: '0.10.26.1',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -538,7 +538,7 @@ class Card
     }
 
     onclick(event)
-    {
+    {   // shouldn't ever happen
         console.error('click received directly on a card');
     }
 
@@ -848,6 +848,7 @@ class Card
     moveTop(to)
     {   console.assert(this===this.owner.peek());
         const from = this.owner;
+
         from.pop();
         this.bringToTop();
         to.push(this);
@@ -856,26 +857,30 @@ class Card
         tallyMan.increment();
     }
 
-    moveTail(to)
+    moveSome(to, n2move)
     {
         const from = this.owner;
-        let nCard = this.owner.cards.findIndex( e => e === this );
-        console.assert(nCard !== -1);
-        let nOfCards = from.cards.length;
-
         const tmp = [];
-        for ( let n=nCard; n<nOfCards; n++ )
+        for ( let n=0; n<n2move; n++ )
         {
-            tmp.push(from.pop());
+            if ( from.peek() )
+                tmp.push(from.pop());
         }
+        const nCardsMoved = tmp.length;
         while ( tmp.length )
         {
             const c = tmp.pop();
             c.bringToTop();
             to.push(c);
         }
-        undoPushMove(from, to, nOfCards-nCard);
+        undoPushMove(from, to, nCardsMoved);
         tallyMan.increment();
+    }
+
+    moveTail(to)
+    {   // move this card and all others below it to a new owner
+        let nCard = this.owner.cards.findIndex( e => e === this );
+        this.moveSome(to, this.owner.cards.length-nCard);
     }
 
     _overlapArea(pt2)
@@ -1662,17 +1667,11 @@ class Reserve extends CardContainer
     }
 
     onclick(c)
-    {
+    {   // can be face up or face down
+        if ( c.faceDown )
+            return;
         if ( c !== this.cards.peek() )
             return;
-
-        if ( c.faceDown )
-        {
-            c.flipUp();
-            window.setTimeout(robot, 500);
-            return;
-        }
-
         if ( !stats.Options.autoPlay )
             return;
 
@@ -1918,33 +1917,8 @@ class StockKlondike extends Stock
         if ( Number.isInteger(rules.Waste.maxcards) )
             if ( !(waste.cards.length < rules.Waste.maxcards) )
                 return;
-        /*
-        for ( let n=0; n<rules.Stock.cards; n++ )
-        {
-            const c = this.peek();
-            if ( c )
-            {
-                c.moveTop(waste);
-                tallyMan.decrement();
-            }
-        }
-        tallyMan.increment();
-        */
-        const tmp = [];
-        for ( let n=0; n<rules.Stock.cards; n++ )
-        {
-            if ( stock.peek() )
-                tmp.push(this.pop());
-        }
-        const nCardsMoved = tmp.length;
-        while ( tmp.length )
-        {
-            const c = tmp.pop();
-            c.bringToTop();
-            waste.push(c);
-        }
-        undoPushMove(stock, waste, nCardsMoved);
-        tallyMan.increment();
+
+        c.moveSome(waste, rules.Stock.cards);
     }
 
     english()
@@ -2258,7 +2232,7 @@ class Waste extends CardContainer
     }
 
     pop()
-    {   // AUTOPOP?
+    {
         const c = super.pop();      console.assert(!c.faceDown);
         
         if ( this.cards.length > 2 )
@@ -2283,7 +2257,7 @@ class Waste extends CardContainer
     }
 
     onclick(c)
-    {
+    {   // always face up
         if ( !stats.Options.autoPlay )
             return;
 
@@ -2379,7 +2353,7 @@ class Foundation extends CardContainer
     }
 
     onclick(c)
-    {
+    {   // always face up
         if ( !stats.Options.playFromFoundation )
             return;
         if ( !stats.Options.autoPlay )
@@ -2792,13 +2766,9 @@ class Tableau extends CardContainer
     }
 
     onclick(c)
-    {
-        if ( c.faceDown && this.peek() === c )
-        {
-            c.flipUp();
-            window.setTimeout(robot, 500);
+    {   // can be face up or face down
+        if ( c.faceDown )
             return;
-        }
 
         if ( !stats.Options.autoPlay )
             return;
@@ -3041,7 +3011,7 @@ class TableauFreecell extends Tableau
 class TableauGolf extends Tableau
 {
     onclick(c)
-    {   // override - only click top card, which can only go to foundation[0]
+    {   // override - only click top card, which can only go to foundation[0]. always face up
         if ( this.cards.peek() === c )
         {
             if ( foundations[0].canAcceptCard(c) )
