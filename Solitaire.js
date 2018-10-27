@@ -458,11 +458,11 @@ class Card
                 if ( rules.Cards.suit === 'BottomLeft' )
                 {
                     u.setAttributeNS(null, 'x', '4');
-                    u.setAttributeNS(null, 'y', '58');
+                    u.setAttributeNS(null, 'y', String((Constants.CARD_HEIGHT/3)*2));
                 }
                 else if ( rules.Cards.suit === 'TopRight' )
                 {
-                    u.setAttributeNS(null, 'x', '30');
+                    u.setAttributeNS(null, 'x', String(Constants.CARD_WIDTH/2));
                     u.setAttributeNS(null, 'y', '4');
                 }
                 else
