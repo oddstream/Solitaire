@@ -5,7 +5,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.26.2',
+    GAME_VERSION: '0.10.27.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -421,7 +421,6 @@ class Card
     {
         const r = document.createElementNS(Constants.SVG_NAMESPACE, 'rect');
         r.classList.add(cl);
-        r.style.touchAction = 'none';
         r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
         r.setAttributeNS(null, 'height', String(Constants.CARD_HEIGHT));
         r.setAttributeNS(null, 'rx', Constants.CARD_RADIUS);
@@ -434,28 +433,24 @@ class Card
         console.assert(!this.g.lastChild);
         if ( this.faceDown )
         {
-            /*
-            const u = document.createElementNS(Constants.SVG_NAMESPACE, 'use');
-            u.setAttributeNS(null, 'href', '#spielkarteback');
-            g.appendChild(u);
-            */
             this.g.appendChild(this._createRect('spielkarteback'));
         }
         else
-        {   // TODO use a viewBox to centre ordinal?
-            const ordOffset = [0,9,9,9,9,9,9,10,9,9,4,11,8,9];
+        {
             this.g.appendChild(this._createRect('spielkarte'));
 
             const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
             t.classList.add('spielkartevalue');
-            t.setAttributeNS(null, 'x', String(ordOffset[this.ordinal]));
-            t.setAttributeNS(null, 'y', '23');
+            t.setAttributeNS(null, 'x', String(Constants.CARD_WIDTH/4));
+            t.setAttributeNS(null, 'y', String(Constants.CARD_HEIGHT/4));
+            t.setAttributeNS(null, 'text-anchor', 'middle');
+            t.setAttributeNS(null, 'dominant-baseline', 'middle');
             t.setAttributeNS(null, 'fill', this.color);
             t.innerHTML = this.faceValue;
             this.g.appendChild(t);
 
             if ( Constants.MOBILE )
-            {
+            {   // TODO get rid of magic numbers
                 const u = document.createElementNS(Constants.SVG_NAMESPACE, 'use');
                 u.setAttributeNS(null, 'href', `#${this.suit}`);
                 u.setAttributeNS(null, 'height', '22');
@@ -482,23 +477,20 @@ class Card
                 t.classList.add('spielkartesuit');
                 if ( rules.Cards.suit === 'BottomLeft' )
                 {
-                    t.setAttributeNS(null, 'x', '6');
-                    t.setAttributeNS(null, 'y', '80');
+                    t.setAttributeNS(null, 'x', String(Constants.CARD_WIDTH/4));
+                    t.setAttributeNS(null, 'y', String((Constants.CARD_HEIGHT/4)*3));
                 }
                 else if ( rules.Cards.suit === 'TopRight' )
                 {
-                    if ( this.suit === Constants.CLUB )
-                        t.setAttributeNS(null, 'x', '33');
-                    else if ( this.suit === Constants.HEART )
-                        t.setAttributeNS(null, 'x', '34');
-                    else
-                        t.setAttributeNS(null, 'x', '35');
-                    t.setAttributeNS(null, 'y', '24');
+                    t.setAttributeNS(null, 'x', String((Constants.CARD_WIDTH/4)*3));
+                    t.setAttributeNS(null, 'y', String(Constants.CARD_HEIGHT/4));
                 }
                 else
                 {
                     console.error('Unknown rules.Cards.suit', rules.Cards.suit);
                 }
+                t.setAttributeNS(null, 'text-anchor', 'middle');
+                t.setAttributeNS(null, 'dominant-baseline', 'middle');
                 t.setAttributeNS(null, 'fill', this.color);
                 t.innerHTML = this.suit;
                 this.g.appendChild(t);
@@ -1004,6 +996,14 @@ function undoPushFlip(c, di)
 {
     if ( !undoing )
         undo.push({move:tallyMan.count, flip:c.id, dir:di});
+}
+
+function undoCount()
+{   // moves made, also the move:<number> for next move, but how do we do sleep()?
+    if ( undo.length === 0 )
+        return 0;
+    const u = undo.peek();
+    return u.move + 1;
 }
 
 function doundo()
@@ -1981,7 +1981,7 @@ class StockSpider extends Stock
     onclick(c)
     {
         if ( tableaux.some( t => t.cards.length === 0 ) )
-        {
+        {   // TODO could use tableaux.reduce, but it's less readable
             let tabCards = 0;
             tableaux.forEach( t => tabCards += t.cards.length );
             if ( tabCards >= tableaux.length )
@@ -2340,6 +2340,7 @@ class Foundation extends CardContainer
 
     push(c)
     {   // override to fan
+        console.assert(!c.faceDown);
         let pt = null;
         if ( rules.Foundation.fan === 'Down' )
             pt = Util.newPoint(this.pt.x, this._dynamicY());
@@ -3255,10 +3256,9 @@ function autoCollect()
 
 function availableMoves()
 {
-    let count = listOfCardContainers.reduce( (acc,obj) => {
+    return listOfCardContainers.reduce( (acc,obj) => {
         return acc + obj.availableMoves();
     }, 0);
-    return count;
 }
 
 function dotick()
@@ -3811,7 +3811,7 @@ document.addEventListener('keypress', function(ev)
         if ( 0 === a )
             displayToastNoAvailableMoves();
         else
-            displayToast(`<span>${a} available moves</span>`);
+            displayToast(`<span>${Util.plural(a, 'move')} available</span>`);
     }
     else if ( ev.key === 'r' )
         modalShowRules.open();
