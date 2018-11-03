@@ -69,7 +69,7 @@ svg {
     stroke-width: 1;
 }
 
-.Tableau, .TableauBlockade, .TableauCanfield, .TableauFortunesFavor, .TableauFreecell, .TableauGolf, .TableauTail {
+.Tableau, .TableauBlockade, .TableauCanfield, .TableauFortunesFavor, .TableauFreecell, .TableauGolf, .TableauSpider, .TableauTail {
     fill: var(--bg-color, darkgreen);
     stroke: var(--hi-color, lightgreen);
     stroke-width: 1;

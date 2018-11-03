@@ -1,3 +1,10 @@
+03/11/2018
+Added class TableauSpider, extends TableauTail
+Implemented orientation change
+
+30/10/18
+Widen nearlySamePoint from 2 to 4
+
 27/10/2018
 Get rid of most magic numbers when positioning card ordinal and suit
 

@@ -1,11 +1,10 @@
 //@ts-check
 'use strict';
 /* jshint esversion:6 */
-// import {M} from './js/materialize.min.js';
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.10.27.0',
+    GAME_VERSION: '0.11.3.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -27,7 +26,7 @@ const Constants = {
     CARD_WIDTH: 60,
     CARD_WIDTH_STACKED: Math.round(60/2),
     CARD_HEIGHT: 90,
-    CARD_RADIUS: '5',
+    CARD_RADIUS: 5,
     DEFAULT_STACK_FACTOR_Y: (10.0/3.0),
     DEFAULT_STACK_FACTOR_X: 2.0,
     MAX_STACK_FACTOR: 10,
@@ -104,10 +103,10 @@ const Util = {
 
     nearlySamePoint: function(pt1, pt2)
     {
-        const xMin = pt1.x - 2;
-        const xMax = pt1.x + 2;
-        const yMin = pt1.y - 2;
-        const yMax = pt1.y + 2;
+        const xMin = pt1.x - 4;
+        const xMax = pt1.x + 4;
+        const yMin = pt1.y - 4;
+        const yMax = pt1.y + 4;
         return ( pt2.x > xMin && pt2.x < xMax && pt2.y > yMin && pt2.y < yMax );
     },
 
@@ -216,11 +215,11 @@ class Baize
         this._borderWidth = 0;
 
         this._gutsWidth = 0;
-        document.querySelectorAll('rect').forEach( r => {
+        document.querySelectorAll('g>rect').forEach( r => {
             r.setAttributeNS(null, 'height', String(Constants.CARD_HEIGHT));
             r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
-            r.setAttributeNS(null, 'rx', Constants.CARD_RADIUS);
-            r.setAttributeNS(null, 'ry', Constants.CARD_RADIUS);
+            r.setAttributeNS(null, 'rx', String(Constants.CARD_RADIUS));
+            r.setAttributeNS(null, 'ry', String(Constants.CARD_RADIUS));
 
             let x = Number.parseInt(r.getAttribute('x')) || 0;
             if ( x > this._gutsWidth )
@@ -229,38 +228,37 @@ class Baize
         this._gutsWidth += Constants.CARD_WIDTH + 10;
 
         this._setBox();
+
+        window.addEventListener('orientationchange', this.onOrientationChange.bind(this));
     }
 
-    _addBorder()
-    {   // console.log('adding', this._borderWidth);
-        if ( this._borderWidth )
-        {
-            this._ele.querySelectorAll('rect').forEach( r => {
+    _adjustBorder(b)
+    {
+        this._ele.querySelectorAll('g>rect').forEach( r => {
+            if ( r.hasAttribute('x') )
+            {
                 let x = Number.parseInt(r.getAttribute('x')) || 0;
-                r.setAttributeNS(null, 'x', String(x + this._borderWidth));
-            });
-            this._ele.querySelectorAll('rect text').forEach( r => {
+                r.setAttributeNS(null, 'x', String(x + b));
+            }
+            // else {console.warn('no x')}
+        });
+        this._ele.querySelectorAll('g>text').forEach( r => {
+            if ( r.hasAttribute('x') )
+            {
                 let x = Number.parseInt(r.getAttribute('x')) || 0;
-                r.setAttributeNS(null, 'x', String(x + this._borderWidth));
-            });
-        }
-    }
+                r.setAttributeNS(null, 'x', String(x + b));
+            }
+            // else {console.warn('no x')}
+        });
 
-    // _removeBorder()
-    // {
-    //     if ( this._borderWidth )
-    //     {   console.log('removing', this._borderWidth);
-    //         document.querySelectorAll('rect').forEach( r => {
-    //             let x = Number.parseInt(r.getAttribute('x')) || 0;
-    //             r.setAttributeNS(null, 'x', String(x - this._borderWidth));
-    //         });
-    //         document.querySelectorAll('rect text').forEach( r => {
-    //             let x = Number.parseInt(r.getAttribute('x')) || 0;
-    //             r.setAttributeNS(null, 'x', String(x - this._borderWidth));
-    //         });
-    //     }
-    //     this._borderWidth = 0;
-    // }
+        listOfCardContainers.forEach( cc => {
+            cc.pt.x += b;
+            cc.cards.forEach( c => {
+                c.pt.x += b;
+                c.position0();
+            });
+        });
+    }
 
     _setBox()
     {
@@ -275,7 +273,10 @@ class Baize
             if ( this._gutsWidth < 800 )
             {
                 this._borderWidth = (800 - this._gutsWidth) / 2;
-                this._addBorder();
+                if ( this._borderWidth )
+                {
+                    this._adjustBorder(this._borderWidth);
+                }
                 this._width = 800;
             }
         }
@@ -287,11 +288,22 @@ class Baize
         this._ele.setAttributeNS(null, 'preserveAspectRatio', 'xMinYMin slice');
     }
 
-    // onOrientationChange()
-    // {
-    //     this._removeBorder();
-    //     this._setBox();
-    // }
+    onOrientationChange()
+    {
+        if ( this._borderWidth )
+        {
+            this._adjustBorder(-this._borderWidth);
+            this._borderWidth = 0;
+        }
+        this._setBox();
+        listOfCardContainers.forEach( cc => {
+            cc.cards.forEach( c => {
+                while ( c.g.hasChildNodes() )
+                    c.g.removeChild(c.g.lastChild);
+                c._putRectInG();
+            });
+        });
+    }
 
     get ele()
     {
@@ -299,9 +311,9 @@ class Baize
     }
 }
 
+const listOfCardContainers = [];
+
 const baize = new Baize;
-// window.addEventListener('resize', baize.onresize.bind(baize));
-// window.addEventListener("orientationchange", baize.onOrientationChange.bind(baize));
 
 class Mover
 {
@@ -394,7 +406,7 @@ class Card
         // this.revealed = false;                  // user is holding mouse on a buried non-grabbable card
 
         this.g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
-        this.putRectInG();
+        this._putRectInG();
         this.position0();
         this._addListeners();
     }
@@ -423,12 +435,12 @@ class Card
         r.classList.add(cl);
         r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
         r.setAttributeNS(null, 'height', String(Constants.CARD_HEIGHT));
-        r.setAttributeNS(null, 'rx', Constants.CARD_RADIUS);
-        r.setAttributeNS(null, 'ry', Constants.CARD_RADIUS);
+        r.setAttributeNS(null, 'rx', String(Constants.CARD_RADIUS));
+        r.setAttributeNS(null, 'ry', String(Constants.CARD_RADIUS));
         return r;
     }
 
-    putRectInG()
+    _putRectInG()
     {   console.assert(this instanceof Card);
         console.assert(!this.g.lastChild);
         if ( this.faceDown )
@@ -748,8 +760,7 @@ class Card
             this.faceDown = false;
             while ( this.g.hasChildNodes() )
                 this.g.removeChild(this.g.lastChild);
-            this.putRectInG();
-            // this.position0();
+            this._putRectInG();
             if ( undoable )
                 undoPushFlip(this, 'up');
         }
@@ -766,8 +777,7 @@ class Card
             this.faceDown = true;
             while ( this.g.hasChildNodes() )
                 this.g.removeChild(this.g.lastChild);
-            this.putRectInG();
-            // this.position0();
+            this._putRectInG();
             if ( undoable )
                 undoPushFlip(this, 'down');
         }
@@ -1981,7 +1991,7 @@ class StockSpider extends Stock
     onclick(c)
     {
         if ( tableaux.some( t => t.cards.length === 0 ) )
-        {   // TODO could use tableaux.reduce, but it's less readable
+        {   // could use tableaux.reduce, but it's less readable
             let tabCards = 0;
             tableaux.forEach( t => tabCards += t.cards.length );
             if ( tabCards >= tableaux.length )
@@ -2943,6 +2953,27 @@ class TableauCanfield extends TableauTail
     }
 }
 
+class TableauSpider extends TableauTail
+{   // override to click on a conformant stack to move to foundation
+    onclick(c)
+    {   // can be face up or face down
+        if ( c.faceDown )
+            return;
+
+        if ( !stats.Options.autoPlay )
+            return;
+
+        if ( !this.canGrab(c) )
+            return;
+
+        let cc = c.findFullestAcceptingContainer(foundations);
+        if ( !cc )
+            cc = c.findFullestAcceptingContainer(tableaux);
+        if ( cc )
+            c.moveTail(cc);
+    }
+}
+
 class TableauFreecell extends Tableau
 {
     _powerMoves(moveToEmptyColumn=false)
@@ -3689,14 +3720,12 @@ if ( !stats[rules.Name].worstStreak )   stats[rules.Name].worstStreak = 0;
 
 stats.Options.lastGame = window.location.pathname.split('/').pop();
 
-const listOfCardContainers = [];
-
 const stocks = linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]);
 const stock = stocks[0];
 const wastes = linkClasses([Waste]);
 const waste = wastes[0];
 const foundations = linkClasses([Foundation,FoundationCanfield,FoundationGolf,FoundationOsmosis,FoundationPenguin,FoundationSpider]);
-const tableaux = linkClasses([Tableau,TableauBlockade,TableauCanfield,TableauFortunesFavor,TableauFreecell,TableauGolf,TableauTail]);
+const tableaux = linkClasses([Tableau,TableauBlockade,TableauCanfield,TableauFortunesFavor,TableauFreecell,TableauGolf,TableauSpider,TableauTail]);
 const cells = linkClasses([Cell,CellCarpet]);
 const reserves = linkClasses([Reserve,ReserveFrog]);
 const reserve = reserves[0];

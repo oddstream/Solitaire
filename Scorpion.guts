@@ -17,10 +17,10 @@
     <g class="FoundationSpider"><rect x="345" y="10"></rect></g>
     <g class="FoundationSpider"><rect x="412" y="10"></rect></g>
     
-    <g class="TableauTail" deal="ddduuuu"><rect x="10" y="110"></rect></g>
-    <g class="TableauTail" deal="ddduuuu"><rect x="77" y="110"></rect></g>
-    <g class="TableauTail" deal="ddduuuu"><rect x="144" y="110"></rect></g>
-    <g class="TableauTail" deal="uuuuuuu"><rect x="211" y="110"></rect></g>
-    <g class="TableauTail" deal="uuuuuuu"><rect x="278" y="110"></rect></g>
-    <g class="TableauTail" deal="uuuuuuu"><rect x="345" y="110"></rect></g>
-    <g class="TableauTail" deal="uuuuuuu"><rect x="412" y="110"></rect></g>
+    <g class="TableauSpider" deal="ddduuuu"><rect x="10" y="110"></rect></g>
+    <g class="TableauSpider" deal="ddduuuu"><rect x="77" y="110"></rect></g>
+    <g class="TableauSpider" deal="ddduuuu"><rect x="144" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuu"><rect x="211" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuu"><rect x="278" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuu"><rect x="345" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuu"><rect x="412" y="110"></rect></g>

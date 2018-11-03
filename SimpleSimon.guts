@@ -19,13 +19,13 @@
     <g class="FoundationSpider"><rect x="546" y="10"></rect></g>
     <g class="FoundationSpider"><rect x="613" y="10"></rect></g>
 
-    <g class="TableauFreecell" deal="uuuuuuuu"><rect x="10" y="110"></rect></g>
-    <g class="TableauFreecell" deal="uuuuuuuu"><rect x="77" y="110"></rect></g>
-    <g class="TableauFreecell" deal="uuuuuuuu"><rect x="144" y="110"></rect></g>
-    <g class="TableauFreecell" deal="uuuuuuu"><rect x="211" y="110"></rect></g>
-    <g class="TableauFreecell" deal="uuuuuu"><rect x="278" y="110"></rect></g>
-    <g class="TableauFreecell" deal="uuuuu"><rect x="345" y="110"></rect></g>
-    <g class="TableauFreecell" deal="uuuu"><rect x="412" y="110"></rect></g>
-    <g class="TableauFreecell" deal="uuu"><rect x="479" y="110"></rect></g>
-    <g class="TableauFreecell" deal="uu"><rect x="546" y="110"></rect></g>
-    <g class="TableauFreecell" deal="u"><rect x="613" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="10" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="77" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="144" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuu"><rect x="211" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuuuu"><rect x="278" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuuu"><rect x="345" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuu"><rect x="412" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuu"><rect x="479" y="110"></rect></g>
+    <g class="TableauSpider" deal="uu"><rect x="546" y="110"></rect></g>
+    <g class="TableauSpider" deal="u"><rect x="613" y="110"></rect></g>
