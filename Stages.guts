@@ -1,7 +1,7 @@
 <script type="application/json" id="rules">
 {
   "Name":"Stages",
-  "Winnable":[649271,668662],
+  "Winnable":[71743,649271,668662],
   "Wikipedia":"",
   "Stock":{"packs":2, "redeals":0},
   "Foundation":{"suit":2, "rank":1, "accept":1},

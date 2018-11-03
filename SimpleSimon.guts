@@ -2,7 +2,7 @@
 {
   "Name":"Simple Simon",
   "Wikipedia":"https://en.wikipedia.org/wiki/Simple_Simon_(solitaire)",
-  "Winnable":[],
+  "Winnable":[641950,971669],
   "Stock":{"packs":1, "hidden":1},
   "Foundation":{"suit":2, "rank":2, "accept":"\u2261"},
   "Tableau":{"build":{"suit":1, "rank":2}, "move":{"suit":1, "rank":2}}

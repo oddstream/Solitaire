@@ -1,6 +1,7 @@
 03/11/2018
 Added class TableauSpider, extends TableauTail
 Implemented orientation change
+Retire Card.multiMove
 
 30/10/18
 Widen nearlySamePoint from 2 to 4

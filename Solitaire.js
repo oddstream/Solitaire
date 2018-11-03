@@ -4,7 +4,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.11.3.0',
+    GAME_VERSION: '0.11.3.1',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -234,7 +234,7 @@ class Baize
 
     _adjustBorder(b)
     {
-        this._ele.querySelectorAll('g>rect').forEach( r => {
+        this._ele.querySelectorAll('g>rect,g>text').forEach( r => {
             if ( r.hasAttribute('x') )
             {
                 let x = Number.parseInt(r.getAttribute('x')) || 0;
@@ -242,14 +242,14 @@ class Baize
             }
             // else {console.warn('no x')}
         });
-        this._ele.querySelectorAll('g>text').forEach( r => {
-            if ( r.hasAttribute('x') )
-            {
-                let x = Number.parseInt(r.getAttribute('x')) || 0;
-                r.setAttributeNS(null, 'x', String(x + b));
-            }
-            // else {console.warn('no x')}
-        });
+        // this._ele.querySelectorAll('g>text').forEach( r => {
+        //     if ( r.hasAttribute('x') )
+        //     {
+        //         let x = Number.parseInt(r.getAttribute('x')) || 0;
+        //         r.setAttributeNS(null, 'x', String(x + b));
+        //     }
+        //     // else {console.warn('no x')}
+        // });
 
         listOfCardContainers.forEach( cc => {
             cc.pt.x += b;
@@ -402,7 +402,6 @@ class Card
         this.overHandler = this.onpointerover.bind(this);
 
         this.inTransit = false;                 // set when moving
-        this.multiMove = false;                 // part of a large group being moved
         // this.revealed = false;                  // user is holding mouse on a buried non-grabbable card
 
         this.g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
@@ -635,7 +634,6 @@ class Card
                 this.ptOriginalPointerDown.x - c.pt.x,
                 this.ptOriginalPointerDown.y - c.pt.y
             );
-            // console.log(event, c.id, prOriginalPointerDown, c.ptOffset);
             c.bringToTop();
         });
 
@@ -727,12 +725,10 @@ class Card
         }
 
         this._removeDragListeners();
-        waitForCards().then(
-            this.grabbedTail.forEach( c =>
-            {
-                c.unmarkGrabbed();
-            })
-        );
+        this.grabbedTail.forEach( c =>
+        {
+            c.unmarkGrabbed();
+        });
         this.grabbedTail = null;
         return false;
     }
@@ -815,7 +811,6 @@ class Card
         if ( 0 === distance )
         {
             this.inTransit = false;
-            this.multiMove = false;
             return;
         }
 
@@ -826,10 +821,7 @@ class Card
                                        Math.round((ptFrom.y * v) + (ptTo.y * (1 - v))) );
             this.g.setAttributeNS(null, 'transform', `translate(${pt2.x} ${pt2.y})`);
 
-            if ( this.multiMove )
-                i -= distance / 5;
-            else
-                i -= distance/speed[stats.Options.aniSpeed];
+            i -= distance/speed[stats.Options.aniSpeed];
             if ( i > 0 )
             {
                 window.requestAnimationFrame(step);
@@ -839,7 +831,6 @@ class Card
                 if ( pt2.x !== this.pt.x || pt2.y !== this.pt.y )
                     this.position0();
                 this.inTransit = false;
-                this.multiMove = false;
             }
         };
 
@@ -1151,7 +1142,6 @@ class CardContainer
         this.cards = [];
         arr.forEach( a => {
             const c = new Card(a.pack, a.suit, a.ordinal, a.faceDown, this.pt);
-            c.multiMove = true;
             this.push(c);   // assigns owner and animates
             baize.ele.appendChild(c.g);
         });
@@ -1362,7 +1352,6 @@ class CardContainer
             //console.warn('no deal specified', this);
             return;
         }
-        // stock.cards.forEach( c => c.multiMove = true );
         for ( let i=0; i<this.a_deal.length; i++ )
         {
             let c = null;
@@ -1430,8 +1419,6 @@ class CardContainer
         {   // pause so user can see what's happening
             window.setTimeout(this._bury.bind(this), 1000);
         }
-        // clear multiMove flags from any that didn't get dealt
-        // stock.cards.forEach( c => c.multiMove = false );
     }
 
     _dynamicX(lim = this.cards.length)
@@ -1867,7 +1854,6 @@ class Stock extends CardContainer
             tallyMan.sleep( () => {
                 for ( let c=waste.peek(); c; c=waste.peek() )
                 {
-                    c.multiMove = true;
                     c.moveTop(stock);
                 }
                 this.decreaseRedeals();
@@ -2788,9 +2774,7 @@ class Tableau extends CardContainer
             return;
 
         let cc = null;
-        if ( foundations[0] instanceof FoundationSpider )   // TODO subclass to get rid of this ugly hack
-            cc = c.findFullestAcceptingContainer(foundations);
-        else if ( this.cards.peek() === c )
+        if ( this.cards.peek() === c )
             cc = c.findFullestAcceptingContainer(foundations);
         if ( !cc )
             cc = c.findFullestAcceptingContainer(tableaux);
@@ -3515,7 +3499,7 @@ modalStatistics.options.onOpenStart = function()
     }
 
     if ( stats[rules.Name].totalGames > 0 )
-        document.getElementById('gamesStreakStats').innerHTML = `Your current winning streak is ${stats[rules.Name].currStreak}, your best winning streak is ${stats[rules.Name].bestStreak}, your worst is ${stats[rules.Name].worstStreak}`;
+        document.getElementById('gamesStreakStats').innerHTML = `Your current streak is ${stats[rules.Name].currStreak}, your best winning streak is ${stats[rules.Name].bestStreak}, your worst is ${stats[rules.Name].worstStreak}`;
     else
         document.getElementById('gamesStreakStats').innerHTML = '';
     let totalPlayed = 0;
@@ -3529,7 +3513,7 @@ modalStatistics.options.onOpenStart = function()
     });
 
     if ( totalPlayed )
-        document.getElementById('gamesTotalStats').innerHTML = `In total, you have played ${totalPlayed} games and won ${totalWon} of them (${Math.round(totalWon/totalPlayed*100)}%)`;
+        document.getElementById('gamesTotalStats').innerHTML = `In total, you have played ${Util.plural(totalPlayed, 'game')} and won ${totalWon} of them (${Math.round(totalWon/totalPlayed*100)}%)`;
 };
 
 modalStatistics.options.onCloseEnd = function()
