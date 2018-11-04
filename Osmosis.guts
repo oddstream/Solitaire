@@ -24,4 +24,4 @@
     <g class="FoundationOsmosis"><rect x="160" y="310"></rect></g>
     <g class="FoundationOsmosis"><rect x="160" y="410"></rect></g>
 
-    <rect x="600" style="display:none"></rect>  <!-- dummy invisible rect for viewBox -->
+    <g><rect x="600" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->

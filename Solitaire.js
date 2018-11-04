@@ -4,7 +4,7 @@
 
 const Constants = {
     GAME_NAME: 'Solitaire',
-    GAME_VERSION: '0.11.3.1',
+    GAME_VERSION: '0.11.4.0',
     SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
     MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -215,7 +215,7 @@ class Baize
         this._borderWidth = 0;
 
         this._gutsWidth = 0;
-        document.querySelectorAll('g>rect').forEach( r => {
+        this._ele.querySelectorAll('g>rect').forEach( r => {
             r.setAttributeNS(null, 'height', String(Constants.CARD_HEIGHT));
             r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
             r.setAttributeNS(null, 'rx', String(Constants.CARD_RADIUS));
@@ -240,16 +240,7 @@ class Baize
                 let x = Number.parseInt(r.getAttribute('x')) || 0;
                 r.setAttributeNS(null, 'x', String(x + b));
             }
-            // else {console.warn('no x')}
         });
-        // this._ele.querySelectorAll('g>text').forEach( r => {
-        //     if ( r.hasAttribute('x') )
-        //     {
-        //         let x = Number.parseInt(r.getAttribute('x')) || 0;
-        //         r.setAttributeNS(null, 'x', String(x + b));
-        //     }
-        //     // else {console.warn('no x')}
-        // });
 
         listOfCardContainers.forEach( cc => {
             cc.pt.x += b;
@@ -562,9 +553,14 @@ class Card
             this.g.children[i].style.cursor = cur;
     }
 
+    /**
+     * Takes the event coords from a DOM event and returns an SVG point
+     * The PointerEvent contains several x,y coords; choice of client, offset, (page), (layer), screen, and (x, y)
+     * @param {PointerEvent} event
+     * @returns {SVGPoint}  
+     */
     _getPointerPoint(event)
     {
-        // choice of client, offset, (page), (layer), screen, and (x, y)
         return Util.DOM2SVG(event.clientX, event.clientY);
     }
 
@@ -642,6 +638,11 @@ class Card
         return false;
     }
 
+    /**
+     * Scale the SVGPoint (just created from a PointerEvent) into the viewBox
+     * There's probably a smarter way of doing this using some obscure API
+     * @param {SVGPoint} pt 
+     */
     _scalePointer(pt)
     {
         const r = baize.ele.getBoundingClientRect();

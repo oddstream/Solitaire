@@ -32,5 +32,5 @@
     <g class="Tableau" deal="uuuuuu"><rect x="410" y="210"></rect></g>
     <g class="Tableau" deal="uuuuuu"><rect x="410" y="310"></rect></g>
 
-    <rect x="610" style="display:none"></rect>  <!-- dummy invisible rect for viewBox -->
+    <g><rect x="610" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->
     

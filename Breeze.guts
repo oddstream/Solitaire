@@ -3,10 +3,9 @@
   "Name":"Breeze",
   "Wikipedia":"",
   "Winnable":[589700,812647],
-  "Cards":{"suit":"BottomLeft"},
   "Stock":{"packs":1, "hidden":1},
   "Foundation":{"suit":2, "rank":1, "accept":1},
-  "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":13, "fan":"Right", "maxfan":300}
+  "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":13, "maxfan":300}
 }
 </script>
 
@@ -14,33 +13,28 @@
     <g class="Stock">
       <rect x="10" y="-110"></rect>
     </g>
-    <rect x="810" style="display:none"></rect>  <!-- dummy invisible rect for viewBox -->
 
-    <g class="Foundation"><rect  x="10" y="10"></rect></g>
-    <g class="Foundation"><rect x="210" y="10"></rect></g>
-    <g class="Foundation"><rect x="410" y="10"></rect></g>
-    <g class="Foundation"><rect x="610" y="10"></rect></g>
+    <g class="Foundation"><rect x="345" y="10"></rect></g>
+    <g class="Foundation"><rect x="412" y="10"></rect></g>
+    <g class="Foundation"><rect x="479" y="10"></rect></g>
+    <g class="Foundation"><rect x="546" y="10"></rect></g>
 
-    <g class="TableauTail" deal="uuu"><rect x="10"  y="110"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="310" y="110"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="610" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect  x="10" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect  x="77" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="144" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="211" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="278" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="345" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="412" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="479" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="546" y="110"></rect></g>
     
-    <g class="TableauTail" deal="uuu"><rect x="10" y="210"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="310" y="210"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="610" y="210"></rect></g>
-    
-    <g class="TableauTail" deal="uuu"><rect x="10"  y="310"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="310" y="310"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="610" y="310"></rect></g>
-    
-    <g class="TableauTail" deal="uuu"><rect x="10" y="410"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="310" y="410"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="610" y="410"></rect></g>
-
-    <g class="TableauTail" deal="uuu"><rect x="10"  y="510"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="310" y="510"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="610" y="510"></rect></g>
-    
-    <g class="TableauTail" deal="uuu"><rect x="10" y="610"></rect></g>
-    <g class="TableauTail" deal="uu" ><rect x="310" y="610"></rect></g>
-    <g class="TableauTail" deal="uu" ><rect x="610" y="610"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect  x="10" y="410"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect  x="77" y="410"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="144" y="410"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="211" y="410"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="278" y="410"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="345" y="410"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="412" y="410"></rect></g>
+    <g class="TableauTail" deal="uu" ><rect x="479" y="410"></rect></g>
+    <g class="TableauTail" deal="uu" ><rect x="546" y="410"></rect></g>

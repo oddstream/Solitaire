@@ -13,7 +13,7 @@
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
     <g class="StockFan"><rect x="10" y="10"></rect></g>
     
-    <rect x="1310" style="display:none"></rect>  <!-- dummy invisible rect for viewBox -->
+    <g><rect x="1310" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->
 
     <g class="Foundation" deal="♥01"><rect x="110" y="10"></rect></g>
     <g class="Foundation" deal="♦01"><rect x="410" y="10"></rect></g>
