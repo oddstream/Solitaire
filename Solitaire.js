@@ -70,28 +70,28 @@ const Util = {
    */
   plural: function(n, word) {
     if ( 0 === n )
-        return `no ${word}s`;
+      return `no ${word}s`;
     else if ( 1 === n )
-        return `${n} ${word}`;
+      return `${n} ${word}`;
     else
-        return `${n} ${word}s`;
+      return `${n} ${word}s`;
   },
 
   /**
    * @param {(number|SVGPoint)} x
-   * @param {?number} y
+   * @param {number=} y
    * @returns {SVGPoint}
   */
   newPoint: function(x, y=undefined) {
     const pt = baize.ele.createSVGPoint();
     if ( typeof x === 'object' ) {
-        pt.x = x.x;
-        pt.y = x.y;
+      pt.x = x.x;
+      pt.y = x.y;
     } else if ( typeof x === 'number' && typeof y === 'number' ) {
-        pt.x = x;
-        pt.y = y;
+      pt.x = x;
+      pt.y = y;
     } else {
-        throw new TypeError();
+      throw new TypeError();
     }
     return pt;
   },
@@ -139,7 +139,7 @@ const Util = {
     for ( let i=0; i<listOfCardContainers.length; i++ ) {
       card = listOfCardContainers[i].cards.find( c => c.id === id );
       if ( card )
-          break;
+        break;
     }
     if ( !card ) console.warn('couldn\'t id', id);
     return card;
@@ -3969,38 +3969,35 @@ const waitForCards = () => new Promise((resolve,reject) => {
 });
 
 function robot() {
-    waitForCards().then( () => {
-        [tableaux,reserves,cells].forEach( ccl =>
-            ccl.forEach(cc => cc.autoMove())
-        );
+  waitForCards().then( () => {
+    [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => cc.autoMove()) );
 
-        waitForCards().then( () =>
-            autoCollect()
-        );
-        tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-        reserves.forEach( res => res.scrunchCards(rules.Reserve) );
-        waitForCards().then( () => {
-            if ( (stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY || stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE)
-                && listOfCardContainers.every( f => f.isSolveable() ) )
-            {
-                dotick();   // TODO could display toast [solve]
-            }
+    waitForCards().then( () => autoCollect() );
+
+    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+    
+    waitForCards().then( () => {
+      if ( (stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY || stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE)
+        && listOfCardContainers.every( f => f.isSolveable() ) ) {
+        dotick();   // TODO could display toast [solve]
+      }
+      waitForCards().then( () => {
+        if ( isComplete() ) {
+          if ( foundations.every( f => !f.scattered ) ) {
+            foundations.forEach( f => f.scatter() );
             waitForCards().then( () => {
-                if ( isComplete() ) {
-                    if ( foundations.every( f => !f.scattered ) ) {
-                        foundations.forEach( f => f.scatter() );
-                        waitForCards().then( () => {
-                            undo.length = 0;
-                            gameOver(true);
-                            modalGameOver.open();
-                        });
-                    }
-                } else if ( !availableMoves() ) {
-                    displayToastNoAvailableMoves();
-                }
+              undo.length = 0;
+              gameOver(true);
+              modalGameOver.open();
             });
-        });
+          }
+        } else if ( !availableMoves() ) {
+          displayToastNoAvailableMoves();
+        }
+      });
     });
+  });
 }
 
 /* document.addEventListener('keydown', function(ev) {
@@ -4033,9 +4030,9 @@ document.addEventListener('keypress', function(ev) {
 });
 
 if ( stats.Options.loadSaved && stats[rules.Name].saved )
-    doload();
+  doload();
 else
-    window.onload = dealCards;
+  window.onload = dealCards;
 
 if ( 0 === stats[rules.Name].totalGames )
-    doshowrules();
+  doshowrules();
