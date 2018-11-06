@@ -47,12 +47,6 @@ const Constants = {
 // else if ( !window.PointerEvent )
 //     window.alert('Pointer events not supported');
 
-if ( 'function' !== typeof Array.prototype.peek ) {
-    Array.prototype.peek = function() {
-        return this[this.length-1];
-    };
-}
-
 const Util = {
   /**
    * @param {SVGPoint} pt1 
@@ -220,7 +214,7 @@ class Baize {
 
       let x = Number.parseInt(r.getAttribute('x')) || 0;
       if ( x > this._gutsWidth ) {
-          this._gutsWidth = x;
+        this._gutsWidth = x;
       }
     });
     this._gutsWidth += Constants.CARD_WIDTH + 10;
@@ -352,7 +346,7 @@ class Mover {
 const tallyMan = new Mover;
 
 // https://stackoverflow.com/questions/20368071/touch-through-an-element-in-a-browser-like-pointer-events-none/20387287#20387287
-function dummyTouchStartHandler(e) {e.preventDefault();};
+function dummyTouchStartHandler(e) {e.preventDefault();}
 
 class Card {
   /**
@@ -412,9 +406,9 @@ class Card {
    */
   get color() {
     if ( this.suit === Constants.HEART || this.suit === Constants.DIAMOND )
-        return 'red';
+      return 'red';
     else
-        return 'black';
+      return 'black';
   }
 
   /**
@@ -465,13 +459,13 @@ class Card {
         u.setAttributeNS(null, 'height', '22');
         u.setAttributeNS(null, 'width', '24');
         if ( rules.Cards.suit === 'BottomLeft' ) {
-            u.setAttributeNS(null, 'x', '4');
-            u.setAttributeNS(null, 'y', String((Constants.CARD_HEIGHT/3)*2));
+          u.setAttributeNS(null, 'x', '4');
+          u.setAttributeNS(null, 'y', String((Constants.CARD_HEIGHT/3)*2));
         } else if ( rules.Cards.suit === 'TopRight' ) {
-            u.setAttributeNS(null, 'x', String(Constants.CARD_WIDTH/2));
-            u.setAttributeNS(null, 'y', '4');
+          u.setAttributeNS(null, 'x', String(Constants.CARD_WIDTH/2));
+          u.setAttributeNS(null, 'y', '4');
         } else {
-            console.error('Unknown rules.Cards.suit', rules.Cards.suit);
+          console.error('Unknown rules.Cards.suit', rules.Cards.suit);
         }
         this.g.appendChild(u);
       } else {
@@ -547,7 +541,7 @@ class Card {
    */
   onpointerover(event) {
     let cur = 'default';
-    if ( this.faceDown && this === this.owner.cards.peek() ) {
+    if ( this.faceDown && this === this.owner.peek() ) {
       cur = 'pointer';
     } else if ( this.owner.canGrab(this) ) {
       if ( stats.Options.autoPlay )
@@ -604,8 +598,8 @@ class Card {
 
     if ( event.pointerType === 'mouse' ) {
       if ( !(event.button === 0) ) {
-          console.log('don\'t care about mouse button', event.button);
-          return false;
+        console.log('don\'t care about mouse button', event.button);
+        return false;
       }
     }
 
@@ -695,10 +689,10 @@ class Card {
     Util.absorbEvent(event);
 
     // if ( this.revealed ) {
-        // this.unmarkGrabbed();
-        // this.owner.cards.forEach( c => c.bringToTop() );
-        // this.revealed = false;
-        // this._removeDragListeners();
+    // this.unmarkGrabbed();
+    // this.owner.cards.forEach( c => c.bringToTop() );
+    // this.revealed = false;
+    // this._removeDragListeners();
     //     return false;
     // }
 
@@ -710,7 +704,7 @@ class Card {
     if ( Util.nearlySamePoint(ptNewCard, this.ptOriginal) ) {
       // console.log('nearly same point', ptNewCard, this.ptOriginal);
       this.grabbedTail.forEach( c => {
-          c.position0(c.ptOriginal.x, c.ptOriginal.y);
+        c.position0(c.ptOriginal.x, c.ptOriginal.y);
       });
       // a click on a card just sends the click to it's owner, so we do that directly
       this.owner.onclick(this);
@@ -853,7 +847,6 @@ class Card {
    * @param {CardContainer} to
    */
   moveTop(to) {
-    console.assert(this===this.owner.peek());
     const from = this.owner;
 
     from.pop();
@@ -1012,10 +1005,10 @@ let undoing = false;
  */
 function undoPushMove(f, t, c) {
   if ( !undoing ) {
-      undo.push({move:tallyMan.count,
-        from:listOfCardContainers.findIndex(e => e === f),
-        to:listOfCardContainers.findIndex(e => e === t),
-        count:c});
+    undo.push({move:tallyMan.count,
+      from:listOfCardContainers.findIndex(e => e === f),
+      to:listOfCardContainers.findIndex(e => e === t),
+      count:c});
   }
 }
 
@@ -1025,18 +1018,8 @@ function undoPushMove(f, t, c) {
  */
 function undoPushFlip(c, di) {
   if ( !undoing ) {
-      undo.push({move:tallyMan.count, flip:c.id, dir:di});
+    undo.push({move:tallyMan.count, flip:c.id, dir:di});
   }
-}
-
-/**
- * @returns {number}
- */
-function undoCount() {
-  if ( 0 === undo.length )
-    return 0;
-  const u = undo.peek();
-  return u.move + 1;
 }
 
 function doundo() {
@@ -1058,11 +1041,11 @@ function doundo() {
       const dst = listOfCardContainers[u.to];
 
       let n = 1;
-      if ( u.count )
-        n = u.count;
+      if ( u.count ) n = u.count;
       let tmp = [];
-      while ( n-- )
+      while ( n-- ) {
         tmp.push(dst.pop());
+      }
       while ( tmp.length ) {
         const c = tmp.pop();
         // console.log(c, 'going from', dst, 'to', src);
@@ -1071,15 +1054,16 @@ function doundo() {
       }
     } else if ( (u.hasOwnProperty('turn') || u.hasOwnProperty('flip')) && u.hasOwnProperty('dir') ) {
       const c = Util.id2Card(u.hasOwnProperty('flip') ? u.flip : u.turn);
-      if ( u.dir === 'up' )
+      if ( u.dir === 'up' ) {
         c.flipDown(false);
-      else if ( u.dir === 'down' )
+      } else if ( u.dir === 'down' ) {
         c.flipUp(false);
-      else
-        debugger;
       } else {
         debugger;
       }
+    } else {
+      debugger;
+    }
   }
   undo = undo.filter( e => e.move !== m );
   undoing = false;
@@ -1110,11 +1094,11 @@ class CardContainer {
     this.a_accept = g.getAttribute('accept') || 0;
     if ( this._isAcceptSymbol() ) {
     } else {
-        this.a_accept = Number.parseInt(this.a_accept);
-        console.assert(!isNaN(this.a_accept));
+      this.a_accept = Number.parseInt(this.a_accept);
+      console.assert(!isNaN(this.a_accept));
     }
     if ( this.a_accept )
-        this._createAcceptSVG();
+      this._createAcceptSVG();
     listOfCardContainers.push(this);
   }
 
@@ -1139,20 +1123,20 @@ class CardContainer {
     let oldText = this.g.querySelector('text');
     if ( oldText ) {
       if ( this._isAcceptSymbol() )
-          oldText.innerHTML = this.a_accept;
+        oldText.innerHTML = this.a_accept;
       else
-          oldText.innerHTML = Constants.cardValues[this.a_accept];
+        oldText.innerHTML = Constants.cardValues[this.a_accept];
     } else {
       const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
       t.classList.add('accepts');
       if ( this._isAcceptSymbol() ) {
-          t.setAttributeNS(null, 'x', String(this.pt.x + 10));
-          t.setAttributeNS(null, 'y', String(this.pt.y + 24));
-          t.innerHTML = this.a_accept;
+        t.setAttributeNS(null, 'x', String(this.pt.x + 10));
+        t.setAttributeNS(null, 'y', String(this.pt.y + 24));
+        t.innerHTML = this.a_accept;
       } else {
-          t.setAttributeNS(null, 'x', String(this.pt.x + 4));
-          t.setAttributeNS(null, 'y', String(this.pt.y + 24));
-          t.innerHTML = Constants.cardValues[this.a_accept];
+        t.setAttributeNS(null, 'x', String(this.pt.x + 4));
+        t.setAttributeNS(null, 'y', String(this.pt.y + 24));
+        t.innerHTML = Constants.cardValues[this.a_accept];
       }
       this.g.appendChild(t);
     }
@@ -1162,20 +1146,20 @@ class CardContainer {
    * @param {Array} arr
    */
   load(arr) {
-      this.cards.forEach( c => c.destructor() );
-      this.cards = [];
-      arr.forEach( a => {
-          const c = new Card(a.pack, a.suit, a.ordinal, a.faceDown, this.pt);
-          this.push(c);
-          baize.ele.appendChild(c.g);
-      });
+    this.cards.forEach( c => c.destructor() );
+    this.cards = [];
+    arr.forEach( a => {
+      const c = new Card(a.pack, a.suit, a.ordinal, a.faceDown, this.pt);
+      this.push(c);
+      baize.ele.appendChild(c.g);
+    });
   }
 
   /**
    * @returns {?Card}
    */
   peek() {
-    return this.cards.peek();
+    return this.cards[this.cards.length-1];
   }
 
   /**
@@ -1267,10 +1251,10 @@ class CardContainer {
    */
   canGrab(c) {
     // only grab top card, we could be fanned
-    if ( this.cards.peek() === c )
-        return [c];
+    if ( this.cards[this.cards.length-1] === c )
+      return [c];
     else
-        return null;
+      return null;
   }
 
   /**
@@ -1288,7 +1272,7 @@ class CardContainer {
         if ( ((dst instanceof Tableau && c.owner instanceof Tableau) || (dst instanceof Cell && c.owner instanceof Cell))
           && 0 === dst.cards.length
           && c === c.owner.cards[0] ) {
-            // moving empty cell/tab to empty cell/tab - legal but not useful
+          // moving empty cell/tab to empty cell/tab - legal but not useful
         } else {
           count += 1;
           c.markMoveable(true);
@@ -1305,7 +1289,7 @@ class CardContainer {
   _availableMovesTopCard() {
     // used by base CardContainer
     let count = 0;
-    const c = this.cards.peek();
+    const c = this.cards[this.cards.length-1];
     if ( c ) {
       if ( c.faceDown ) {
         count += 1;     // the move is that it can be turned up?
@@ -1325,12 +1309,13 @@ class CardContainer {
     let count = 0;
     this.cards.forEach( c => {
       if ( c.faceDown ) {
-        if ( c === this.peek() )
-            count += 1;
+        if ( c === this.peek() ) {
+          count += 1;
+        }
       } else {
         c.markMoveable(false);
         if ( this.canGrab(c) ) {
-            count += this._availableMovesForThisCard(c);
+          count += this._availableMovesForThisCard(c);
         }
       }
     });
@@ -1520,10 +1505,10 @@ class CardContainer {
    */
   _resetStackFactor(rules) {
     switch ( rules.fan ) {
-      case 'Right':
-      case 'Left':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;    break;
-      case 'Down':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_Y;    break;
-      case 'None':    this.stackFactor = 0;                                   break;
+    case 'Right':
+    case 'Left':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;    break;
+    case 'Down':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_Y;    break;
+    case 'None':    this.stackFactor = 0;                                   break;
     }
   }
 
@@ -1538,7 +1523,7 @@ class CardContainer {
       const max = rules.maxfan === 0 ? baize._height - this.pt.y : this.pt.y + rules.maxfan;
 
       let arr = this._dynamicArrayY();
-      while ( arr.peek() + Constants.CARD_HEIGHT > max && this.stackFactor < Constants.MAX_STACK_FACTOR ) {
+      while ( arr[arr.length-1] + Constants.CARD_HEIGHT > max && this.stackFactor < Constants.MAX_STACK_FACTOR ) {
         this.stackFactor += (1.0/3.0);
         arr = this._dynamicArrayY();
       }
@@ -1555,7 +1540,7 @@ class CardContainer {
       const max = rules.maxfan === 0 ? baize._width - this.pt.x : this.pt.x + rules.maxfan;
 
       let arr = this._dynamicArrayX();
-      while ( arr.peek() + Constants.CARD_WIDTH > max && this.stackFactor < Constants.MAX_STACK_FACTOR ) {
+      while ( arr[arr.length-1] + Constants.CARD_WIDTH > max && this.stackFactor < Constants.MAX_STACK_FACTOR ) {
         this.stackFactor += (1.0/3.0);
         arr = this._dynamicArrayX();
       }
@@ -1567,7 +1552,7 @@ class CardContainer {
       }
     } else if ( rules.fan === 'None' ) {
     } else {
-        console.error('Unknown scrunch fan', rules.fan);
+      console.error('Unknown scrunch fan', rules.fan);
     }
   }
 
@@ -1634,7 +1619,7 @@ class Cell extends CardContainer {
    * @returns {boolean} 
    */
   canAcceptCard(c) {
-    if ( c !== c.owner.cards.peek() )
+    if ( c !== c.owner.peek() )
       return false;   // can't accept a stack of cards
     return 0 === this.cards.length;
   }
@@ -1743,7 +1728,7 @@ class Reserve extends CardContainer {
     // can be face up or face down
     if ( c.faceDown )
       return;
-    if ( c !== this.cards.peek() )
+    if ( c !== this.cards[this.cards.length-1] )
       return;
     if ( !stats.Options.autoPlay )
       return;
@@ -1872,8 +1857,8 @@ class Stock extends CardContainer {
         }
       }
     }
-    if ( this.cards.length !== (rules.Stock.packs*52) ) console.warn(this.cards.length, ' cards in pack');
-      this.sort();
+    if ( this.cards.length !== (rules.Stock.packs*52) ) { console.warn(this.cards.length, ' cards in pack'); }
+    this.sort();
     this.cards.forEach( c => c.owner = this );
     this.cards.forEach( c => baize.ele.appendChild(c.g) );
   }
@@ -2085,10 +2070,10 @@ class StockScorpion extends Stock {
   onclick(c) {
     tallyMan.sleep( () => {
       for ( let i=0; i<tableaux.length; i++ ) {
-          const c = this.peek();
-          if ( !c )
-              break;
-          c.moveTop(tableaux[i]);
+        const c = this.peek();
+        if ( !c )
+          break;
+        c.moveTop(tableaux[i]);
       }
     });
   }
@@ -2441,7 +2426,7 @@ class Waste extends CardContainer {
     if ( !stats.Options.autoPlay )
       return;
 
-    if ( c !== this.cards.peek() )
+    if ( c !== this.cards[this.cards.length-1] )
       return;
 
     let cc = null;
@@ -2645,7 +2630,7 @@ class Foundation extends CardContainer {
           }
         }
       }
-    }
+    };
 
     let cardMoved = false;
     cells.forEach( cc => {
@@ -2664,7 +2649,7 @@ class Foundation extends CardContainer {
   isComplete() {
     if ( this.a_complete ) {
       // Grandfather's Clock
-      const c = this.cards.peek();
+      const c = this.cards[this.cards.length-1];
       return ( c && c.ordinal === this.a_completeOrd && c.suit === this.a_completeSuit );
     }
     /*
@@ -2957,7 +2942,7 @@ class Tableau extends CardContainer
         } else if ( Constants.ACCEPT_MARTHA_SYMBOL === this.a_accept ) {
           accept = 1 === c.owner.canGrab(c).length;
         } else if ( this.a_accept ) {  // a number or a symbol
-            accept = ( c.ordinal === this.a_accept );
+          accept = ( c.ordinal === this.a_accept );
         }
       } else {
         accept = isConformant0(rules.Tableau.build, tc, c);
@@ -2992,11 +2977,11 @@ class Tableau extends CardContainer
       return;
 
     let cc = null;
-    if ( this.cards.peek() === c )
+    if ( this.cards[this.cards.length-1] === c )
       cc = c.findFullestAcceptingContainer(foundations);
     if ( !cc )
       cc = c.findFullestAcceptingContainer(tableaux);
-    if ( !cc && this.cards.peek() === c )
+    if ( !cc && this.cards[this.cards.length-1] === c )
       cc = c.findFullestAcceptingContainer(cells);
     if ( cc )
       c.moveTail(cc);
@@ -3232,7 +3217,7 @@ class TableauFreecell extends Tableau {
     const pm = this._powerMoves();
     if ( tail.length > pm ) {
       // if ( c.tailGrabbed )    // too late, grabbing already over?
-        // displayToast(`you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
+      // displayToast(`you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
       // console.log(`grab: you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
       return null;
     }
@@ -3254,7 +3239,7 @@ class TableauFreecell extends Tableau {
       const pm = this._powerMoves(this.cards.length === 0);
       if ( tail.length > pm ) {
         // if ( c.tailGrabbed )    // too late, grabbing already over?
-          // displayToast(`you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
+        // displayToast(`you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
         // console.log(`accept: you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
         accept = false;
       }
@@ -3288,7 +3273,7 @@ class TableauGolf extends Tableau {
    */
   onclick(c) {
     // only click top card, which can only go to foundation[0]. always face up
-    if ( this.cards.peek() === c ) {
+    if ( this.cards[this.cards.length-1] === c ) {
       if ( foundations[0].canAcceptCard(c) ) {
         c.moveTop(foundations[0]);
       }
@@ -3302,7 +3287,7 @@ class TableauGolf extends Tableau {
   availableMoves() {
     this.cards.forEach( c => c.markMoveable(false) );
 
-    const c = this.cards.peek();
+    const c = this.cards[this.cards.length-1];
     if ( c && foundations[0].canAcceptCard(c) ) {
       c.markMoveable(true);
       return 1;
@@ -3354,66 +3339,66 @@ function isConformant0(rules, cPrev, cThis) {   // TODO clean up this horrible l
     return false;
 
   switch ( rules.suit ) {
-    case 0: // may not build/move
+  case 0: // may not build/move
+    return false;
+  case 1: // regardless of suit
+    break;
+  case 2: // in suit
+    if ( cThis.suit !== cPrev.suit )
       return false;
-    case 1: // regardless of suit
-      break;
-    case 2: // in suit
-      if ( cThis.suit !== cPrev.suit )
-        return false;
-      break;
-    case 3: // in colour
-      if ( cThis.color !== cPrev.color )
-        return false;
-      break;
-    case 4: // in alternate colors
-      if ( cThis.color === cPrev.color )
-        return false;
-      break;
-    case 5: // in any suit but it's own
-      if ( cThis.suit === cPrev.suit )
-        return false;
-      break;
+    break;
+  case 3: // in colour
+    if ( cThis.color !== cPrev.color )
+      return false;
+    break;
+  case 4: // in alternate colors
+    if ( cThis.color === cPrev.color )
+      return false;
+    break;
+  case 5: // in any suit but it's own
+    if ( cThis.suit === cPrev.suit )
+      return false;
+    break;
   }
   switch ( rules.rank ) {
-    case 0: // may not build/move
-      return false;
-    case 1: // up, e.g. a 10 goes on a 9
-      if ( rules.rankwrap ) {
-        if ( cPrev.ordinal === 13 && cThis.ordinal === 1 ) {
-          // An Ace on a King
-        } else if ( cThis.ordinal !== cPrev.ordinal + 1 )
-          return false;
-      } else {
-        if ( cThis.ordinal !== cPrev.ordinal + 1 )
-          return false;
-      }
-      break;
-    case 2: // down, e.g. a 9 goes on a 10
-      if ( rules.rankwrap ) {
-        if ( cPrev.ordinal === 1 && cThis.ordinal === 13 ) {
-            // a King on an Ace
-        } else if ( cThis.ordinal !== cPrev.ordinal - 1 )
-          return false;
-      } else {
-        if ( cThis.ordinal !== cPrev.ordinal - 1 )
-          return false;
-      }
-      break;
-    case 4: // either up or down
-      //if ( !(cThis.ordinal === cPrev.ordinal + 1 || cThis.ordinal === cPrev.ordinal - 1) )
-      if ( rules.rankwrap ) {
-        if ( cPrev.ordinal === 13 && cThis.ordinal === 1 ) {
-        } else if ( cPrev.ordinal === 1 && cThis.ordinal === 13 ) {
-        } else if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) )
-          return false;
-      } else {
-        if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) )
-          return false;
-      }
-      break;
-    case 5: // regardless
-      break;
+  case 0: // may not build/move
+    return false;
+  case 1: // up, e.g. a 10 goes on a 9
+    if ( rules.rankwrap ) {
+      if ( cPrev.ordinal === 13 && cThis.ordinal === 1 ) {
+        // An Ace on a King
+      } else if ( cThis.ordinal !== cPrev.ordinal + 1 )
+        return false;
+    } else {
+      if ( cThis.ordinal !== cPrev.ordinal + 1 )
+        return false;
+    }
+    break;
+  case 2: // down, e.g. a 9 goes on a 10
+    if ( rules.rankwrap ) {
+      if ( cPrev.ordinal === 1 && cThis.ordinal === 13 ) {
+        // a King on an Ace
+      } else if ( cThis.ordinal !== cPrev.ordinal - 1 )
+        return false;
+    } else {
+      if ( cThis.ordinal !== cPrev.ordinal - 1 )
+        return false;
+    }
+    break;
+  case 4: // either up or down
+    //if ( !(cThis.ordinal === cPrev.ordinal + 1 || cThis.ordinal === cPrev.ordinal - 1) )
+    if ( rules.rankwrap ) {
+      if ( cPrev.ordinal === 13 && cThis.ordinal === 1 ) {
+      } else if ( cPrev.ordinal === 1 && cThis.ordinal === 13 ) {
+      } else if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) )
+        return false;
+    } else {
+      if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) )
+        return false;
+    }
+    break;
+  case 5: // regardless
+    break;
   }
   return true;
 }
@@ -3441,49 +3426,49 @@ function isConformant(rules, cards) {
 function englishRules(rules) {
   let s = '';
   switch ( rules.suit ) {
-    case 0: // may not build/move
-      s = 'not allowed';
-      break;
-    case 1: // regardless of suit
-      s = 'regardless of suit';
-      break;
-    case 2: // in suit
-      s = 'in suit';
-      break;
-    case 3: // in colour
-      s = 'in color';
-      break;
-    case 4: // in alternate colors
-      s = 'in alternate colors';
-      break;
-    case 5: // in any suit but it's own
-      s = 'in any other suit';
-      break;
+  case 0: // may not build/move
+    s = 'not allowed';
+    break;
+  case 1: // regardless of suit
+    s = 'regardless of suit';
+    break;
+  case 2: // in suit
+    s = 'in suit';
+    break;
+  case 3: // in colour
+    s = 'in color';
+    break;
+  case 4: // in alternate colors
+    s = 'in alternate colors';
+    break;
+  case 5: // in any suit but it's own
+    s = 'in any other suit';
+    break;
   }
   switch ( rules.rank ) {
-    case 0: // may not build/move
-      break;
-    case 1: // up, e.g. a 10 goes on a 9
-      s += ' and up, e.g. a 10 goes on a 9';
-      if ( rules.rankwrap ) {
-        s += ', Aces are allowed on Kings';
-      }
-      break;
-    case 2: // down, e.g. a 9 goes on a 10
-      s += ' and down, e.g. a 9 goes on a 10';
-      if ( rules.rankwrap ) {
-        s += ', Kings are allowed on Aces';
-      }
-      break;
-    case 4: // either up or down
-      s += ' and either up or down';
-      if ( rules.rankwrap ) {
-        s += ', Aces and Kings can go on top of each other';
-      }
-      break;
-    case 5: // regardless
-      s += ' regardless of rank';
-      break;
+  case 0: // may not build/move
+    break;
+  case 1: // up, e.g. a 10 goes on a 9
+    s += ' and up, e.g. a 10 goes on a 9';
+    if ( rules.rankwrap ) {
+      s += ', Aces are allowed on Kings';
+    }
+    break;
+  case 2: // down, e.g. a 9 goes on a 10
+    s += ' and down, e.g. a 9 goes on a 10';
+    if ( rules.rankwrap ) {
+      s += ', Kings are allowed on Aces';
+    }
+    break;
+  case 4: // either up or down
+    s += ' and either up or down';
+    if ( rules.rankwrap ) {
+      s += ', Aces and Kings can go on top of each other';
+    }
+    break;
+  case 5: // regardless
+    s += ' regardless of rank';
+    break;
   }
   return s;
 }
@@ -3501,7 +3486,7 @@ function autoSolve(ord=0) {
     waitForCards().then( () => {
       if ( f.solve(ord) )   // TODO type warning solve does not exist in CardContainer (but it does in Foundation)
         cardMoved = true;
-      });
+    });
   });
   return cardMoved;
 }
@@ -3604,7 +3589,7 @@ function dostar() {
 }
 
 function doreplay() {
-    restart(stats[rules.Name].seed);
+  restart(stats[rules.Name].seed);
 }
 
 class Saved {
@@ -3631,32 +3616,33 @@ function dosave() {
 }
 
 function doload() {
-    if ( !stats.Options.loadSaved )
-        return;
+  if ( !stats.Options.loadSaved )
+    return;
 
-    if ( stats[rules.Name].saved ) {
-      // console.log('loading', stats[rules.Name].saved);
-      for ( let i=0; i<listOfCardContainers.length; i++ ) {
-        listOfCardContainers[i].load(stats[rules.Name].saved.containers[i]);
-      }
-      stats[rules.Name].seed = stats[rules.Name].saved.seed;
-      if ( stats[rules.Name].saved.hasOwnProperty('redeals') )
-        stock.redeals = stats[rules.Name].saved.redeals;
-      else
-        stock.redeals = null;
-      stock._updateRedealsSVG();
-      tallyMan.count = stats[rules.Name].saved.moves;
-      undo = stats[rules.Name].saved.undo;
-
-      waitForCards().then( () => {    // TODO DRY
-        tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-        reserves.forEach( res => res.scrunchCards(rules.Reserve) );
-      });
-
-      delete stats[rules.Name].saved;
-    } else {
-        displayToast('no saved game');
+  if ( stats[rules.Name].saved ) {
+    // console.log('loading', stats[rules.Name].saved);
+    for ( let i=0; i<listOfCardContainers.length; i++ ) {
+      listOfCardContainers[i].load(stats[rules.Name].saved.containers[i]);
     }
+    stats[rules.Name].seed = stats[rules.Name].saved.seed;
+    if ( stats[rules.Name].saved.hasOwnProperty('redeals') ) {
+      stock.redeals = stats[rules.Name].saved.redeals;
+    } else {
+      stock.redeals = null;
+    }
+    stock._updateRedealsSVG();
+    tallyMan.count = stats[rules.Name].saved.moves;
+    undo = stats[rules.Name].saved.undo;
+
+    waitForCards().then( () => {    // TODO DRY
+      tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+      reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+    });
+
+    delete stats[rules.Name].saved;
+  } else {
+    displayToast('no saved game');
+  }
 }
 
 const modalSettings = M.Modal.getInstance(document.getElementById('modalSettings'));
@@ -3848,7 +3834,7 @@ document.getElementById('sidenav-title').innerHTML = rules.Name;
 ['Name','Cards','Stock','Waste','Foundation','Tableau','Cell','Reserve','Winnable','Wikipedia']
   .forEach( ele => { if ( !rules.hasOwnProperty(ele)) rules[ele] = {}; });
 
-  if ( !rules.Cards.hasOwnProperty('suit') )          rules.Cards.suit = 'TopRight';  // where to display suit symbol
+if ( !rules.Cards.hasOwnProperty('suit') )          rules.Cards.suit = 'TopRight';  // where to display suit symbol
 
 if ( !rules.Stock.hasOwnProperty('packs') )         rules.Stock.packs = 1;
 if ( !rules.Stock.hasOwnProperty('cards') )         rules.Stock.cards = 1;          // move one card to waste per click
@@ -3880,10 +3866,10 @@ if ( !rules.Tableau.hasOwnProperty('target') )      rules.Tableau.target = null;
 
 let stats = null;
 try {
-    stats = JSON.parse(localStorage.getItem(Constants.GAME_NAME)) || {};
+  stats = JSON.parse(localStorage.getItem(Constants.GAME_NAME)) || {};
 } catch(e) {
-    stats = {};
-    console.error(e);
+  stats = {};
+  console.error(e);
 }
 
 if ( !stats.Options ) {
