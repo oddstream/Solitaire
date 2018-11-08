@@ -1,0 +1,32 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Aces and Kings",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Aces_and_Kings",
+  "Winnable":[],
+  "Stock":{"packs":2, "redeals":0},
+  "Foundation":{"suit":1, "rank":1, "scatter":"None"},
+  "Tableau":{"build":{"suit":0, "rank":0}, "move":{"suit":0, "rank":0}, "maxcards":1}
+}
+</script>  
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="StockKlondike"><rect x="10" y="10"></rect></g>
+    <g class="Waste"><rect x="77" y="10"></rect></g>
+
+    <g class="Foundation" accept="13" reverse="1"><rect x="211" y="10"></rect></g>
+    <g class="Foundation" accept="13" reverse="1"><rect x="278" y="10"></rect></g>
+    <g class="Foundation" accept="13" reverse="1"><rect x="345" y="10"></rect></g>
+    <g class="Foundation" accept="13" reverse="1"><rect x="412" y="10"></rect></g>
+
+    <g class="Foundation" accept="1"><rect x="211" y="110"></rect></g>
+    <g class="Foundation" accept="1"><rect x="278" y="110"></rect></g>
+    <g class="Foundation" accept="1"><rect x="345" y="110"></rect></g>
+    <g class="Foundation" accept="1"><rect x="412" y="110"></rect></g>
+
+    <g class="TableauBlockade" deal="u"><rect x="211" y="310"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="278" y="310"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="345" y="310"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="412" y="310"></rect></g>
+
+    <g class="Reserve" deal="uuuuuuuuuuuuu"><rect x="10" y="110"></rect></g>
+    <g class="Reserve" deal="uuuuuuuuuuuuu"><rect x="77" y="110"></rect></g>

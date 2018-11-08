@@ -1,3 +1,8 @@
+08/11/2018
+5.4.7 Getters and Setters removed
+more reformat to Google style guide (WIP), starting to move towards Google Closure Compiler
+Implemented Aces and Kings
+
 05/11/2018
 reformat to Google style guide (WIP)
 added JSDoc

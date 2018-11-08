@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.5.0',
+  GAME_VERSION: '0.11.8.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -63,12 +63,13 @@ const Util = {
    * @returns {string}
    */
   plural: function(n, word) {
-    if ( 0 === n )
+    if ( 0 === n ) {
       return `no ${word}s`;
-    else if ( 1 === n )
+    } else if ( 1 === n ) {
       return `${n} ${word}`;
-    else
+    } else {
       return `${n} ${word}s`;
+    }
   },
 
   /**
@@ -77,7 +78,7 @@ const Util = {
    * @returns {SVGPoint}
   */
   newPoint: function(x, y=undefined) {
-    const pt = baize.ele.createSVGPoint();
+    /** @type {SVGPoint} */const pt = baize.ele.createSVGPoint();
     if ( typeof x === 'object' ) {
       pt.x = x.x;
       pt.y = x.y;
@@ -128,7 +129,6 @@ const Util = {
   id2Card: function(id) {
     if ( !id )
       return null;
-
     let card = null;
     for ( let i=0; i<listOfCardContainers.length; i++ ) {
       card = listOfCardContainers[i].cards.find( c => c.id === id );
@@ -166,9 +166,9 @@ class Random {
    * @param {number} seed 
    */
   constructor(seed) {
-    this._seed = seed % 2147483647;
-    if ( this._seed <= 0 ) {
-      this._seed += 2147483646;
+    this.seed_ = seed % 2147483647;
+    if ( this.seed_ <= 0 ) {
+      this.seed_ += 2147483646;
     }
   }
 
@@ -177,7 +177,7 @@ class Random {
    * @return {number}
   */
   next() {
-    return this._seed = this._seed * 16807 % 2147483647;
+    return this.seed_ = this.seed_ * 16807 % 2147483647;
   }
 
   /**
@@ -203,22 +203,24 @@ class Random {
 
 class Baize {
   constructor() {
-    this._ele = document.getElementById('baize');
-    this._borderWidth = 0;
-    this._gutsWidth = 0;
-    this._ele.querySelectorAll('g>rect').forEach( r => {
+    /** @const {SVGElement} */ this.ele = document.getElementById('baize');
+    /** @private */ this.borderWidth_ = 0;
+    /** @private */ this.gutsWidth_ = 0;
+    this.width = 0;
+    this.height = 0;
+    this.ele.querySelectorAll('g>rect').forEach( r => {
       r.setAttributeNS(null, 'height', String(Constants.CARD_HEIGHT));
       r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
       r.setAttributeNS(null, 'rx', String(Constants.CARD_RADIUS));
       r.setAttributeNS(null, 'ry', String(Constants.CARD_RADIUS));
 
-      let x = Number.parseInt(r.getAttribute('x')) || 0;
-      if ( x > this._gutsWidth ) {
-        this._gutsWidth = x;
+      let x = Number.parseInt(r.getAttribute('x'), 10) || 0;
+      if ( x > this.gutsWidth_ ) {
+        this.gutsWidth_ = x;
       }
     });
-    this._gutsWidth += Constants.CARD_WIDTH + 10;
-    this._setBox();
+    this.gutsWidth_ += Constants.CARD_WIDTH + 10;
+    this.setBox_();
     window.addEventListener('orientationchange', this.onOrientationChange.bind(this));
   }
 
@@ -226,10 +228,10 @@ class Baize {
    * @private
    * @param {number} b 
    */
-  _adjustBorder(b) {
-    this._ele.querySelectorAll('g>rect,g>text').forEach( r => {
+  adjustBorder_(b) {
+    this.ele.querySelectorAll('g>rect,g>text').forEach( r => {
       if ( r.hasAttribute('x') ) {
-        let x = Number.parseInt(r.getAttribute('x')) || 0;
+        let x = Number.parseInt(r.getAttribute('x'), 10) || 0;
         r.setAttributeNS(null, 'x', String(x + b));
       }
     });
@@ -245,50 +247,40 @@ class Baize {
   /**
    * @private
    */
-  _setBox() {
-    this._width = this._gutsWidth;
-    this._height = Math.max(1200,window.screen.height);
+  setBox_() {
+    this.width = this.gutsWidth_;
+    this.height = Math.max(1200,window.screen.height);
 
     if ( window.screen.width > window.screen.height ) {
       // landscape, add a border if guts are narrow
-      if ( this._gutsWidth < 800 ) {
-        this._borderWidth = (800 - this._gutsWidth) / 2;
-        this._adjustBorder(this._borderWidth);
-        this._width = 800;
+      if ( this.gutsWidth_ < 800 ) {
+        this.borderWidth_ = (800 - this.gutsWidth_) / 2;
+        this.adjustBorder_(this.borderWidth_);
+        this.width = 800;
       }
     }
     // set viewport (visible area of SVG)
-    this._ele.setAttributeNS(null, 'width', String(this._width));
-    this._ele.setAttributeNS(null, 'height', String(this._height));
-    this._ele.setAttributeNS(null, 'viewBox', `0 0 ${this._width} ${this._height}`);
-    this._ele.setAttributeNS(null, 'preserveAspectRatio', 'xMinYMin slice');
+    this.ele.setAttributeNS(null, 'width', String(this.width));
+    this.ele.setAttributeNS(null, 'height', String(this.height));
+    this.ele.setAttributeNS(null, 'viewBox', `0 0 ${this.width} ${this.height}`);
+    this.ele.setAttributeNS(null, 'preserveAspectRatio', 'xMinYMin slice');
   }
 
-  /**
-   * 
-   */
   onOrientationChange() {
-    if ( this._borderWidth ) {
-      this._adjustBorder(-this._borderWidth);
-      this._borderWidth = 0;
+    if ( this.borderWidth_ ) {
+      this.adjustBorder_(-this.borderWidth_);
+      this.borderWidth_ = 0;
     }
-    this._setBox();
+    this.setBox_();
     listOfCardContainers.forEach( cc => {
       cc.cards.forEach( c => {
         while ( c.g.hasChildNodes() ) {
           c.g.removeChild(c.g.lastChild);
         }
-        c._putRectInG();
+        c.putRectInG_();
       });
     });
     availableMoves();   // repaint moveable cards
-  }
-
-  /**
-   * @returns {SVGElement}
-   */
-  get ele() {
-    return this._ele;
   }
 }
 
@@ -298,48 +290,32 @@ const baize = new Baize;
 
 class Mover {
   constructor() {
-    this._zzzz = false;
-    this._count = 0;
+    /** @private */ this.zzzz_ = false;
+    this.count = 0;
   }
 
   reset() {
-    this._count = 0;
+    this.count = 0;
   }
 
-  /**
-   * @callback f 
-   */
   sleep(f) {
-    this._zzzz = true;
+    this.zzzz_ = true;
     f();
-    this._zzzz = false;
+    this.zzzz_ = false;
     this.increment();
   }
 
   increment() {
-    if ( !this._zzzz ) {
-      this._count++;
+    if ( !this.zzzz_ ) {
+      this.count++;
       window.setTimeout(robot, 500);
     }
   }
 
   decrement() {
-    if ( !this._zzzz )
-      this._count--;
-  }
-
-  /**
-   * @returns {number}
-   */
-  get count() {
-    return this._count;
-  }
-
-  /**
-   * @param {number} n
-   */
-  set count(n) {
-    this._count = n;
+    if ( !this.zzzz_ ) {
+      this.count--;
+    }
   }
 }
 
@@ -364,12 +340,15 @@ class Card {
 
     // sort uses the card id as input to locale
     // padStart() ok in Chrome, Edge, Firefox
-    if ( this.ordinal < 10 )
+    if ( this.ordinal < 10 ) {
       this.id = `${pack}${suit}0${String(this.ordinal)}`;
-    else
+    } else {
       this.id = `${pack}${suit}${String(this.ordinal)}`;
+    }
     console.assert(this.id.length===4);
     // this.id = `${pack}${suit}${String(this.ordinal).padStart(2,'0')}`;
+
+    this.color = ( this.suit === Constants.HEART || this.suit === Constants.DIAMOND ) ? 'red' : 'black';
 
     this.owner = null;
 
@@ -377,6 +356,7 @@ class Card {
     this.ptOriginal = null;                 // used in dragging
     this.ptOffset = null;                   // used in dragging
     this.grabbedTail = null;
+    this.ptOriginalPointerDown = null;
     // https://stackoverflow.com/questions/33859113/javascript-removeeventlistener-not-working-inside-a-class
     this.downHandler = this.onpointerdown.bind(this);
     this.moveHandler = this.onpointermove.bind(this);
@@ -389,26 +369,16 @@ class Card {
     // this.revealed = false;                  // user is holding mouse on a buried non-grabbable card
 
     this.g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
-    this._putRectInG();
+    this.putRectInG_();
     this.position0();
-    this._addListeners();
+    this.addListeners_();
   }
 
   /**
    * @returns {string}
    */
-  get faceValue() {
+  faceValue() {
     return Constants.cardValues[this.ordinal];
-  }
-
-  /**
-   * @returns {string}
-   */
-  get color() {
-    if ( this.suit === Constants.HEART || this.suit === Constants.DIAMOND )
-      return 'red';
-    else
-      return 'black';
   }
 
   /**
@@ -423,7 +393,7 @@ class Card {
    * @param {string} cl 
    * @returns Element
    */
-  _createRect(cl) {
+  createRect_(cl) {
     const r = document.createElementNS(Constants.SVG_NAMESPACE, 'rect');
     r.classList.add(cl);
     r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
@@ -436,12 +406,12 @@ class Card {
   /**
    * @private
    */
-  _putRectInG() {
+  putRectInG_() {
     console.assert(!this.g.lastChild);
     if ( this.faceDown ) {
-      this.g.appendChild(this._createRect('spielkarteback'));
+      this.g.appendChild(this.createRect_('spielkarteback'));
     } else {
-      this.g.appendChild(this._createRect('spielkarte'));
+      this.g.appendChild(this.createRect_('spielkarte'));
 
       const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
       t.classList.add('spielkartevalue');
@@ -450,7 +420,7 @@ class Card {
       t.setAttributeNS(null, 'text-anchor', 'middle');
       t.setAttributeNS(null, 'dominant-baseline', 'middle');
       t.setAttributeNS(null, 'fill', this.color);
-      t.innerHTML = this.faceValue;
+      t.innerHTML = this.faceValue();
       this.g.appendChild(t);
 
       if ( Constants.MOBILE ) {   // TODO get rid of magic numbers
@@ -492,7 +462,7 @@ class Card {
   /**
    * @private
    */
-  _addListeners() {
+  addListeners_() {
     // put the event handlers on the g, but the event happens on the rect inside
     // http://www.open.ac.uk/blogs/brasherblog/?p=599
     // the ordinal and suit symbols use css pointer-event: none so the events pass through to their parent (the rect)
@@ -504,7 +474,7 @@ class Card {
   /**
    * @private
    */
-  _removeListeners() {
+  removeListeners_() {
     this.g.removeEventListener('pointerover', this.overHandler);
     this.g.removeEventListener('pointerdown', this.downHandler);
     this.g.removeEventListener('touchstart', dummyTouchStartHandler);
@@ -513,7 +483,7 @@ class Card {
   /**
    * @private
    */
-  _addDragListeners() {
+  addDragListeners_() {
     window.addEventListener('pointermove', this.moveHandler);
     window.addEventListener('pointerup', this.upHandler);
     window.addEventListener('pointercancel', this.cancelHandler);
@@ -522,14 +492,13 @@ class Card {
   /**
    * @private
    */
-  _removeDragListeners() {
+  removeDragListeners_() {
     window.removeEventListener('pointermove', this.moveHandler);
     window.removeEventListener('pointerup', this.upHandler);
     window.removeEventListener('pointercancel', this.cancelHandler);
   }
 
   /**
-   * @abstract
    * @param {PointerEvent} event 
    */
   onclick(event) {   // shouldn't ever happen
@@ -561,7 +530,7 @@ class Card {
    * @param {PointerEvent} event
    * @returns {SVGPoint}
    */
-  _getPointerPoint(event) {
+  getPointerPoint_(event) {
     return Util.DOM2SVG(event.clientX, event.clientY);
   }
 
@@ -608,7 +577,7 @@ class Card {
       return false;
     }
 
-    this.ptOriginalPointerDown = this._getPointerPoint(event);
+    this.ptOriginalPointerDown = this.getPointerPoint_(event);
 
     this.grabbedTail = this.owner.canGrab(this);
     if ( !this.grabbedTail ) {
@@ -618,7 +587,7 @@ class Card {
       //     this.bringToTop();
       //     this.revealed = true;
       // }
-      // this._addDragListeners();
+      // this.addDragListeners_();
       return false;
     }
 
@@ -632,7 +601,7 @@ class Card {
       c.bringToTop();
     });
 
-    this._addDragListeners();
+    this.addDragListeners_();
 
     return false;
   }
@@ -643,16 +612,16 @@ class Card {
    * @private
    * @param {SVGPoint} pt
    */
-  _scalePointer(pt) {
+  scalePointer_(pt) {
     const r = baize.ele.getBoundingClientRect();
     const w = r.right - r.left;
     const h = r.bottom - r.top;
 
-    const xFactor = baize._width/w;
+    const xFactor = baize.width/w;
     const xMoved = pt.x - this.ptOriginalPointerDown.x;
     const xMovedScaled = Math.round(xMoved * xFactor);
 
-    const yFactor = baize._height/h;
+    const yFactor = baize.height/h;
     const yMoved = pt.y - this.ptOriginalPointerDown.y;
     const yMovedScaled = Math.round(yMoved * yFactor);
     // console.log(xFactor, ':', this.ptOriginalPointerDown.x, pt.x, xMoved, xMovedScaled);
@@ -671,8 +640,8 @@ class Card {
     // if ( this.revealed )
     //     return false;
 
-    const ptNew = this._getPointerPoint(event);
-    this._scalePointer(ptNew);
+    const ptNew = this.getPointerPoint_(event);
+    this.scalePointer_(ptNew);
     this.grabbedTail.forEach( c => {
       c.position0(ptNew.x - c.ptOffset.x, ptNew.y - c.ptOffset.y);
       // console.assert(c.ptOffset.x===ptNew.x - c.pt.x);
@@ -692,11 +661,11 @@ class Card {
     // this.unmarkGrabbed();
     // this.owner.cards.forEach( c => c.bringToTop() );
     // this.revealed = false;
-    // this._removeDragListeners();
+    // this.removeDragListeners_();
     //     return false;
     // }
 
-    const ptNew = this._getPointerPoint(event);
+    const ptNew = this.getPointerPoint_(event);
     const ptNewCard = Util.newPoint(
       ptNew.x - this.ptOffset.x,
       ptNew.y - this.ptOffset.y
@@ -720,7 +689,7 @@ class Card {
       }
     }
 
-    this._removeDragListeners();
+    this.removeDragListeners_();
     this.grabbedTail.forEach( c => {
       c.unmarkGrabbed();
     });
@@ -737,7 +706,7 @@ class Card {
       this.grabbedTail.forEach( c => c.animate(c.ptOriginal) );
     }
     this.grabbedTail = null;
-    this._removeDragListeners();
+    this.removeDragListeners_();
   }
 
   /**
@@ -757,7 +726,7 @@ class Card {
       this.faceDown = false;
       while ( this.g.hasChildNodes() )
         this.g.removeChild(this.g.lastChild);
-      this._putRectInG();
+      this.putRectInG_();
       if ( undoable )
         undoPushFlip(this, 'up');
     } else {
@@ -773,7 +742,7 @@ class Card {
       this.faceDown = true;
       while ( this.g.hasChildNodes() )
         this.g.removeChild(this.g.lastChild);
-      this._putRectInG();
+      this.putRectInG_();
       if ( undoable )
         undoPushFlip(this, 'down');
     } else {
@@ -798,7 +767,7 @@ class Card {
    * @param {number} x 
    * @returns {number}
    */
-  _smootherstep(x) {
+  smootherstep_(x) {
     return ((x) * (x) * (x) * ((x) * ((x) * 6 - 15) + 10));
   }
 
@@ -822,7 +791,7 @@ class Card {
 
     let i = distance;
     const step = (timestamp) => {
-      const v = this._smootherstep(i / distance);
+      const v = this.smootherstep_(i / distance);
       const pt2 = Util.newPoint(
         Math.round((ptFrom.x * v) + (ptTo.x * (1 - v))),
         Math.round((ptFrom.y * v) + (ptTo.y * (1 - v))) );
@@ -893,7 +862,7 @@ class Card {
    * @param {SVGPoint} pt2 
    * @returns {number}
    */
-  _overlapArea(pt2) {
+  overlapArea_(pt2) {
     const rect1 = {left:this.pt.x, top:this.pt.y, right:this.pt.x + Constants.CARD_WIDTH, bottom:this.pt.y + Constants.CARD_HEIGHT};
     const rect2 = {left:pt2.x, top:pt2.y, right:pt2.x + Constants.CARD_WIDTH, bottom:pt2.y + Constants.CARD_HEIGHT};
     const xOverlap = Math.max(0, Math.min(rect1.right, rect2.right) - Math.max(rect1.left, rect2.left));
@@ -914,7 +883,7 @@ class Card {
         continue;
       if ( this.owner.canTarget(dst) && dst.canAcceptCard(this) ) {
         const tc = dst.peek();
-        let ov = this._overlapArea(tc ? tc.pt : dst.pt);
+        let ov = this.overlapArea_(tc ? tc.pt : dst.pt);
         if ( ov > ovMost ) {
           ovMost = ov;
           ccMost = dst;
@@ -990,7 +959,7 @@ class Card {
   }
 
   destructor() {
-    this._removeListeners();
+    this.removeListeners_();
     baize.ele.removeChild(this.g);
   }
 }
@@ -1092,13 +1061,13 @@ class CardContainer {
     // a number - card ordinal usually 1=Ace or 13=King
     // if it's missing/0, it can get overriden by rules.Foundation|Tableau.accept
     this.a_accept = g.getAttribute('accept') || 0;
-    if ( this._isAcceptSymbol() ) {
+    if ( this.isAcceptSymbol_() ) {
     } else {
-      this.a_accept = Number.parseInt(this.a_accept);
+      this.a_accept = Number.parseInt(this.a_accept, 10);
       console.assert(!isNaN(this.a_accept));
     }
     if ( this.a_accept )
-      this._createAcceptSVG();
+      this.createAcceptSVG_();
     listOfCardContainers.push(this);
   }
 
@@ -1106,7 +1075,7 @@ class CardContainer {
    * @private
    * @returns {boolean}
    */
-  _isAcceptSymbol() {
+  isAcceptSymbol_() {
     return ( Constants.ACCEPT_NOTHING_SYMBOL === this.a_accept
       || Constants.ACCEPT_INSECT_SYMBOL === this.a_accept
       || Constants.ACCEPT_MARTHA_SYMBOL === this.a_accept );
@@ -1115,21 +1084,21 @@ class CardContainer {
   /**
    * @private
    */
-  _createAcceptSVG() {
+  createAcceptSVG_() {
     // gets updated by Canfield calling dostar()
     // g has .rect and .text children
     console.assert(this.a_accept);
 
     let oldText = this.g.querySelector('text');
     if ( oldText ) {
-      if ( this._isAcceptSymbol() )
+      if ( this.isAcceptSymbol_() )
         oldText.innerHTML = this.a_accept;
       else
         oldText.innerHTML = Constants.cardValues[this.a_accept];
     } else {
       const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
       t.classList.add('accepts');
-      if ( this._isAcceptSymbol() ) {
+      if ( this.isAcceptSymbol_() ) {
         t.setAttributeNS(null, 'x', String(this.pt.x + 10));
         t.setAttributeNS(null, 'y', String(this.pt.y + 24));
         t.innerHTML = this.a_accept;
@@ -1156,14 +1125,14 @@ class CardContainer {
   }
 
   /**
-   * @returns {?Card}
+   * @returns {Card} or undefined
    */
   peek() {
     return this.cards[this.cards.length-1];
   }
 
   /**
-   * @returns {?Card}
+   * @returns {Card} or undefined
    */
   pop() {
     const c = this.cards.pop();
@@ -1181,7 +1150,6 @@ class CardContainer {
   }
 
   /**
-   * @abstract
    * @param {Card} c
    */
   onclick(c) {
@@ -1226,7 +1194,6 @@ class CardContainer {
   }
 
   /**
-   * @abstract
    * @param {Card} c
    * @returns {boolean}
    */
@@ -1236,7 +1203,6 @@ class CardContainer {
   }
 
   /**
-   * @abstract
    * @param {CardContainer} cc
    * @returns {boolean}
    */
@@ -1251,7 +1217,7 @@ class CardContainer {
    */
   canGrab(c) {
     // only grab top card, we could be fanned
-    if ( this.cards[this.cards.length-1] === c )
+    if ( this.peek() === c )
       return [c];
     else
       return null;
@@ -1262,7 +1228,7 @@ class CardContainer {
    * @param {Card} c
    * @returns {number}
    */
-  _availableMovesForThisCard(c) {
+  availableMovesForThisCard_(c) {
     let count = 0;
     for ( let i=0; i<listOfCardContainers.length; i++ ) {
       let dst = listOfCardContainers[i];
@@ -1286,15 +1252,15 @@ class CardContainer {
    * @private
    * @returns {number}
    */
-  _availableMovesTopCard() {
+  availableMovesTopCard_() {
     // used by base CardContainer
     let count = 0;
-    const c = this.cards[this.cards.length-1];
+    const c = this.peek();
     if ( c ) {
       if ( c.faceDown ) {
         count += 1;     // the move is that it can be turned up?
       } else {
-        count += this._availableMovesForThisCard(c);
+        count += this.availableMovesForThisCard_(c);
       }
     }
     return count;
@@ -1304,7 +1270,7 @@ class CardContainer {
    * @private
    * @returns {number}
    */
-  _availableMovesStack() {
+  availableMovesStack_() {
     // used by TableauTail, TableauFreecell
     let count = 0;
     this.cards.forEach( c => {
@@ -1315,7 +1281,7 @@ class CardContainer {
       } else {
         c.markMoveable(false);
         if ( this.canGrab(c) ) {
-          count += this._availableMovesForThisCard(c);
+          count += this.availableMovesForThisCard_(c);
         }
       }
     });
@@ -1326,7 +1292,7 @@ class CardContainer {
    * @private
    * @returns {number}
    */
-  _availableMovesStackAll() {
+  avilableMovesStackAll_() {
     // used by Stock, Waste
     let count = 0;
     this.cards.forEach( c => {
@@ -1352,14 +1318,14 @@ class CardContainer {
   availableMoves() {
     // default just test top card; can be overridden by derived classes
     this.cards.forEach( c => c.markMoveable(false) );
-    return this._availableMovesTopCard();
+    return this.availableMovesTopCard_();
   }
 
   /**
    * Bury a card (the King) in Baker's Dozen
    * @private
    */
-  _bury() {
+  bury_() {
     const b = this.cards.filter( c => c.ordinal === rules.Tableau.bury );
     if ( b ) {
       console.log('burying', rules.Tableau.bury);
@@ -1409,7 +1375,7 @@ class CardContainer {
       } else if ( '♥♦♣♠'.includes(ch) ) {
         // e.g. ♥01
         const suit = ch;
-        const ord = Number.parseInt(this.a_deal.slice(1));
+        const ord = Number.parseInt(this.a_deal.slice(1), 10);
         const idx = stock.cards.findIndex( e => e.suit === suit && e.ordinal === ord );
         i = this.a_deal.length;     // to break out of loop
         if ( idx > -1 ) {
@@ -1428,14 +1394,14 @@ class CardContainer {
 
       if ( 'd' === ch ) {
         c.flipDown(false);
-      } else if ( 'u' === ch ) {
-        // popping off stock flips card up automatically
+      // } else if ( 'u' === ch ) {
+      //   // popping off stock flips card up automatically
       }
     }
 
     if ( rules.Tableau.bury ) {
       // pause so user can see what's happening
-      window.setTimeout(this._bury.bind(this), 1000);
+      window.setTimeout(this.bury_.bind(this), 1000);
     }
   }
 
@@ -1444,7 +1410,7 @@ class CardContainer {
    * @param {number} lim
    * @returns {number}
    */
-  _dynamicX(lim = this.cards.length) {
+  dynamicX_(lim = this.cards.length) {
     let x = this.pt.x;
     for ( let i=0; i<lim; i++ )
       x += this.cards[i].faceDown
@@ -1457,7 +1423,7 @@ class CardContainer {
    * @private
    * @returns {Array<number>}
    */
-  _dynamicArrayX() {
+  dynamicArrayX_() {
     const arr = new Array(this.cards.length);
     arr[0] = this.pt.x;
     for ( let i=1; i<this.cards.length; i++ ) {
@@ -1475,7 +1441,7 @@ class CardContainer {
    * if not specified, the position of the next card to be pushed is returned
    * @return {number} y
    */
-  _dynamicY(n = this.cards.length) {
+  dynamicY_(n = this.cards.length) {
     let y = this.pt.y;
     for ( let i=0; i<n; i++ )
       y += this.cards[i].faceDown
@@ -1488,7 +1454,7 @@ class CardContainer {
    * @private
    * @returns {Array<number>}
    */
-  _dynamicArrayY() {
+  dynamicArrayY_() {
     const arr = new Array(this.cards.length);
     arr[0] = this.pt.y;
     for ( let i=1; i<this.cards.length; i++ ) {
@@ -1501,9 +1467,9 @@ class CardContainer {
 
   /**
    * @private
-   * @param {object} rules 
+   * @param {Object} rules 
    */
-  _resetStackFactor(rules) {
+  resetStackFactor_(rules) {
     switch ( rules.fan ) {
     case 'Right':
     case 'Left':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;    break;
@@ -1513,19 +1479,19 @@ class CardContainer {
   }
 
   /**
-   * @param {object} rules 
+   * @param {Object} rules 
    */
   scrunchCards(rules) {
     const oldStackFactor = this.stackFactor;
 
     if ( rules.fan === 'Down' ) {
       this.stackFactor = Constants.DEFAULT_STACK_FACTOR_Y;
-      const max = rules.maxfan === 0 ? baize._height - this.pt.y : this.pt.y + rules.maxfan;
+      const max = rules.maxfan === 0 ? baize.height - this.pt.y : this.pt.y + rules.maxfan;
 
-      let arr = this._dynamicArrayY();
+      let arr = this.dynamicArrayY_();
       while ( arr[arr.length-1] + Constants.CARD_HEIGHT > max && this.stackFactor < Constants.MAX_STACK_FACTOR ) {
         this.stackFactor += (1.0/3.0);
-        arr = this._dynamicArrayY();
+        arr = this.dynamicArrayY_();
       }
       if ( this.stackFactor !== oldStackFactor ) {
         for ( let i=0; i<this.cards.length; i++ ) {
@@ -1537,12 +1503,12 @@ class CardContainer {
       }
     } else if ( rules.fan === 'Right' ) {
       this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;
-      const max = rules.maxfan === 0 ? baize._width - this.pt.x : this.pt.x + rules.maxfan;
+      const max = rules.maxfan === 0 ? baize.width - this.pt.x : this.pt.x + rules.maxfan;
 
-      let arr = this._dynamicArrayX();
+      let arr = this.dynamicArrayX_();
       while ( arr[arr.length-1] + Constants.CARD_WIDTH > max && this.stackFactor < Constants.MAX_STACK_FACTOR ) {
         this.stackFactor += (1.0/3.0);
-        arr = this._dynamicArrayX();
+        arr = this.dynamicArrayX_();
       }
       if ( this.stackFactor !== oldStackFactor ) {
         for ( let i=0; i<this.cards.length; i++ ) {
@@ -1557,7 +1523,6 @@ class CardContainer {
   }
 
   /**
-   * @abstract
    * @returns {boolean}
    */
   isSolveable() {
@@ -1588,7 +1553,6 @@ class CardContainer {
   }
 
   /**
-   * @abstract
    * @returns {string}
    */
   english() {
@@ -1696,7 +1660,7 @@ class Reserve extends CardContainer {
    */
   constructor(pt, g) {
     super(pt, g);
-    this._resetStackFactor(rules.Reserve);
+    this.resetStackFactor_(rules.Reserve);
   }
 
   /**
@@ -1706,13 +1670,13 @@ class Reserve extends CardContainer {
   push(c) {
     // DRY same as Tableau.push
     if ( 0 === this.cards.length )
-      this._resetStackFactor(rules.Reserve);
+      this.resetStackFactor_(rules.Reserve);
 
     let pt = null;
     if ( rules.Reserve.fan === 'Down' )
-      pt = Util.newPoint(this.pt.x, this._dynamicY());
+      pt = Util.newPoint(this.pt.x, this.dynamicY_());
     else if ( rules.Reserve.fan === 'Right' )
-      pt = Util.newPoint(this._dynamicX(), this.pt.y);
+      pt = Util.newPoint(this.dynamicX_(), this.pt.y);
     else if ( rules.Reserve.fan === 'None' )
       pt = Util.newPoint(this.pt.x, this.pt.y);
     this.cards.push(c);
@@ -1728,7 +1692,7 @@ class Reserve extends CardContainer {
     // can be face up or face down
     if ( c.faceDown )
       return;
-    if ( c !== this.cards[this.cards.length-1] )
+    if ( c !== this.peek() )
       return;
     if ( !stats.Options.autoPlay )
       return;
@@ -1838,18 +1802,18 @@ class Stock extends CardContainer {
       this.g.style.display = 'none';
 
     this.redeals = rules.Stock.redeals;
-    // this._updateRedealsSVG();
+    // this.updateRedealsSVG_();
 
     g.onclick = this.clickOnEmpty.bind(this);
 
     if ( !stats.Options.loadSaved || !stats[rules.Name].saved )
-      this._createPacks();
+      this.createPacks_();
   }
 
   /**
    * @private
    */
-  _createPacks() {
+  createPacks_() {
     for ( let ord=1; ord<Constants.cardValues.length; ord++ ) {
       for ( let p=0; p<rules.Stock.packs; p++ ) {
         for ( let s of rules.Stock.suitfilter ) {     // defaults to '♠♥♦♣'
@@ -1866,7 +1830,7 @@ class Stock extends CardContainer {
   /**
    * @private
    */
-  _createRedealsSVG() {
+  createRedealsSVG_() {
     // only called by StockCruel, StockKlondike, StockFan
     const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
     t.classList.add('stockredeals');
@@ -1879,7 +1843,7 @@ class Stock extends CardContainer {
   /**
    * @private
    */
-  _updateRedealsSVG() {
+  updateRedealsSVG_() {
     // g has rect and text children
     let txt = this.g.querySelector('text');
     if ( txt ) {
@@ -1902,7 +1866,7 @@ class Stock extends CardContainer {
     if ( c && c.faceDown )
       c.flipUp(false);    // automatic
     if ( 0 === this.cards.length ) {
-      this._updateRedealsSVG();
+      this.updateRedealsSVG_();
     }
     return c;
   }
@@ -1931,7 +1895,7 @@ class Stock extends CardContainer {
   decreaseRedeals() {
     if ( Number.isInteger(this.redeals) ) {
       this.redeals -= 1;
-      this._updateRedealsSVG();
+      this.updateRedealsSVG_();
       undo.length = 0;
     }
   }
@@ -1981,7 +1945,7 @@ class Stock extends CardContainer {
    * @returns {number}
    */
   availableMoves() {
-    return this._availableMovesStackAll();
+    return this.avilableMovesStackAll_();
   }
 
   /**
@@ -2012,7 +1976,7 @@ class StockKlondike extends Stock {
    */
   constructor(pt, g) {
     super(pt, g);
-    this._createRedealsSVG();
+    this.createRedealsSVG_();
   }
 
   /**
@@ -2173,14 +2137,14 @@ class StockCruel extends Stock
    */
   constructor(pt, g) {
     super(pt, g);
-    this._createRedealsSVG();
+    this.createRedealsSVG_();
   }
 
   /**
    * @private
-   * @returns {Card[]}
+   * @returns {Array}
    */
-  _part1()
+  part1_()
   {
     const tmpCards = [];
     for ( let i=tableaux.length-1; i>=0; i-- )
@@ -2204,9 +2168,9 @@ class StockCruel extends Stock
 
   /**
    * @private
-   * @param {Card[]} tmp 
+   * @param {Array} tmp 
    */
-  _part2(tmp) {
+  part2_(tmp) {
     for ( let i=0; i<tableaux.length; i++ ) {
       const dst = tableaux[i].cards;
       const n = tableaux[i].a_deal.length;
@@ -2223,7 +2187,7 @@ class StockCruel extends Stock
   /**
    * @private
    */
-  _part3() {
+  part3_() {
     for ( let i=0; i<tableaux.length; i++ ) {
       const tab = tableaux[i];
       for ( let j=0; j<tab.cards.length; j++ ) {
@@ -2231,18 +2195,18 @@ class StockCruel extends Stock
         c.owner = tab;
         c.bringToTop();
         if ( rules.Tableau.fan === 'Down' )
-          c.animate(Util.newPoint(tab.pt.x, tab._dynamicY(j)));
+          c.animate(Util.newPoint(tab.pt.x, tab.dynamicY_(j)));
         else if ( rules.Tableau.fan === 'Right' )
-          c.animate(Util.newPoint(tab._dynamicX(j), tab.pt.y));
+          c.animate(Util.newPoint(tab.dynamicX_(j), tab.pt.y));
       }
     }
   }
 
   clickOnEmpty() {
     if ( this.redealsAvailable() ) {
-      const tmp = this._part1();
-      this._part2(tmp);
-      this._part3();
+      const tmp = this.part1_();
+      this.part2_(tmp);
+      this.part3_();
 
       undo.length = 0;
 
@@ -2284,7 +2248,7 @@ class StockFan extends Stock {
    */
   constructor(pt, g) {
     super(pt, g);
-    this._createRedealsSVG();
+    this.createRedealsSVG_();
   }
 
   clickOnEmpty() {
@@ -2349,12 +2313,12 @@ class Waste extends CardContainer {
    * @private
    * @returns {number}
    */
-  _middleX() { return this.pt.x + Constants.CARD_WIDTH_STACKED; }
+  middleX_() { return this.pt.x + Constants.CARD_WIDTH_STACKED; }
   /**
    * @private
    * @returns {number}
    */
-  _rightX() { return this.pt.x + Constants.CARD_WIDTH_STACKED * 2; }
+  rightX_() { return this.pt.x + Constants.CARD_WIDTH_STACKED * 2; }
 
   /**
    * @override
@@ -2367,20 +2331,20 @@ class Waste extends CardContainer {
 
     } else if ( 1 === this.cards.length ) {
       // incoming card will go to middle position
-      ptNew.x = this._middleX();
+      ptNew.x = this.middleX_();
     } else if ( 2 === this.cards.length ) {
       // incoming card will go to right position
-      ptNew.x = this._rightX();
+      ptNew.x = this.rightX_();
     } else {
       // incoming card will go to right position
-      ptNew.x = this._rightX();
+      ptNew.x = this.rightX_();
       // card in middle needs to go to left position
       const cMiddle = this.cards[this.cards.length-2];
       const ptLeft = Util.newPoint(this.pt.x, this.pt.y);
       cMiddle.animate(ptLeft);
       // card on right (top card) needs to go to middle position
-      const cTop = this.cards[this.cards.length-1];
-      const ptMiddle = Util.newPoint(this._middleX(), this.pt.y);
+      const cTop = this.peek();
+      const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
       cTop.animate(ptMiddle);
     }
     c.owner = this;
@@ -2400,12 +2364,12 @@ class Waste extends CardContainer {
     if ( this.cards.length > 2 ) {
       // top card needs to go to right position
       const cTop = this.cards[this.cards.length-1];
-      const ptRight = Util.newPoint(this._rightX(), this.pt.y);
+      const ptRight = Util.newPoint(this.rightX_(), this.pt.y);
       cTop.animate(ptRight);
 
       // top-1 card needs to go to middle position
       const cTop1 = this.cards[this.cards.length-2];
-      const ptMiddle = Util.newPoint(this._middleX(), this.pt.y);
+      const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
       cTop1.animate(ptMiddle);
 
       // top-2 card needs to go to left position
@@ -2426,7 +2390,7 @@ class Waste extends CardContainer {
     if ( !stats.Options.autoPlay )
       return;
 
-    if ( c !== this.cards[this.cards.length-1] )
+    if ( c !== this.peek() )
       return;
 
     let cc = null;
@@ -2445,7 +2409,7 @@ class Waste extends CardContainer {
    * @param {Card} c 
    */
   canAcceptCard(c) {
-    if ( Number.isInteger(rules.Waste.maxcards) && !(waste.cards.length < rules.Waste.maxcards) )
+    if ( Number.isInteger(rules.Waste.maxcards) && !(this.cards.length < rules.Waste.maxcards) )
       return false;
     return (c.owner instanceof Stock) && (1 === rules.Stock.cards);
   }
@@ -2475,7 +2439,7 @@ class Waste extends CardContainer {
    */
   availableMoves() {
     if ( stock.redeals === null || stock.redeals > 0 )  // TODO type warning; redeals does not exist on CardContainer (but it does in Stock)
-      return this._availableMovesStackAll();
+      return this.avilableMovesStackAll_();
     else
       return super.availableMoves();   // just the top card
   }
@@ -2497,17 +2461,17 @@ class Foundation extends CardContainer {
    */
   constructor(pt, g) {
     super(pt, g);
-    this._resetStackFactor(rules.Foundation);
+    this.resetStackFactor_(rules.Foundation);
     this.scattered = false;
     if ( 0 === this.a_accept && rules.Foundation.accept ) {
       // accept not specified in guts, so we use rules
       this.a_accept = rules.Foundation.accept;
-      this._createAcceptSVG();
+      this.createAcceptSVG_();
     }
     this.a_complete = this.g.getAttribute('complete');  // e.g. "♥01"
     if ( this.a_complete ) {
       this.a_completeSuit = this.a_complete.charAt(0);
-      this.a_completeOrd = Number.parseInt(this.a_complete.slice(1));
+      this.a_completeOrd = Number.parseInt(this.a_complete.slice(1), 10);
     }
     this.a_reverse = !!(this.g.getAttribute('reverse') || 0);
     if ( this.a_reverse ) {
@@ -2529,9 +2493,9 @@ class Foundation extends CardContainer {
     console.assert(!c.faceDown);
     let pt = null;
     if ( rules.Foundation.fan === 'Down' )
-      pt = Util.newPoint(this.pt.x, this._dynamicY());
+      pt = Util.newPoint(this.pt.x, this.dynamicY_());
     else if ( rules.Foundation.fan === 'Right' )
-      pt = Util.newPoint(this._dynamicX(), this.pt.y);
+      pt = Util.newPoint(this.dynamicX_(), this.pt.y);
     else if ( rules.Foundation.fan === 'None' )
       pt = Util.newPoint(this.pt.x, this.pt.y);
     this.cards.push(c);
@@ -2585,8 +2549,9 @@ class Foundation extends CardContainer {
     } else {
       const fc = this.peek();
       if ( !fc ) {
-        if ( this.a_accept )    // 0 or missing to accept any card
+        if ( this.a_accept ) {   // 0 or missing to accept any card
           accept = ( c.ordinal === this.a_accept );
+        }
       } else {
         accept = isConformant0(this.rules, fc, c);
       }
@@ -2609,7 +2574,7 @@ class Foundation extends CardContainer {
   /**
    * @override
    * @param {Card} c 
-   * @returns {Card[]}
+   * @returns {Array|null}
    */
   canGrab(c) {
     if ( stats.Options.playFromFoundation )
@@ -2649,8 +2614,8 @@ class Foundation extends CardContainer {
   isComplete() {
     if ( this.a_complete ) {
       // Grandfather's Clock
-      const c = this.cards[this.cards.length-1];
-      return ( c && c.ordinal === this.a_completeOrd && c.suit === this.a_completeSuit );
+      const c = this.peek();
+      return ( !!c && c.ordinal === this.a_completeOrd && c.suit === this.a_completeSuit );
     }
     /*
       Because of the Bisley/reverse foundation problem, a game is complete if
@@ -2757,7 +2722,7 @@ class FoundationCanfield extends Foundation {
       // console.log('a_accept will be', c.ordinal);
       foundations.forEach( f => {
         f.a_accept = c.ordinal;
-        f._createAcceptSVG();
+        f.createAcceptSVG_();
       });
     }
   }
@@ -2803,12 +2768,12 @@ class FoundationPenguin extends Foundation {
       // console.log('a_accept will be', c.ordinal);
       foundations.forEach( f => {
         f.a_accept = c.ordinal;
-        f._createAcceptSVG();
+        f.createAcceptSVG_();
       });
       const o = c.ordinal === 1 ? 13 : c.ordinal - 1;
       tableaux.forEach( t => {
         t.a_accept = o;
-        t._createAcceptSVG();
+        t.createAcceptSVG_();
       });
     }
   }
@@ -2896,11 +2861,11 @@ class Tableau extends CardContainer
    */
   constructor(pt, g) {
     super(pt, g);
-    this._resetStackFactor(rules.Tableau);
+    this.resetStackFactor_(rules.Tableau);
     if ( 0 === this.a_accept && rules.Tableau.accept )
     {   // accept not specified in guts, so we use rules
       this.a_accept = rules.Tableau.accept;
-      this._createAcceptSVG();
+      this.createAcceptSVG_();
     }
   }
 
@@ -2910,13 +2875,13 @@ class Tableau extends CardContainer
    */
   push(c) {   // DRY same as Reserve.push
     if ( 0 === this.cards.length )
-      this._resetStackFactor(rules.Tableau);
+      this.resetStackFactor_(rules.Tableau);
 
     let pt = null;
     if ( rules.Tableau.fan === 'Down' )
-      pt = Util.newPoint(this.pt.x, this._dynamicY());
+      pt = Util.newPoint(this.pt.x, this.dynamicY_());
     else if ( rules.Tableau.fan === 'Right' )
-      pt = Util.newPoint(this._dynamicX(), this.pt.y);
+      pt = Util.newPoint(this.dynamicX_(), this.pt.y);
     else if ( rules.Tableau.fan === 'None' )
       pt = Util.newPoint(this.pt.x, this.pt.y);
     this.cards.push(c);
@@ -2932,7 +2897,9 @@ class Tableau extends CardContainer
   canAcceptCard(c) {
     let accept = true;
 
-    if ( c.owner === this ) {
+    if ( Number.isInteger(rules.Tableau.maxcards) && !(this.cards.length < rules.Tableau.maxcards) ) {
+      accept = false;
+    } else if ( c.owner === this ) {
       accept = false;
     } else {
       let tc = this.peek();
@@ -2977,11 +2944,11 @@ class Tableau extends CardContainer
       return;
 
     let cc = null;
-    if ( this.cards[this.cards.length-1] === c )
+    if ( this.peek() === c )
       cc = c.findFullestAcceptingContainer(foundations);
     if ( !cc )
       cc = c.findFullestAcceptingContainer(tableaux);
-    if ( !cc && this.cards[this.cards.length-1] === c )
+    if ( !cc && this.peek() === c )
       cc = c.findFullestAcceptingContainer(cells);
     if ( cc )
       c.moveTail(cc);
@@ -3044,7 +3011,7 @@ class TableauTail extends Tableau {
   /**
    * @override
    * @param {Card} c
-   * @returns {Card[]} 
+   * @returns {Array<Card|null>} 
    */
   canGrab(c) {
     const tail = c.getTail();
@@ -3058,7 +3025,7 @@ class TableauTail extends Tableau {
    * @returns {number}
    */
   availableMoves() {
-    return this._availableMovesStack();
+    return this.availableMovesStack_();
   }
 
   /**
@@ -3206,7 +3173,7 @@ class TableauFreecell extends Tableau {
   /**
    * @override 
    * @param {Card} c 
-   * @returns {Card[]}
+   * @returns {Array<Card|null>}
    */
   canGrab(c) {
     const tail = c.getTail();
@@ -3216,8 +3183,6 @@ class TableauFreecell extends Tableau {
     }
     const pm = this._powerMoves();
     if ( tail.length > pm ) {
-      // if ( c.tailGrabbed )    // too late, grabbing already over?
-      // displayToast(`you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
       // console.log(`grab: you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
       return null;
     }
@@ -3238,8 +3203,6 @@ class TableauFreecell extends Tableau {
       const tail = c.getTail();
       const pm = this._powerMoves(this.cards.length === 0);
       if ( tail.length > pm ) {
-        // if ( c.tailGrabbed )    // too late, grabbing already over?
-        // displayToast(`you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
         // console.log(`accept: you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
         accept = false;
       }
@@ -3252,7 +3215,7 @@ class TableauFreecell extends Tableau {
    * @returns {number}
    */
   availableMoves() {
-    return this._availableMovesStack();
+    return this.availableMovesStack_();
   }
 
   /**
@@ -3273,7 +3236,7 @@ class TableauGolf extends Tableau {
    */
   onclick(c) {
     // only click top card, which can only go to foundation[0]. always face up
-    if ( this.cards[this.cards.length-1] === c ) {
+    if ( this.peek() === c ) {
       if ( foundations[0].canAcceptCard(c) ) {
         c.moveTop(foundations[0]);
       }
@@ -3287,7 +3250,7 @@ class TableauGolf extends Tableau {
   availableMoves() {
     this.cards.forEach( c => c.markMoveable(false) );
 
-    const c = this.cards[this.cards.length-1];
+    const c = this.peek();
     if ( c && foundations[0].canAcceptCard(c) ) {
       c.markMoveable(true);
       return 1;
@@ -3306,8 +3269,8 @@ function linkClasses(src) {
     document.querySelectorAll('g.' + e.name).forEach( g => {
       // g contains a rect, the rect contains x,y attributes in SVG coords
       const r = g.querySelector('rect');
-      const x = Number.parseInt(r.getAttribute('x'));
-      const y = Number.parseInt(r.getAttribute('y'));
+      const x = Number.parseInt(r.getAttribute('x'), 10);
+      const y = Number.parseInt(r.getAttribute('y'), 10);
       const pt = Util.newPoint(x, y);
       dst.push(new e(pt, g));
     });
@@ -3405,7 +3368,7 @@ function isConformant0(rules, cPrev, cThis) {   // TODO clean up this horrible l
 
 /**
  * @param {Object} rules
- * @param {Card[]} cards
+ * @param {Array<Card>} cards
  * @returns {boolean}
  */
 function isConformant(rules, cards) {
@@ -3630,7 +3593,7 @@ function doload() {
     } else {
       stock.redeals = null;
     }
-    stock._updateRedealsSVG();
+    stock.updateRedealsSVG_();
     tallyMan.count = stats[rules.Name].saved.moves;
     undo = stats[rules.Name].saved.undo;
 
@@ -3859,7 +3822,8 @@ if ( !rules.Foundation.hasOwnProperty('hidden') )   rules.Foundation.hidden = fa
 if ( !rules.Foundation.hasOwnProperty('target') )   rules.Foundation.target = null;
 
 if ( !rules.Tableau.hasOwnProperty('fan') )         rules.Tableau.fan = 'Down';
-if ( !rules.Tableau.hasOwnProperty('maxfan') )      rules.Tableau.maxfan = 0;       // use baize dimensions
+if ( !rules.Tableau.hasOwnProperty('maxcards') )    rules.Tableau.maxcards = null;    // allow any number of cards
+if ( !rules.Tableau.hasOwnProperty('maxfan') )      rules.Tableau.maxfan = 0;         // use baize dimensions
 if ( !rules.Tableau.hasOwnProperty('build') )       rules.Tableau.build = {suit:2, rank:4};
 if ( !rules.Tableau.hasOwnProperty('move') )        rules.Tableau.move = {suit:4, rank:2};
 if ( !rules.Tableau.hasOwnProperty('target') )      rules.Tableau.target = null;
