@@ -1,3 +1,8 @@
+09/11/2018
+Remove "stifle second Firefox touch/mouse pointerdown event"
+...because it's not needed with dummyTouchStart
+Implemented Quadruple Klondike (mostly to test the engine)
+
 08/11/2018
 5.4.7 Getters and Setters removed
 more reformat to Google style guide (WIP), starting to move towards Google Closure Compiler

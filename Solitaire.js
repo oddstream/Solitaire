@@ -555,6 +555,7 @@ class Card {
         ... event.preventDefault() and/or event.preventDefault(event) don't stop it
         ... Chrome and Edge don't do this
     */
+    /*
     if ( this.owner.lastEvent ) { // TODO check if this still needed with dummy touch handler
       if ( event.pointerType !== this.owner.lastEvent.pointerType && event.timeStamp < this.owner.lastEvent.timeStamp + 1000 ) {
         console.log('stifle Firefox event');
@@ -562,7 +563,7 @@ class Card {
       }
     }
     this.owner.lastEvent = event;
-
+    */
     if ( event.pointerType === 'mouse' ) {
       if ( !(event.button === 0) ) {
         console.log('don\'t care about mouse button', event.button);
@@ -1682,8 +1683,8 @@ class Reserve extends CardContainer {
       pt = Util.newPoint(this.dynamicX_(), this.pt.y);
     else if ( rules.Reserve.fan === 'None' )
       pt = Util.newPoint(this.pt.x, this.pt.y);
-    this.cards.push(c);
     c.owner = this;
+    this.cards.push(c);
     c.animate(pt);
   }
 
@@ -1820,14 +1821,15 @@ class Stock extends CardContainer {
   createPacks_() {
     for ( let ord=1; ord<Constants.cardValues.length; ord++ ) {
       for ( let p=0; p<rules.Stock.packs; p++ ) {
-        for ( let s of rules.Stock.suitfilter ) {     // defaults to '♠♥♦♣'
-          this.cards.push(new Card(p, s, ord, true, this.pt));
+        for ( let s of rules.Stock.suitfilter ) { // defaults to '♠♥♦♣'
+          const c = new Card(p, s, ord, true, this.pt); // created on top of stock container
+          c.owner = this;
+          this.cards.push(c);
         }
       }
     }
     if ( this.cards.length !== (rules.Stock.packs*52) ) { console.warn(this.cards.length, ' cards in pack'); }
     this.sort();
-    this.cards.forEach( c => c.owner = this );
     this.cards.forEach( c => baize.ele.appendChild(c.g) );
   }
 
@@ -2502,8 +2504,8 @@ class Foundation extends CardContainer {
       pt = Util.newPoint(this.dynamicX_(), this.pt.y);
     else if ( rules.Foundation.fan === 'None' )
       pt = Util.newPoint(this.pt.x, this.pt.y);
-    this.cards.push(c);
     c.owner = this;
+    this.cards.push(c);
     c.animate(pt);
   }
 
@@ -2820,7 +2822,7 @@ class FoundationSpider extends Foundation {
   }
 
   /**
-   * @param {number} ord 
+   * @param {number=} ord 
    * @returns {boolean}
    */
   solve(ord=0) {
@@ -2857,8 +2859,7 @@ class FoundationSpider extends Foundation {
   }
 }
 
-class Tableau extends CardContainer
-{
+class Tableau extends CardContainer {
   /**
    * @param {SVGPoint} pt
    * @param {SVGElement} g
@@ -2888,8 +2889,8 @@ class Tableau extends CardContainer
       pt = Util.newPoint(this.dynamicX_(), this.pt.y);
     else if ( rules.Tableau.fan === 'None' )
       pt = Util.newPoint(this.pt.x, this.pt.y);
-    this.cards.push(c);
     c.owner = this;
+    this.cards.push(c);
     c.animate(pt);
   }
 
@@ -3268,7 +3269,7 @@ class TableauGolf extends Tableau {
  * @returns {Array<CardContainer>}
  */
 function linkClasses(src) {
-  const dst = [];
+  const /** Array<CardContainer> */dst = [];
   src.forEach ( e => {
     document.querySelectorAll('g.' + e.name).forEach( g => {
       // g contains a rect, the rect contains x,y attributes in SVG coords
@@ -3869,14 +3870,14 @@ if ( !stats[rules.Name].worstStreak )   stats[rules.Name].worstStreak = 0;
 stats.Options.lastGame = window.location.pathname.split('/').pop();
 
 const /** Array<Stock> */stocks = linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]);
-const stock = stocks[0];
+const /** Stock */stock = stocks[0];
 const /** Array<Waste> */wastes = linkClasses([Waste]);
-const waste = wastes[0];
+const /** Waste */waste = wastes[0];
 const /** Array<Foundation> */foundations = linkClasses([Foundation,FoundationCanfield,FoundationGolf,FoundationOsmosis,FoundationPenguin,FoundationSpider]);
 const /** Array<Tableau> */tableaux = linkClasses([Tableau,TableauBlockade,TableauCanfield,TableauFortunesFavor,TableauFreecell,TableauGolf,TableauSpider,TableauTail]);
 const /** Array<Cell> */cells = linkClasses([Cell,CellCarpet]);
 const /** Array<Reserve> */reserves = linkClasses([Reserve,ReserveFrog]);
-const reserve = reserves[0];
+const /** Reserve */reserve = reserves[0];
 
 document.documentElement.style.setProperty('--bg-color', 'darkgreen');
 document.documentElement.style.setProperty('--hi-color', 'lightgreen');

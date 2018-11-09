@@ -1,0 +1,50 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Quadruple Klondike",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)",
+  "Winnable":[209712],
+  "Stock":{"packs":4},
+  "Foundation":{"suit":2, "rank":1, "accept":1},
+  "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":4, "rank":2}, "accept":13}
+}
+</script>  
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="StockKlondike"><rect x="10" y="10"></rect></g>
+    <g class="Waste"><rect x="77" y="10"></rect></g>
+
+    <g class="Foundation"><rect x="211" y="10"></rect></g>
+    <g class="Foundation"><rect x="278" y="10"></rect></g>
+    <g class="Foundation"><rect x="345" y="10"></rect></g>
+    <g class="Foundation"><rect x="412" y="10"></rect></g>
+
+    <g class="Foundation"><rect x="479" y="10"></rect></g>
+    <g class="Foundation"><rect x="546" y="10"></rect></g>
+    <g class="Foundation"><rect x="613" y="10"></rect></g>
+    <g class="Foundation"><rect x="680" y="10"></rect></g>
+
+    <g class="Foundation"><rect x="747" y="10"></rect></g>
+    <g class="Foundation"><rect x="814" y="10"></rect></g>
+    <g class="Foundation"><rect x="881" y="10"></rect></g>
+    <g class="Foundation"><rect x="948" y="10"></rect></g>
+
+    <g class="Foundation"><rect x="1015" y="10"></rect></g>
+    <g class="Foundation"><rect x="1082" y="10"></rect></g>
+    <g class="Foundation"><rect x="1149" y="10"></rect></g>
+    <g class="Foundation"><rect x="1216" y="10"></rect></g>
+
+    <g class="TableauTail" deal="u"><rect x="144" y="110"></rect></g>
+    <g class="TableauTail" deal="du"><rect x="211" y="110"></rect></g>
+    <g class="TableauTail" deal="ddu"><rect x="278" y="110"></rect></g>
+    <g class="TableauTail" deal="dddu"><rect x="345" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddu"><rect x="412" y="110"></rect></g>
+    <g class="TableauTail" deal="dddddu"><rect x="479" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddddu"><rect x="546" y="110"></rect></g>
+    <g class="TableauTail" deal="dddddddu"><rect x="613" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddddddu"><rect x="680" y="110"></rect></g>
+    <g class="TableauTail" deal="dddddddddu"><rect x="747" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddddddddu"><rect x="814" y="110"></rect></g>
+    <g class="TableauTail" deal="dddddddddddu"><rect x="881" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddddddddddu"><rect x="948" y="110"></rect></g>
+    <g class="TableauTail" deal="dddddddddddddu"><rect x="1015" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddddddddddddu"><rect x="1082" y="110"></rect></g>
