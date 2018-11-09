@@ -14,7 +14,7 @@
     <g class="Stock">
       <rect x="10" y="-110"></rect>
     </g>
-    <g><rect x="1100" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->
+    <g><rect x="1200" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->
 
     <g class="Foundation"><rect x="210" y="10"></rect></g>
     <g class="Foundation"><rect x="410" y="10"></rect></g>

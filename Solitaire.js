@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.8.0',
+  GAME_VERSION: '0.11.9.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -78,7 +78,7 @@ const Util = {
    * @returns {SVGPoint}
   */
   newPoint: function(x, y=undefined) {
-    /** @type {SVGPoint} */const pt = baize.ele.createSVGPoint();
+    const /** !SVGPoint */ pt = baize.ele.createSVGPoint();
     if ( typeof x === 'object' ) {
       pt.x = x.x;
       pt.y = x.y;
@@ -204,10 +204,10 @@ class Random {
 class Baize {
   constructor() {
     /** @const {SVGElement} */ this.ele = document.getElementById('baize');
-    /** @private */ this.borderWidth_ = 0;
-    /** @private */ this.gutsWidth_ = 0;
-    this.width = 0;
-    this.height = 0;
+    /** @private @type {number} */ this.borderWidth_ = 0;
+    /** @private @type {number} */ this.gutsWidth_ = 0;
+    /** @type {number} */ this.width = 0;
+    /** @type {number} */ this.height = 0;
     this.ele.querySelectorAll('g>rect').forEach( r => {
       r.setAttributeNS(null, 'height', String(Constants.CARD_HEIGHT));
       r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
@@ -226,7 +226,7 @@ class Baize {
 
   /**
    * @private
-   * @param {number} b 
+   * @param {number} b positive or negative border width
    */
   adjustBorder_(b) {
     this.ele.querySelectorAll('g>rect,g>text').forEach( r => {
@@ -284,7 +284,7 @@ class Baize {
   }
 }
 
-const listOfCardContainers = [];
+const /** Array<CardContainer> */listOfCardContainers = [];
 
 const baize = new Baize;
 
@@ -326,15 +326,15 @@ function dummyTouchStartHandler(e) {e.preventDefault();}
 
 class Card {
   /**
-   * @param {number} pack
-   * @param {string} suit
-   * @param {number} ordinal
-   * @param {boolean} faceDown
-   * @param {SVGPoint} pt
+   * @param {!number} pack
+   * @param {!string} suit
+   * @param {!number} ordinal
+   * @param {!boolean} faceDown
+   * @param {!SVGPoint} pt
    */
   constructor(pack, suit, ordinal, faceDown, pt) {
     this.pack = pack;
-    this.ordinal = ordinal;                 // 1 .. 13
+    this.ordinal = ordinal; // 1 .. 13
     this.suit = suit;
     this.faceDown = faceDown;
 
@@ -349,12 +349,10 @@ class Card {
     // this.id = `${pack}${suit}${String(this.ordinal).padStart(2,'0')}`;
 
     this.color = ( this.suit === Constants.HEART || this.suit === Constants.DIAMOND ) ? 'red' : 'black';
-
     this.owner = null;
-
     this.pt = Util.newPoint(pt);
-    this.ptOriginal = null;                 // used in dragging
-    this.ptOffset = null;                   // used in dragging
+    this.ptOriginal = null;
+    this.ptOffset = null;
     this.grabbedTail = null;
     this.ptOriginalPointerDown = null;
     // https://stackoverflow.com/questions/33859113/javascript-removeeventlistener-not-working-inside-a-class
@@ -390,7 +388,7 @@ class Card {
 
   /**
    * @private
-   * @param {string} cl 
+   * @param {string} cl class
    * @returns Element
    */
   createRect_(cl) {
@@ -752,8 +750,8 @@ class Card {
 
   /**
    * Use SVG transform to position this card on the baize
-   * @param {number} x optional
-   * @param {number} y optional
+   * @param {number=} x optional
+   * @param {number=} y optional
    */
   position0(x=undefined, y=undefined) {
     if ( x !== undefined && y !== undefined ) {
@@ -765,7 +763,7 @@ class Card {
 
   /**
    * @param {number} x 
-   * @returns {number}
+   * @returns {!number}
    */
   smootherstep_(x) {
     return ((x) * (x) * (x) * ((x) * ((x) * 6 - 15) + 10));
@@ -777,7 +775,7 @@ class Card {
    */
   animate(ptTo) {
     // http://sol.gfxile.net/interpolation
-    console.assert(ptTo != this.pt);    // needs a new point
+    console.assert(ptTo!==this.pt);    // needs a new point
     const speed = [0,50,40,30,20,10];   // index will be 1..5
     const ptFrom = Util.newPoint(this.pt);
     this.pt.x = ptTo.x; // update final pos immediately in case we're interrupted
@@ -813,7 +811,7 @@ class Card {
 
   /**
    * Move top card if this stack to another stack
-   * @param {CardContainer} to
+   * @param {!CardContainer} to
    */
   moveTop(to) {
     const from = this.owner;
@@ -828,8 +826,8 @@ class Card {
 
   /**
    * Move a number of cards from this stack to another stack
-   * @param {CardContainer} to 
-   * @param {number} n2move 
+   * @param {!CardContainer} to 
+   * @param {!number} n2move 
    */
   moveSome(to, n2move) {
     const from = this.owner;
@@ -850,7 +848,7 @@ class Card {
 
   /**
    * Move cards from this card to end of stack (the tail) to another stack
-   * @param {CardContainer} to 
+   * @param {!CardContainer} to 
    */
   moveTail(to) {
     const nCard = this.owner.cards.findIndex( e => e === this );
@@ -859,7 +857,7 @@ class Card {
 
   /**
    * Calculate the overlap area (intersection) of this card and a card at pt2
-   * @param {SVGPoint} pt2 
+   * @param {!SVGPoint} pt2 
    * @returns {number}
    */
   overlapArea_(pt2) {
@@ -872,7 +870,7 @@ class Card {
 
   /**
    * Find an accepting CardContainer that this card overlaps the most
-   * @returns {?CardContainer}
+   * @returns {CardContainer|null}
    */
   getNewOwner() {
     let ccMost = null;
@@ -895,7 +893,7 @@ class Card {
 
   /**
    * @param {Array<CardContainer>} ccList
-   * @returns {?CardContainer} 
+   * @returns {CardContainer|null} 
    */
   findFullestAcceptingContainer(ccList) {
     let cc = null;
@@ -954,6 +952,9 @@ class Card {
     cl.remove('grabbed');
   }
 
+  /**
+   * @returns {!Object}
+   */
   getSaveableCard() {
     return {'pack':this.pack, 'suit':this.suit, 'ordinal':this.ordinal, 'faceDown':this.faceDown};
   }
@@ -968,9 +969,9 @@ let undo = [];
 let undoing = false;
 
 /**
- * @param {CardContainer} f
- * @param {CardContainer} t
- * @param {number} c
+ * @param {!CardContainer} f
+ * @param {!CardContainer} t
+ * @param {!number} c
  */
 function undoPushMove(f, t, c) {
   if ( !undoing ) {
@@ -982,8 +983,8 @@ function undoPushMove(f, t, c) {
 }
 
 /**
- * @param {Card} c
- * @param {string} di
+ * @param {!Card} c
+ * @param {!string} di flip direction - up or down
  */
 function undoPushFlip(c, di) {
   if ( !undoing ) {
@@ -1010,7 +1011,9 @@ function doundo() {
       const dst = listOfCardContainers[u.to];
 
       let n = 1;
-      if ( u.count ) n = u.count;
+      if ( u.count ) {
+        n = u.count;
+      }
       let tmp = [];
       while ( n-- ) {
         tmp.push(dst.pop());
@@ -1045,8 +1048,8 @@ function doundo() {
 
 class CardContainer {
   /**
-   * @param {SVGPoint} pt 
-   * @param {SVGElement} g 
+   * @param {!SVGPoint} pt 
+   * @param {!SVGElement} g 
    */
   constructor(pt, g) {
     this.pt = pt;
@@ -1141,7 +1144,7 @@ class CardContainer {
   }
 
   /**
-   * @param {Card} c
+   * @param {!Card} c
    */
   push(c) {
     c.owner = this;
@@ -1150,7 +1153,7 @@ class CardContainer {
   }
 
   /**
-   * @param {Card} c
+   * @param {!Card} c
    */
   onclick(c) {
     console.error('onclick not implemented in base CardContainer', c);
@@ -1194,7 +1197,7 @@ class CardContainer {
   }
 
   /**
-   * @param {Card} c
+   * @param {!Card} c
    * @returns {boolean}
    */
   canAcceptCard(c) {
@@ -1203,7 +1206,7 @@ class CardContainer {
   }
 
   /**
-   * @param {CardContainer} cc
+   * @param {!CardContainer} cc
    * @returns {boolean}
    */
   canTarget(cc) {
@@ -1212,7 +1215,7 @@ class CardContainer {
   }
 
   /**
-   * @param {Card} c
+   * @param {!Card} c
    * @returns {?Array<Card>}
    */
   canGrab(c) {
@@ -1471,10 +1474,10 @@ class CardContainer {
    */
   resetStackFactor_(rules) {
     switch ( rules.fan ) {
-    case 'Right':
-    case 'Left':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;    break;
-    case 'Down':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_Y;    break;
-    case 'None':    this.stackFactor = 0;                                   break;
+      case 'Right':
+      case 'Left':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;    break;
+      case 'Down':    this.stackFactor = Constants.DEFAULT_STACK_FACTOR_Y;    break;
+      case 'None':    this.stackFactor = 0;                                   break;
     }
   }
 
@@ -1798,10 +1801,11 @@ class Stock extends CardContainer {
   constructor(pt, g) {
     super(pt, g);
 
-    if ( rules.Stock.hidden )
+    if ( rules.Stock.hidden ) {
       this.g.style.display = 'none';
+    }
 
-    this.redeals = rules.Stock.redeals;
+    /** number */this.redeals = rules.Stock.redeals;
     // this.updateRedealsSVG_();
 
     g.onclick = this.clickOnEmpty.bind(this);
@@ -3302,66 +3306,66 @@ function isConformant0(rules, cPrev, cThis) {   // TODO clean up this horrible l
     return false;
 
   switch ( rules.suit ) {
-  case 0: // may not build/move
-    return false;
-  case 1: // regardless of suit
-    break;
-  case 2: // in suit
-    if ( cThis.suit !== cPrev.suit )
+    case 0: // may not build/move
       return false;
-    break;
-  case 3: // in colour
-    if ( cThis.color !== cPrev.color )
-      return false;
-    break;
-  case 4: // in alternate colors
-    if ( cThis.color === cPrev.color )
-      return false;
-    break;
-  case 5: // in any suit but it's own
-    if ( cThis.suit === cPrev.suit )
-      return false;
-    break;
+    case 1: // regardless of suit
+      break;
+    case 2: // in suit
+      if ( cThis.suit !== cPrev.suit )
+        return false;
+      break;
+    case 3: // in colour
+      if ( cThis.color !== cPrev.color )
+        return false;
+      break;
+    case 4: // in alternate colors
+      if ( cThis.color === cPrev.color )
+        return false;
+      break;
+    case 5: // in any suit but it's own
+      if ( cThis.suit === cPrev.suit )
+        return false;
+      break;
   }
   switch ( rules.rank ) {
-  case 0: // may not build/move
-    return false;
-  case 1: // up, e.g. a 10 goes on a 9
-    if ( rules.rankwrap ) {
-      if ( cPrev.ordinal === 13 && cThis.ordinal === 1 ) {
-        // An Ace on a King
-      } else if ( cThis.ordinal !== cPrev.ordinal + 1 )
-        return false;
-    } else {
-      if ( cThis.ordinal !== cPrev.ordinal + 1 )
-        return false;
-    }
-    break;
-  case 2: // down, e.g. a 9 goes on a 10
-    if ( rules.rankwrap ) {
-      if ( cPrev.ordinal === 1 && cThis.ordinal === 13 ) {
-        // a King on an Ace
-      } else if ( cThis.ordinal !== cPrev.ordinal - 1 )
-        return false;
-    } else {
-      if ( cThis.ordinal !== cPrev.ordinal - 1 )
-        return false;
-    }
-    break;
-  case 4: // either up or down
-    //if ( !(cThis.ordinal === cPrev.ordinal + 1 || cThis.ordinal === cPrev.ordinal - 1) )
-    if ( rules.rankwrap ) {
-      if ( cPrev.ordinal === 13 && cThis.ordinal === 1 ) {
-      } else if ( cPrev.ordinal === 1 && cThis.ordinal === 13 ) {
-      } else if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) )
-        return false;
-    } else {
-      if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) )
-        return false;
-    }
-    break;
-  case 5: // regardless
-    break;
+    case 0: // may not build/move
+      return false;
+    case 1: // up, e.g. a 10 goes on a 9
+      if ( rules.rankwrap ) {
+        if ( cPrev.ordinal === 13 && cThis.ordinal === 1 ) {
+          // An Ace on a King
+        } else if ( cThis.ordinal !== cPrev.ordinal + 1 )
+          return false;
+      } else {
+        if ( cThis.ordinal !== cPrev.ordinal + 1 )
+          return false;
+      }
+      break;
+    case 2: // down, e.g. a 9 goes on a 10
+      if ( rules.rankwrap ) {
+        if ( cPrev.ordinal === 1 && cThis.ordinal === 13 ) {
+          // a King on an Ace
+        } else if ( cThis.ordinal !== cPrev.ordinal - 1 )
+          return false;
+      } else {
+        if ( cThis.ordinal !== cPrev.ordinal - 1 )
+          return false;
+      }
+      break;
+    case 4: // either up or down
+      //if ( !(cThis.ordinal === cPrev.ordinal + 1 || cThis.ordinal === cPrev.ordinal - 1) )
+      if ( rules.rankwrap ) {
+        if ( cPrev.ordinal === 13 && cThis.ordinal === 1 ) {
+        } else if ( cPrev.ordinal === 1 && cThis.ordinal === 13 ) {
+        } else if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) )
+          return false;
+      } else {
+        if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) )
+          return false;
+      }
+      break;
+    case 5: // regardless
+      break;
   }
   return true;
 }
@@ -3389,49 +3393,49 @@ function isConformant(rules, cards) {
 function englishRules(rules) {
   let s = '';
   switch ( rules.suit ) {
-  case 0: // may not build/move
-    s = 'not allowed';
-    break;
-  case 1: // regardless of suit
-    s = 'regardless of suit';
-    break;
-  case 2: // in suit
-    s = 'in suit';
-    break;
-  case 3: // in colour
-    s = 'in color';
-    break;
-  case 4: // in alternate colors
-    s = 'in alternate colors';
-    break;
-  case 5: // in any suit but it's own
-    s = 'in any other suit';
-    break;
+    case 0: // may not build/move
+      s = 'not allowed';
+      break;
+    case 1: // regardless of suit
+      s = 'regardless of suit';
+      break;
+    case 2: // in suit
+      s = 'in suit';
+      break;
+    case 3: // in colour
+      s = 'in color';
+      break;
+    case 4: // in alternate colors
+      s = 'in alternate colors';
+      break;
+    case 5: // in any suit but it's own
+      s = 'in any other suit';
+      break;
   }
   switch ( rules.rank ) {
-  case 0: // may not build/move
-    break;
-  case 1: // up, e.g. a 10 goes on a 9
-    s += ' and up, e.g. a 10 goes on a 9';
-    if ( rules.rankwrap ) {
-      s += ', Aces are allowed on Kings';
-    }
-    break;
-  case 2: // down, e.g. a 9 goes on a 10
-    s += ' and down, e.g. a 9 goes on a 10';
-    if ( rules.rankwrap ) {
-      s += ', Kings are allowed on Aces';
-    }
-    break;
-  case 4: // either up or down
-    s += ' and either up or down';
-    if ( rules.rankwrap ) {
-      s += ', Aces and Kings can go on top of each other';
-    }
-    break;
-  case 5: // regardless
-    s += ' regardless of rank';
-    break;
+    case 0: // may not build/move
+      break;
+    case 1: // up, e.g. a 10 goes on a 9
+      s += ' and up, e.g. a 10 goes on a 9';
+      if ( rules.rankwrap ) {
+        s += ', Aces are allowed on Kings';
+      }
+      break;
+    case 2: // down, e.g. a 9 goes on a 10
+      s += ' and down, e.g. a 9 goes on a 10';
+      if ( rules.rankwrap ) {
+        s += ', Kings are allowed on Aces';
+      }
+      break;
+    case 4: // either up or down
+      s += ' and either up or down';
+      if ( rules.rankwrap ) {
+        s += ', Aces and Kings can go on top of each other';
+      }
+      break;
+    case 5: // regardless
+      s += ' regardless of rank';
+      break;
   }
   return s;
 }
@@ -3476,8 +3480,7 @@ function availableMoves() {
 function dotick() {
   while ( !isComplete() ) {
     waitForCards();
-    if ( !autoSolve(0) )
-      break;
+    if ( !autoSolve(0) ) break;
   }
 }
 
@@ -3865,14 +3868,14 @@ if ( !stats[rules.Name].worstStreak )   stats[rules.Name].worstStreak = 0;
 
 stats.Options.lastGame = window.location.pathname.split('/').pop();
 
-const stocks = linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]);
+const /** Array<Stock> */stocks = linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]);
 const stock = stocks[0];
-const wastes = linkClasses([Waste]);
+const /** Array<Waste> */wastes = linkClasses([Waste]);
 const waste = wastes[0];
-const foundations = linkClasses([Foundation,FoundationCanfield,FoundationGolf,FoundationOsmosis,FoundationPenguin,FoundationSpider]);
-const tableaux = linkClasses([Tableau,TableauBlockade,TableauCanfield,TableauFortunesFavor,TableauFreecell,TableauGolf,TableauSpider,TableauTail]);
-const cells = linkClasses([Cell,CellCarpet]);
-const reserves = linkClasses([Reserve,ReserveFrog]);
+const /** Array<Foundation> */foundations = linkClasses([Foundation,FoundationCanfield,FoundationGolf,FoundationOsmosis,FoundationPenguin,FoundationSpider]);
+const /** Array<Tableau> */tableaux = linkClasses([Tableau,TableauBlockade,TableauCanfield,TableauFortunesFavor,TableauFreecell,TableauGolf,TableauSpider,TableauTail]);
+const /** Array<Cell> */cells = linkClasses([Cell,CellCarpet]);
+const /** Array<Reserve> */reserves = linkClasses([Reserve,ReserveFrog]);
 const reserve = reserves[0];
 
 document.documentElement.style.setProperty('--bg-color', 'darkgreen');
