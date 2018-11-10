@@ -2,9 +2,16 @@
 'use strict';
 /* jshint esversion:6 */
 
+/**
+ * @typedef {Object} SVGPoint
+ * @property {number} x
+ * @property {number} y
+ * @property {function} matrixTransform
+ */
+
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.9.0',
+  GAME_VERSION: '0.11.10.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -33,8 +40,8 @@ const Constants = {
   FACEDOWN_STACK_WIDTH: Math.round(60/6),
   FACEDOWN_STACK_HEIGHT: Math.round(90/9),
 
-  cardValues: ['Joker','A','2','3','4','5','6','7','8','9','10','J','Q','K'],
-  cardValuesEnglish: ['Joker','Ace','2','3','4','5','6','7','8','9','10','Jack','Queen','King'],
+  cardValues: 'Joker A 2 3 4 5 6 7 8 9 10 J Q K'.split(' '),
+  cardValuesEnglish: 'Joker Ace 2 3 4 5 6 7 8 9 10 Jack Queen King'.split(' '),
 
   AUTOCOLLECT_OFF: 0,
   AUTOCOLLECT_SOLVEABLE: 1,
@@ -78,6 +85,7 @@ const Util = {
    * @returns {SVGPoint}
   */
   newPoint: function(x, y=undefined) {
+    // https://developer.mozilla.org/en-US/docs/Web/API/SVGPoint
     const /** !SVGPoint */ pt = baize.ele.createSVGPoint();
     if ( typeof x === 'object' ) {
       pt.x = x.x;
@@ -116,14 +124,16 @@ const Util = {
   DOM2SVG: function(x, y) {
     // https://www.sitepoint.com/how-to-translate-from-dom-to-svg-coordinates-and-back-again/
     const pt = Util.newPoint(x,y);
-    pt.matrixTransform(baize.ele.getScreenCTM().inverse());
-    pt.x = Math.round(pt.x);    // Card.pt should be integers, no decimal fractions
+    // https://developer.mozilla.org/en-US/docs/Web/API/SVGGraphicsElement
+    /** @type {SVGGraphicsElement} */ const sge = baize.ele;
+    pt.matrixTransform(sge.getScreenCTM().inverse());
+    pt.x = Math.round(pt.x);
     pt.y = Math.round(pt.y);
     return pt;
   },
 
   /**
-   * @param {string} id 
+   * @param {!string} id 
    * @returns {?Card}
    */
   id2Card: function(id) {
@@ -203,7 +213,7 @@ class Random {
 
 class Baize {
   constructor() {
-    /** @const {SVGElement} */ this.ele = document.getElementById('baize');
+    /** @type {SVGElement} */ this.ele = document.getElementById('baize');
     /** @private @type {number} */ this.borderWidth_ = 0;
     /** @private @type {number} */ this.gutsWidth_ = 0;
     /** @type {number} */ this.width = 0;
@@ -366,7 +376,7 @@ class Card {
     this.inTransit = false;                 // set when moving
     // this.revealed = false;                  // user is holding mouse on a buried non-grabbable card
 
-    this.g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
+    this.g = /** !SVGGElement */document.createElementNS(Constants.SVG_NAMESPACE, 'g');
     this.putRectInG_();
     this.position0();
     this.addListeners_();
@@ -517,8 +527,9 @@ class Card {
         cur = 'grab';
     }
 
-    for ( let i=0; i<this.g.children.length; i++ )
+    for ( let i=0; i<this.g.children.length; i++ ) {
       this.g.children[i].style.cursor = cur;
+    }
   }
 
   /**
@@ -677,7 +688,6 @@ class Card {
       // a click on a card just sends the click to it's owner, so we do that directly
       this.owner.onclick(this);
     } else {
-      // console.log('not nearly same point', ptNewCard, this.ptOriginal);
       const cc = this.getNewOwner();
       if ( cc ) {
         this.moveTail(cc);
@@ -3869,15 +3879,15 @@ if ( !stats[rules.Name].worstStreak )   stats[rules.Name].worstStreak = 0;
 
 stats.Options.lastGame = window.location.pathname.split('/').pop();
 
-const /** Array<Stock> */stocks = linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]);
-const /** Stock */stock = stocks[0];
-const /** Array<Waste> */wastes = linkClasses([Waste]);
-const /** Waste */waste = wastes[0];
-const /** Array<Foundation> */foundations = linkClasses([Foundation,FoundationCanfield,FoundationGolf,FoundationOsmosis,FoundationPenguin,FoundationSpider]);
-const /** Array<Tableau> */tableaux = linkClasses([Tableau,TableauBlockade,TableauCanfield,TableauFortunesFavor,TableauFreecell,TableauGolf,TableauSpider,TableauTail]);
-const /** Array<Cell> */cells = linkClasses([Cell,CellCarpet]);
-const /** Array<Reserve> */reserves = linkClasses([Reserve,ReserveFrog]);
-const /** Reserve */reserve = reserves[0];
+/** @type {Array<Stock>} */ const stocks = linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]);
+/** @type {Stock} */ const stock = stocks[0];
+/** @type {Array<Waste>} */ const wastes = linkClasses([Waste]);
+/** @type {Waste} */ const waste = wastes[0];
+/** @type {Array<Foundation>} */ const foundations = linkClasses([Foundation,FoundationCanfield,FoundationGolf,FoundationOsmosis,FoundationPenguin,FoundationSpider]);
+/** @type {Array<Tableau>} */ const tableaux = linkClasses([Tableau,TableauBlockade,TableauCanfield,TableauFortunesFavor,TableauFreecell,TableauGolf,TableauSpider,TableauTail]);
+/** @type {Array<Cell>} */ const cells = linkClasses([Cell,CellCarpet]);
+/** @type {Array<Reserve>} */ const reserves = linkClasses([Reserve,ReserveFrog]);
+/** @type {Reserve} */ const reserve = reserves[0];
 
 document.documentElement.style.setProperty('--bg-color', 'darkgreen');
 document.documentElement.style.setProperty('--hi-color', 'lightgreen');
@@ -3909,7 +3919,7 @@ const someCardsInTransit = () => {
 };
 
 const waitForCards = () => new Promise((resolve,reject) => {
-  const timeoutStep = 200;
+  const timeoutStep = 500;
   let timeoutMs = 10000;
   const check = () => {
     if ( !someCardsInTransit() )
@@ -3925,32 +3935,33 @@ const waitForCards = () => new Promise((resolve,reject) => {
 function robot() {
   waitForCards().then( () => {
     [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => cc.autoMove()) );
+  });
 
-    waitForCards().then( () => autoCollect() );
+  waitForCards().then( () => autoCollect() );
 
-    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+  tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+  reserves.forEach( res => res.scrunchCards(rules.Reserve) );
     
-    waitForCards().then( () => {
-      if ( (stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY || stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE)
-        && listOfCardContainers.every( f => f.isSolveable() ) ) {
-        dotick();   // TODO could display toast [solve]
+  waitForCards().then( () => {
+    if ( (stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY || stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE)
+      && listOfCardContainers.every( f => f.isSolveable() ) ) {
+      dotick();   // TODO could display toast [solve]
+    }
+  });
+
+  waitForCards().then( () => {
+    if ( isComplete() ) {
+      if ( foundations.every( f => !f.scattered ) ) {
+        foundations.forEach( f => f.scatter() );
+        waitForCards().then( () => {
+          undo.length = 0;
+          gameOver(true);
+          modalGameOver.open();
+        });
       }
-      waitForCards().then( () => {
-        if ( isComplete() ) {
-          if ( foundations.every( f => !f.scattered ) ) {
-            foundations.forEach( f => f.scatter() );
-            waitForCards().then( () => {
-              undo.length = 0;
-              gameOver(true);
-              modalGameOver.open();
-            });
-          }
-        } else if ( !availableMoves() ) {
-          displayToastNoAvailableMoves();
-        }
-      });
-    });
+    } else if ( !availableMoves() ) {
+      displayToastNoAvailableMoves();
+    }
   });
 }
 
