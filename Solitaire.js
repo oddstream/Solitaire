@@ -11,7 +11,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.10.0',
+  GAME_VERSION: '0.11.11.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -263,10 +263,11 @@ class Baize {
 
     if ( window.screen.width > window.screen.height ) {
       // landscape, add a border if guts are narrow
-      if ( this.gutsWidth_ < 800 ) {
-        this.borderWidth_ = (800 - this.gutsWidth_) / 2;
+      const thresholdWidth = 1000;
+      if ( this.gutsWidth_ < thresholdWidth ) {
+        this.borderWidth_ = (thresholdWidth - this.gutsWidth_) / 2;
         this.adjustBorder_(this.borderWidth_);
-        this.width = 800;
+        this.width = thresholdWidth;
       }
     }
     // set viewport (visible area of SVG)
@@ -2599,26 +2600,28 @@ class Foundation extends CardContainer {
   }
 
   /**
-   * @param {number} ord 
+   * @returns {boolean}
    */
-  solve(ord) {
+  solve() {
     const _solve = (c) => {
       if ( c && !c.faceDown ) {
-        if ( ord === 0 || c.ordinal === ord ) {
-          if ( c.owner.canTarget(this) && this.canAcceptCard(c) ) {
-            c.moveTop(this);
-            cardMoved = true;
-          }
+        if ( c.owner.canTarget(this) && this.canAcceptCard(c) ) {
+          c.moveTop(this);
+          cardMoved = true;
         }
       }
     };
 
     let cardMoved = false;
     cells.forEach( cc => {
-      _solve(cc.peek());
+      waitForCards().then( () => {
+        _solve(cc.peek());
+      });
     });
     tableaux.forEach( t => {
-      _solve(t.peek());
+      waitForCards().then( () => {
+        _solve(t.peek());
+      });
     });
     return cardMoved;
   }
@@ -2832,12 +2835,10 @@ class FoundationSpider extends Foundation {
   }
 
   /**
-   * @param {number=} ord 
    * @returns {boolean}
    */
-  solve(ord=0) {
-    if ( this.cards.length )
-      return false;
+  solve() {
+    if ( this.cards.length ) return false;
 
     let cardMoved = false;
     tableaux.forEach( t => {
@@ -3456,28 +3457,19 @@ function isComplete() {
 }
 
 /**
- * @param {number=} ord 
  */
-function autoSolve(ord=0) {
+function pullCardsToFoundations() {
   let cardMoved = false;
   foundations.forEach( (f) => {
-    waitForCards().then( () => {
-      if ( f.solve(ord) )   // TODO type warning solve does not exist in CardContainer (but it does in Foundation)
-        cardMoved = true;
-    });
+    if ( f.solve() )
+      cardMoved = true;
   });
   return cardMoved;
 }
 
 function autoCollect() {
-  if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_OFF ) {
-  }
-  // else if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_ACES ) {
-  //     while ( autoSolve(1) )
-  //         ;
-  // }
-  else if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY ) {
-    while ( autoSolve(0) )
+  if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY ) {
+    while ( pullCardsToFoundations() )
       waitForCards();
   }
 }
@@ -3490,8 +3482,7 @@ function availableMoves() {
 
 function dotick() {
   while ( !isComplete() ) {
-    waitForCards();
-    if ( !autoSolve(0) ) break;
+    if ( !pullCardsToFoundations() ) break;
   }
 }
 
@@ -3919,7 +3910,7 @@ const someCardsInTransit = () => {
 };
 
 const waitForCards = () => new Promise((resolve,reject) => {
-  const timeoutStep = 500;
+  const timeoutStep = 100;
   let timeoutMs = 10000;
   const check = () => {
     if ( !someCardsInTransit() )
