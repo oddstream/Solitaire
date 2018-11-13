@@ -4,7 +4,7 @@
   "Wikipedia":"https://en.wikipedia.org/wiki/Spider_(solitaire)#Spiderette",
   "Winnable":[9630,28478,113901,808738,929395],
   "Stock":{"packs":4, "suitfilter":"♠"},
-  "Foundation":{"suit":2, "rank":2, "accept":"\u2261"},
+  "Foundation":{"suit":2, "rank":2, "accept":"\u2263"},
   "Tableau":{"build":{"suit":1, "rank":2}, "move":{"suit":2, "rank":2}}
 }
 </script>

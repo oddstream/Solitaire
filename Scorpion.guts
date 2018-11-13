@@ -3,7 +3,7 @@
   "Name":"Scorpion",
   "Wikipedia":"https://en.wikipedia.org/wiki/Scorpion_(solitaire)",
   "Winnable":[400226,491628,657770,914103],
-  "Foundation":{"suit":2, "rank":2, "accept":"\u2261"},
+  "Foundation":{"suit":2, "rank":2, "accept":"\u2263"},
   "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":1, "rank":5}, "accept":13}
 }
 </script>

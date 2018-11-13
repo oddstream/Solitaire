@@ -15,5 +15,7 @@ test/*
 img/*
 .vscode/*
 make.exe
+compiler.jar
+compiler-help.txt
 package*.json
 desktop.ini

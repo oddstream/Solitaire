@@ -1,3 +1,20 @@
+13/11/2018
+Change Spider foundation accept symbol from 2261 to 2263
+
+12/11/2018
+Replace uglifyjs with closure compiler 
+java -jar compiler.jar --compilation_level SIMPLE_OPTIMIZATIONS --js Solitaire.js
+Throws up two warning-errors in VERBOSE mode:
+    localStorage not declared (it's Window.localStorage!)
+    M not found
+...and doesn't produce an output file
+
+11/11/2018
+Remove and refactor autoCollect code
+Upgrade to latest Materialize 1.0.0
+Installed type info for Materialize from https://www.npmjs.com/package/@types/materialize-css 
+which creates and fills C:\Users\oddst\Documents\Solitaire\node_modules\@types\materialize-css
+
 09/11/2018
 Remove "stifle second Firefox touch/mouse pointerdown event"
 ...because it's not needed with dummyTouchStart

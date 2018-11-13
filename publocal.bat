@@ -1,5 +1,8 @@
+@ECHO OFF
 SET DESTINATION=c:\inetpub\wwwroot\solitaire
 
 xcopy *.html %DESTINATION% /d
 xcopy *.css %DESTINATION% /d
-uglifyjs Solitaire.js --warn --verbose --compress warnings=true,drop_console=true,keep_classnames=true,passes=2 --mangle keep_classnames=true --output %DESTINATION%\Solitaire.js
+
+java -jar compiler.jar --version
+java -jar compiler.jar --js Solitaire.js --language_in ECMASCRIPT_2017 --language_out ECMASCRIPT_2015 --js_output_file %DESTINATION%\Solitaire.js

@@ -4,7 +4,7 @@
   "Wikipedia":"https://en.wikipedia.org/wiki/Scorpion_(solitaire)",
   "Winnable":[24713,132844,571496],
   "Stock":{"hidden":1},
-  "Foundation":{"suit":2, "rank":2, "accept":"\u2261"},
+  "Foundation":{"suit":2, "rank":2, "accept":"\u2263"},
   "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":1, "rank":5}, "accept":13}
 }
 </script>

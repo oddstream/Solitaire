@@ -2,13 +2,6 @@
 'use strict';
 /* jshint esversion:6 */
 
-/**
- * @typedef {Object} SVGPoint
- * @property {number} x
- * @property {number} y
- * @property {function} matrixTransform
- */
-
 const Constants = {
   GAME_NAME: 'Solitaire',
   GAME_VERSION: '0.11.11.0',
@@ -27,7 +20,7 @@ const Constants = {
   REDEALS_SYMBOL: '\u21BA',           // Anticlockwise Open Circle Arrow
   ACCEPT_NOTHING_SYMBOL: '\u00D7',    // &times;
   ACCEPT_MARTHA_SYMBOL: '¹',          // &sup1;
-  ACCEPT_INSECT_SYMBOL: '\u2261',     // &equiv;
+  ACCEPT_INSECT_SYMBOL: '\u2263',     // was 2261
 
   // if you edit these, also edit symbols.svg if using symbol card backs
   CARD_WIDTH: 60,
@@ -86,7 +79,7 @@ const Util = {
   */
   newPoint: function(x, y=undefined) {
     // https://developer.mozilla.org/en-US/docs/Web/API/SVGPoint
-    const /** !SVGPoint */ pt = baize.ele.createSVGPoint();
+    const pt = baize.ele.createSVGPoint();
     if ( typeof x === 'object' ) {
       pt.x = x.x;
       pt.y = x.y;
@@ -140,8 +133,8 @@ const Util = {
     if ( !id )
       return null;
     let card = null;
-    for ( let i=0; i<listOfCardContainers.length; i++ ) {
-      card = listOfCardContainers[i].cards.find( c => c.id === id );
+    for ( let i=0; i<cardContainers.length; i++ ) {
+      card = cardContainers[i].cards.find( c => c.id === id );
       if ( card )
         break;
     }
@@ -245,7 +238,7 @@ class Baize {
         r.setAttributeNS(null, 'x', String(x + b));
       }
     });
-    listOfCardContainers.forEach( cc => {
+    cardContainers.forEach( cc => {
       cc.pt.x += b;
       cc.cards.forEach( c => {
         c.pt.x += b;
@@ -283,7 +276,7 @@ class Baize {
       this.borderWidth_ = 0;
     }
     this.setBox_();
-    listOfCardContainers.forEach( cc => {
+    cardContainers.forEach( cc => {
       cc.cards.forEach( c => {
         while ( c.g.hasChildNodes() ) {
           c.g.removeChild(c.g.lastChild);
@@ -295,7 +288,7 @@ class Baize {
   }
 }
 
-const /** Array<CardContainer> */listOfCardContainers = [];
+const /** Array<CardContainer> */cardContainers = [];
 
 const baize = new Baize;
 
@@ -887,8 +880,8 @@ class Card {
   getNewOwner() {
     let ccMost = null;
     let ovMost = 0;
-    for ( let i=0; i<listOfCardContainers.length; i++ ) {
-      const dst = listOfCardContainers[i];
+    for ( let i=0; i<cardContainers.length; i++ ) {
+      const dst = cardContainers[i];
       if ( this.owner === dst )
         continue;
       if ( this.owner.canTarget(dst) && dst.canAcceptCard(this) ) {
@@ -988,8 +981,8 @@ let undoing = false;
 function undoPushMove(f, t, c) {
   if ( !undoing ) {
     undo.push({move:tallyMan.count,
-      from:listOfCardContainers.findIndex(e => e === f),
-      to:listOfCardContainers.findIndex(e => e === t),
+      from:cardContainers.findIndex(e => e === f),
+      to:cardContainers.findIndex(e => e === t),
       count:c});
   }
 }
@@ -1019,8 +1012,8 @@ function doundo() {
     const u = ua.pop();       // console.log('undo', u);
 
     if ( u.hasOwnProperty('from') && u.hasOwnProperty('to') ) {
-      const src = listOfCardContainers[u.from];
-      const dst = listOfCardContainers[u.to];
+      const src = cardContainers[u.from];
+      const dst = cardContainers[u.to];
 
       let n = 1;
       if ( u.count ) {
@@ -1076,14 +1069,13 @@ class CardContainer {
     // a number - card ordinal usually 1=Ace or 13=King
     // if it's missing/0, it can get overriden by rules.Foundation|Tableau.accept
     this.a_accept = g.getAttribute('accept') || 0;
-    if ( this.isAcceptSymbol_() ) {
-    } else {
+    if ( !this.isAcceptSymbol_() ) {
       this.a_accept = Number.parseInt(this.a_accept, 10);
       console.assert(!isNaN(this.a_accept));
     }
     if ( this.a_accept )
       this.createAcceptSVG_();
-    listOfCardContainers.push(this);
+    cardContainers.push(this);
   }
 
   /**
@@ -1245,8 +1237,8 @@ class CardContainer {
    */
   availableMovesForThisCard_(c) {
     let count = 0;
-    for ( let i=0; i<listOfCardContainers.length; i++ ) {
-      let dst = listOfCardContainers[i];
+    for ( let i=0; i<cardContainers.length; i++ ) {
+      let dst = cardContainers[i];
       if ( dst === this )
         continue;
       if ( c.owner.canTarget(dst) && dst.canAcceptCard(c) ) {
@@ -1312,7 +1304,7 @@ class CardContainer {
     let count = 0;
     this.cards.forEach( c => {
       c.markMoveable(false);
-      listOfCardContainers.forEach( dst => {
+      cardContainers.forEach( dst => {
         if ( dst !== this ) {
           const oldFaceDown = c.faceDown;
           c.faceDown = false;
@@ -2567,6 +2559,7 @@ class Foundation extends CardContainer {
       const fc = this.peek();
       if ( !fc ) {
         if ( this.a_accept ) {   // 0 or missing to accept any card
+          // if a_accept is a special symbol, it won't match with card's ordinal
           accept = ( c.ordinal === this.a_accept );
         }
       } else {
@@ -2866,7 +2859,7 @@ class FoundationSpider extends Foundation {
    * @returns {string}
    */
   english() {
-    return `Foundation ${countInstances(Foundation)}. Completed sequences of cards are automatically moved to the foundation.`;
+    return `Foundation ${countInstances(Foundation)}. Single cards cannot be moved to the foundation. Only when you have constructed a complete sequence on the tableau, 13 cards in sequence from King to Ace, may you move it to the foundation.`;
   }
 }
 
@@ -3009,9 +3002,7 @@ class Tableau extends CardContainer {
     if ( rules.Tableau.bury )
       r += ` At the start, ${Constants.cardValuesEnglish[rules.Tableau.bury]}s are moved to the bottom of the tableau.`;
 
-    if ( tableaux[0].a_accept === 13 )
-      r += ' Empty tableau may only be filled with a King.';
-    else if ( tableaux[0].a_accept === Constants.ACCEPT_NOTHING_SYMBOL )
+    if ( tableaux[0].a_accept === Constants.ACCEPT_NOTHING_SYMBOL )
       r += ' Cards may not be placed in an empty tableau.';
     else if ( tableaux[0].a_accept === Constants.ACCEPT_MARTHA_SYMBOL )
       r += ' Only one card can be placed in an empty tableau.';
@@ -3050,7 +3041,7 @@ class TableauTail extends Tableau {
    */
   english() {
     let e = super.english();
-    e += ' Sequences of cards may be moved together.';
+    e += ' Completed sequences of cards may be moved together.';
     return e;
   }
 }
@@ -3300,7 +3291,7 @@ function linkClasses(src) {
  */
 function countInstances(typ) {
   let count = 0;
-  listOfCardContainers.forEach( cc => {
+  cardContainers.forEach( cc => {
     if ( cc instanceof typ )
       count++;
   });
@@ -3453,7 +3444,7 @@ function englishRules(rules) {
 }
 
 function isComplete() {
-  return listOfCardContainers.every( cc => cc.isComplete() );
+  return cardContainers.every( cc => cc.isComplete() );
 }
 
 /**
@@ -3475,7 +3466,7 @@ function autoCollect() {
 }
 
 function availableMoves() {
-  return listOfCardContainers.reduce( (acc,obj) => {
+  return cardContainers.reduce( (acc,obj) => {
     return acc + obj.availableMoves();
   }, 0);
 }
@@ -3528,7 +3519,7 @@ function restart(seed) {
 
   // move all cards back to stock, can't use pop and push
   // because Blockade will try to push them back to an empty tab
-  listOfCardContainers.forEach( cc => {
+  cardContainers.forEach( cc => {
     if ( cc !== stock ) {
       stock.cards = stock.cards.concat(cc.cards);
       cc.cards = [];
@@ -3543,10 +3534,10 @@ function restart(seed) {
 
   stock.sort(seed);
   stock.cards.forEach( c => c.bringToTop() );
-  stock.redeals = rules.Stock.redeals;    // could be null  TODO type warning
+  stock.redeals = rules.Stock.redeals;    // could be null
   undo.length = 0;
   tallyMan.reset();
-  foundations.forEach( f => f.scattered = false );  // TODO type warning
+  foundations.forEach( f => f.scattered = false );
   if ( stats[rules.Name].saved )
     delete stats[rules.Name].saved; // .saved will now be 'undefined'
   dealCards();
@@ -3563,12 +3554,12 @@ function doreplay() {
 class Saved {
   constructor() {
     this.seed = stats[rules.Name].seed;
-    this.redeals = stock.redeals;   // TODO type warning
+    this.redeals = stock.redeals;
     this.moves = tallyMan.count;
     this.undo = undo;
     this.containers = [];
-    for ( let i=0; i<listOfCardContainers.length; i++ ) {
-      this.containers[i] = listOfCardContainers[i].getSaveableCards();
+    for ( let i=0; i<cardContainers.length; i++ ) {
+      this.containers[i] = cardContainers[i].getSaveableCards();
     }
   }
 }
@@ -3589,8 +3580,8 @@ function doload() {
 
   if ( stats[rules.Name].saved ) {
     // console.log('loading', stats[rules.Name].saved);
-    for ( let i=0; i<listOfCardContainers.length; i++ ) {
-      listOfCardContainers[i].load(stats[rules.Name].saved.containers[i]);
+    for ( let i=0; i<cardContainers.length; i++ ) {
+      cardContainers[i].load(stats[rules.Name].saved.containers[i]);
     }
     stats[rules.Name].seed = stats[rules.Name].saved.seed;
     if ( stats[rules.Name].saved.hasOwnProperty('redeals') ) {
@@ -3726,7 +3717,7 @@ modalShowRules.options.onOpenStart = function() {
   });
   document.getElementById('therules').innerHTML = r;
 
-  const ele = document.getElementById('theruleswikipedia');
+  /** @type {HTMLAnchorElement} */const ele = document.getElementById('theruleswikipedia');
   if ( rules.hasOwnProperty('Wikipedia') && rules.Wikipedia.length ) {
     ele.hidden = false;
     ele.href = rules.Wikipedia;
@@ -3785,7 +3776,7 @@ function dohelp() {
 }
 
 function dealCards() {
-  listOfCardContainers.forEach( cc => {
+  cardContainers.forEach( cc => {
     window.setTimeout( () => cc.deal(), 1 );
   });
   waitForCards().then( () => {
@@ -3902,7 +3893,7 @@ window.onbeforeunload = function(e) {
 };
 
 const someCardsInTransit = () => {
-  listOfCardContainers.forEach( cc => {
+  cardContainers.forEach( cc => {
     if ( cc.cards.some( c => c.inTransit ) )
       return true;
   });
@@ -3935,7 +3926,7 @@ function robot() {
     
   waitForCards().then( () => {
     if ( (stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY || stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE)
-      && listOfCardContainers.every( f => f.isSolveable() ) ) {
+      && cardContainers.every( f => f.isSolveable() ) ) {
       dotick();   // TODO could display toast [solve]
     }
   });

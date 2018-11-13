@@ -4,7 +4,7 @@
   "Wikipedia":"https://en.wikipedia.org/wiki/Spider_(solitaire)",
   "Winnable":[41986,295322,886826,926341],
   "Stock":{"packs":8, "suitfilter":"♠"},
-  "Foundation":{"suit":2, "rank":2, "accept":"\u2261"},
+  "Foundation":{"suit":2, "rank":2, "accept":"\u2263"},
   "Tableau":{"build":{"suit":1, "rank":2}, "move":{"suit":2, "rank":2}}
 }
 </script>
