@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.11.0',
+  GAME_VERSION: '0.11.13.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -1503,9 +1503,8 @@ class CardContainer {
       if ( this.stackFactor !== oldStackFactor ) {
         for ( let i=0; i<this.cards.length; i++ ) {
           const c = this.cards[i];
-          c.position0(this.pt.x, arr[i]);
-          // const pt = Util.newPoint(this.pt.x, arr[i]);
-          // c.animate(pt);
+          // c.position0(this.pt.x, arr[i]);
+          c.animate(Util.newPoint(this.pt.x, arr[i]));
         }
       }
     } else if ( rules.fan === 'Right' ) {
@@ -1520,7 +1519,8 @@ class CardContainer {
       if ( this.stackFactor !== oldStackFactor ) {
         for ( let i=0; i<this.cards.length; i++ ) {
           const c = this.cards[i];
-          c.position0(arr[i], this.pt.y);
+          // c.position0(arr[i], this.pt.y);
+          c.animate(Util.newPoint(arr[i], this.pt.y));
         }
       }
     } else if ( rules.fan === 'None' ) {
@@ -3447,8 +3447,6 @@ function isComplete() {
   return cardContainers.every( cc => cc.isComplete() );
 }
 
-/**
- */
 function pullCardsToFoundations() {
   let cardMoved = false;
   foundations.forEach( (f) => {
@@ -3458,23 +3456,10 @@ function pullCardsToFoundations() {
   return cardMoved;
 }
 
-function autoCollect() {
-  if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY ) {
-    while ( pullCardsToFoundations() )
-      waitForCards();
-  }
-}
-
 function availableMoves() {
   return cardContainers.reduce( (acc,obj) => {
     return acc + obj.availableMoves();
   }, 0);
-}
-
-function dotick() {
-  while ( !isComplete() ) {
-    if ( !pullCardsToFoundations() ) break;
-  }
 }
 
 function gameOver(won) {
@@ -3644,7 +3629,7 @@ modalStatistics.options.onOpenStart = function() {
     : `You've played ${rules.Name} ${stats[rules.Name].totalGames} times, and won ${stats[rules.Name].gamesWon} (${Math.round(stats[rules.Name].gamesWon/stats[rules.Name].totalGames*100)}%)`;
 
   {
-    let s = 'In this game you\'ve made ';
+    let s = `In this game (number ${stats[rules.Name].seed}) you've made `;
     s += Util.plural(tallyMan.count, 'move');
     s += ', there are ';
     s += Util.plural(availableMoves(), 'available move');
@@ -3919,18 +3904,24 @@ function robot() {
     [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => cc.autoMove()) );
   });
 
-  waitForCards().then( () => autoCollect() );
-
-  tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-  reserves.forEach( res => res.scrunchCards(rules.Reserve) );
-    
   waitForCards().then( () => {
-    if ( (stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY || stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE)
-      && cardContainers.every( f => f.isSolveable() ) ) {
-      dotick();   // TODO could display toast [solve]
+    if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY ) {
+      while ( pullCardsToFoundations() )
+        waitForCards();
     }
   });
 
+  tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+  reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+
+  waitForCards().then( () => {
+    if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE
+        && cardContainers.every( f => f.isSolveable() ) ) {
+      while ( pullCardsToFoundations() )
+        waitForCards();
+    }
+  });
+  
   waitForCards().then( () => {
     if ( isComplete() ) {
       if ( foundations.every( f => !f.scattered ) ) {
@@ -3947,33 +3938,33 @@ function robot() {
   });
 }
 
-/* document.addEventListener('keydown', function(ev) {
-    // console.log(ev,ev.keyCode);
-});
-
-document.addEventListener('keyup', function(ev) {
-    // console.log(ev,ev.keyCode);
-});
+/**
+ * Beware differences between Chrome, Edge, Firefox
  */
 document.addEventListener('keypress', function(ev) {
-  // console.log(ev,ev.keyCode);
-  if ( ev.keyCode === 26 && ev.ctrlKey )           // Chrome
-    doundo();
-  else if ( ev.key === 'a' ) {
-    const a = availableMoves();
-    if ( 0 === a )
-      displayToastNoAvailableMoves();
-    else
-      displayToast(`<span>${Util.plural(a, 'move')} available</span>`);
+  // console.log(ev,ev.key,ev.keyCode,ev.ctrlKey);
+  switch ( ev.code ) {
+    case 'KeyA':
+      const a = availableMoves();
+      if ( 0 === a )
+        displayToastNoAvailableMoves();
+      else
+        displayToast(`<span>${Util.plural(a, 'move')} available</span>`);
+      break;
+    case 'KeyR':
+      modalShowRules.open();
+      break;
+    case 'KeyS':
+      modalStatistics.open();
+      break;
+    case 'KeyU':
+      doundo();
+      break;
+    case 'KeyZ':
+      if ( ev.ctrlKey ) 
+        doundo();
+      break;
   }
-  else if ( ev.key === 'r' )
-    modalShowRules.open();
-  else if ( ev.key === 's' )
-    modalStatistics.open();
-  else if ( ev.key === 'u' )
-    doundo();
-  else if ( ev.key === 'z' && ev.ctrlKey )         // Edge, Firefox
-    doundo();
 });
 
 if ( stats.Options.loadSaved && stats[rules.Name].saved )
