@@ -370,7 +370,7 @@ class Card {
     this.inTransit = false;                 // set when moving
     // this.revealed = false;                  // user is holding mouse on a buried non-grabbable card
 
-    this.g = /** !SVGGElement */document.createElementNS(Constants.SVG_NAMESPACE, 'g');
+    /** @type {!SVGGElement} */this.g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
     this.putRectInG_();
     this.position0();
     this.addListeners_();
@@ -1054,7 +1054,7 @@ function doundo() {
 class CardContainer {
   /**
    * @param {!SVGPoint} pt 
-   * @param {!SVGElement} g 
+   * @param {!SVGGElement} g 
    */
   constructor(pt, g) {
     this.pt = pt;
@@ -1663,7 +1663,7 @@ class Reserve extends CardContainer {
   /**
    * 
    * @param {SVGPoint} pt 
-   * @param {SVGElement} g 
+   * @param {SVGGElement} g 
    */
   constructor(pt, g) {
     super(pt, g);
@@ -1800,7 +1800,7 @@ class ReserveFrog extends Reserve {
 class Stock extends CardContainer {
   /**
    * @param {SVGPoint} pt
-   * @param {SVGElement} g
+   * @param {SVGGElement} g
    */
   constructor(pt, g) {
     super(pt, g);
@@ -1981,7 +1981,7 @@ class StockKlondike extends Stock {
   // moves cards to Waste when clicked
   /**
    * @param {SVGPoint} pt 
-   * @param {SVGElement} g 
+   * @param {SVGGElement} g 
    */
   constructor(pt, g) {
     super(pt, g);
@@ -2142,7 +2142,7 @@ class StockCruel extends Stock
   /**
    * 
    * @param {SVGPoint} pt 
-   * @param {SVGElement} g 
+   * @param {SVGGElement} g 
    */
   constructor(pt, g) {
     super(pt, g);
@@ -2253,7 +2253,7 @@ class StockFan extends Stock {
   /**
    * 
    * @param {SVGPoint} pt 
-   * @param {SVGElement} g 
+   * @param {SVGGElement} g 
    */
   constructor(pt, g) {
     super(pt, g);
@@ -2466,7 +2466,7 @@ class Foundation extends CardContainer {
 
   /**
    * @param {SVGPoint} pt
-   * @param {SVGElement} g
+   * @param {SVGGElement} g
    */
   constructor(pt, g) {
     super(pt, g);
@@ -2866,7 +2866,7 @@ class FoundationSpider extends Foundation {
 class Tableau extends CardContainer {
   /**
    * @param {SVGPoint} pt
-   * @param {SVGElement} g
+   * @param {SVGGElement} g
    */
   constructor(pt, g) {
     super(pt, g);
