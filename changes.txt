@@ -1,3 +1,7 @@
+14/11/2018
+Added some for ... of 
+Simplied keypress handler (remove Ctrl-Z for now)
+
 13/11/2018
 Change Spider foundation accept symbol from 2261 to 2263
 

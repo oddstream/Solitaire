@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.13.1',
+  GAME_VERSION: '0.11.14.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -312,7 +312,7 @@ class Mover {
   increment() {
     if ( !this.zzzz_ ) {
       this.count++;
-      window.setTimeout(robot, 500);
+      window.setTimeout(robot, 0);
     }
   }
 
@@ -521,8 +521,8 @@ class Card {
         cur = 'grab';
     }
 
-    for ( let i=0; i<this.g.children.length; i++ ) {
-      this.g.children[i].style.cursor = cur;
+    for ( const ch of this.g.children ) {
+      ch.style.cursor = cur;
     }
   }
 
@@ -880,8 +880,7 @@ class Card {
   getNewOwner() {
     let ccMost = null;
     let ovMost = 0;
-    for ( let i=0; i<cardContainers.length; i++ ) {
-      const dst = cardContainers[i];
+    for ( const dst of cardContainers ) {
       if ( this.owner === dst )
         continue;
       if ( this.owner.canTarget(dst) && dst.canAcceptCard(this) ) {
@@ -902,9 +901,7 @@ class Card {
    */
   findFullestAcceptingContainer(ccList) {
     let cc = null;
-    for ( let i=0; i<ccList.length; i++ ) {
-      const dst = ccList[i];
-
+    for ( const dst of ccList ) {
       if ( this.owner.canTarget(dst) && dst.canAcceptCard(this) ) {
         if ( !cc ) {
           cc = dst;
@@ -923,6 +920,13 @@ class Card {
   getTail() {
     const nCard = this.owner.cards.findIndex( e => e === this );
     return this.owner.cards.slice(nCard);
+  }
+
+  /**
+   * @returns {boolean}
+   */
+  isTopCard() {
+    return this.owner.peek() === this;
   }
 
   /**
@@ -1224,7 +1228,7 @@ class CardContainer {
    */
   canGrab(c) {
     // only grab top card, we could be fanned
-    if ( this.peek() === c )
+    if ( c.isTopCard() )
       return [c];
     else
       return null;
@@ -1237,8 +1241,7 @@ class CardContainer {
    */
   availableMovesForThisCard_(c) {
     let count = 0;
-    for ( let i=0; i<cardContainers.length; i++ ) {
-      let dst = cardContainers[i];
+    for ( const dst of cardContainers ) {
       if ( dst === this )
         continue;
       if ( c.owner.canTarget(dst) && dst.canAcceptCard(c) ) {
@@ -1282,7 +1285,7 @@ class CardContainer {
     let count = 0;
     this.cards.forEach( c => {
       if ( c.faceDown ) {
-        if ( c === this.peek() ) {
+        if ( c.isTopCard() ) {
           count += 1;
         }
       } else {
@@ -1699,7 +1702,7 @@ class Reserve extends CardContainer {
     // can be face up or face down
     if ( c.faceDown )
       return;
-    if ( c !== this.peek() )
+    if ( !c.isTopCard() )
       return;
     if ( !stats.Options.autoPlay )
       return;
@@ -1773,8 +1776,7 @@ class ReserveFrog extends Reserve {
     while ( this.cards.length < 13 ) {
       const c = stock.pop();
       if ( 1 === c.ordinal ) {
-        for ( let i=0; i<foundations.length; i++ ) {
-          const dst = foundations[i];
+        for ( const dst of foundations ) {
           if ( 0 === dst.cards.length ) {  // c will have no owner, so can't use canAcceptCard
             dst.push(c);
             break;
@@ -2016,11 +2018,11 @@ class StockAgnes extends Stock {
    */
   onclick(c) {
     tallyMan.sleep( () => {
-      for ( let i=0; i<reserves.length; i++ ) {
+      for ( const r of reserves ) {
         const c = this.peek();
         if ( !c )
           break;
-        c.moveTop(reserves[i]);
+        c.moveTop(r);
       }
     });
   }
@@ -2042,11 +2044,11 @@ class StockScorpion extends Stock {
    */
   onclick(c) {
     tallyMan.sleep( () => {
-      for ( let i=0; i<tableaux.length; i++ ) {
+      for ( const t of tableaux ) {
         const c = this.peek();
         if ( !c )
           break;
-        c.moveTop(tableaux[i]);
+        c.moveTop(t);
       }
     });
   }
@@ -2084,11 +2086,11 @@ class StockSpider extends Stock {
       }
     }
     tallyMan.sleep( () => {
-      for ( let i=0; i<tableaux.length; i++ ) {
+      for ( const t of tableaux ) {
         const c = this.peek();
         if ( !c )
           break;
-        c.moveTop(tableaux[i]);
+        c.moveTop(t);
       }
     });
   }
@@ -2399,7 +2401,7 @@ class Waste extends CardContainer {
     if ( !stats.Options.autoPlay )
       return;
 
-    if ( c !== this.peek() )
+    if ( !c.isTopCard() )
       return;
 
     let cc = null;
@@ -2836,8 +2838,7 @@ class FoundationSpider extends Foundation {
     let cardMoved = false;
     tableaux.forEach( t => {
       if ( t.cards.length >= 13 ) {
-        for ( let i=0; i<t.cards.length; i++ ) {
-          const c = t.cards[i];
+        for ( const c of t.cards ) {
           if ( c.faceDown )
             continue;
           if ( 13 === c.ordinal ) {
@@ -2953,11 +2954,11 @@ class Tableau extends CardContainer {
       return;
 
     let cc = null;
-    if ( this.peek() === c )
+    if ( c.isTopCard() )
       cc = c.findFullestAcceptingContainer(foundations);
     if ( !cc )
       cc = c.findFullestAcceptingContainer(tableaux);
-    if ( !cc && this.peek() === c )
+    if ( !cc && c.isTopCard() )
       cc = c.findFullestAcceptingContainer(cells);
     if ( cc )
       c.moveTail(cc);
@@ -3018,7 +3019,7 @@ class TableauTail extends Tableau {
   /**
    * @override
    * @param {Card} c
-   * @returns {Array<Card|null>} 
+   * @returns {Array<Card>|null} 
    */
   canGrab(c) {
     const tail = c.getTail();
@@ -3166,21 +3167,30 @@ class TableauFreecell extends Tableau {
    * @param {boolean} moveToEmptyColumn 
    * @returns {number}
    */
-  _powerMoves(moveToEmptyColumn=false) {
+  powerMoves_(moveToEmptyColumn=false) {
     // (1 + number of empty freecells) * 2 ^ (number of empty columns)
     // see http://ezinearticles.com/?Freecell-PowerMoves-Explained&id=104608
     // and http://www.solitairecentral.com/articles/FreecellPowerMovesExplained.html
-    let nCells = 0;
-    cells.forEach( c => {if (c.cards.length === 0) nCells++;} );
-    let nCols = moveToEmptyColumn ? -1 : 0;
-    tableaux.forEach( c => {if (c.cards.length === 0) nCols++;} );
-    return (1 + nCells) * (Math.pow(2, nCols));
+    // Could use Array.reduce to count empty containers, but it's less readable
+    let emptyCells = 0;
+    cells.forEach( c => {
+      if ( 0 === c.cards.length ) emptyCells++;
+    } );
+    let emptyCols = 0;
+    tableaux.forEach( c => {
+      if ( 0 === c.cards.length ) emptyCols++;
+    } );
+    if ( moveToEmptyColumn && emptyCols > 0 ) {
+      emptyCols -= 1;
+    }
+    // 2^1 == 2, 2^0 == 1, 2^-1 == 0.5
+    return (1 + emptyCells) * (Math.pow(2, emptyCols));
   }
 
   /**
    * @override 
    * @param {Card} c 
-   * @returns {Array<Card|null>}
+   * @returns {Array<Card>|null}
    */
   canGrab(c) {
     const tail = c.getTail();
@@ -3188,7 +3198,7 @@ class TableauFreecell extends Tableau {
       // console.warn('tail is not conformant');
       return null;
     }
-    const pm = this._powerMoves();
+    const pm = this.powerMoves_();
     if ( tail.length > pm ) {
       // console.log(`grab: you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
       return null;
@@ -3205,13 +3215,16 @@ class TableauFreecell extends Tableau {
     // If you are moving into an empty column,
     // then the column you are moving into does not count as empty column
     let accept = super.canAcceptCard(c);
-    // if c comes from Stock, Waste, Cell or Reserve it's only going to be one card, so allow it
+    // if c comes from Stock, Waste, Cell or Reserve it's only going to be one card,
+    // so allow it
     if ( accept && c.owner instanceof Tableau ) {
       const tail = c.getTail();
-      const pm = this._powerMoves(this.cards.length === 0);
-      if ( tail.length > pm ) {
-        // console.log(`accept: you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
-        accept = false;
+      if ( tail && tail.length > 0 ) {
+        const pm = this.powerMoves_(0 === this.cards.length);
+        if ( tail.length > pm ) {
+          // console.log(`accept: you have enough free space to move ${Util.plural(pm, 'card')}, not ${tail.length}`);
+          accept = false;
+        }
       }
     }
     return accept;
@@ -3243,7 +3256,7 @@ class TableauGolf extends Tableau {
    */
   onclick(c) {
     // only click top card, which can only go to foundation[0]. always face up
-    if ( this.peek() === c ) {
+    if ( c.isTopCard() ) {
       if ( foundations[0].canAcceptCard(c) ) {
         c.moveTop(foundations[0]);
       }
@@ -3886,25 +3899,29 @@ const someCardsInTransit = () => {
 };
 
 const waitForCards = () => new Promise((resolve,reject) => {
+  const t0 = performance.now();
   const timeoutStep = 100;
   let timeoutMs = 10000;
   const check = () => {
-    if ( !someCardsInTransit() )
-      resolve();
-    else if ( (timeoutMs -= timeoutStep) < 0 )
+    if ( !someCardsInTransit() ) {
+      resolve(performance.now() - t0);
+    } else if ( (timeoutMs -= timeoutStep) < 0 ) {
       reject('timed out');
-    else
+    } else {
       window.setTimeout(check, timeoutStep);
+    }
   };
-  window.setTimeout(check, 0);
+  window.setTimeout(check, 0);  // run the first check ASAP
 });
 
 function robot() {
-  waitForCards().then( () => {
+  waitForCards().then( (value) => {
+    // console.log(`wait 1 ${Math.round(value)}ms`);
     [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => cc.autoMove()) );
   });
 
-  waitForCards().then( () => {
+  waitForCards().then( (value) => {
+    // console.log(`wait 2 ${Math.round(value)}ms`);
     if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY ) {
       while ( pullCardsToFoundations() )
         waitForCards();
@@ -3914,7 +3931,8 @@ function robot() {
   tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
   reserves.forEach( res => res.scrunchCards(rules.Reserve) );
 
-  waitForCards().then( () => {
+  waitForCards().then( (value) => {
+    // console.log(`wait 3 ${Math.round(value)}ms`);
     if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE
         && cardContainers.every( f => f.isSolveable() ) ) {
       while ( pullCardsToFoundations() )
@@ -3922,7 +3940,8 @@ function robot() {
     }
   });
   
-  waitForCards().then( () => {
+  waitForCards().then( (value) => {
+    // console.log(`wait 4 ${Math.round(value)}ms`);
     if ( isComplete() ) {
       if ( foundations.every( f => !f.scattered ) ) {
         foundations.forEach( f => f.scatter() );
@@ -3940,29 +3959,31 @@ function robot() {
 
 /**
  * Beware differences between Chrome, Edge, Firefox
+ * https://unixpapa.com/js/key.html
  */
-document.addEventListener('keypress', function(ev) {
+document.addEventListener('keypress', function(/** @type {KeyboardEvent} */ev) {
   // console.log(ev,ev.key,ev.keyCode,ev.ctrlKey);
-  switch ( ev.code ) {
-    case 'KeyA':
+  // console.log(ev.key,ev.keyCode);
+  switch ( ev.key ) {
+    case 'a':
+    case 'A':
       const a = availableMoves();
       if ( 0 === a )
         displayToastNoAvailableMoves();
       else
         displayToast(`<span>${Util.plural(a, 'move')} available</span>`);
       break;
-    case 'KeyR':
+    case 'r':
+    case 'R':
       modalShowRules.open();
       break;
-    case 'KeyS':
+    case 's':
+    case 'S':
       modalStatistics.open();
       break;
-    case 'KeyU':
+    case 'u':
+    case 'U':
       doundo();
-      break;
-    case 'KeyZ':
-      if ( ev.ctrlKey ) 
-        doundo();
       break;
   }
 });
