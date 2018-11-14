@@ -369,6 +369,7 @@ class Card {
     this.overHandler = this.onpointerover.bind(this);
 
     this.inTransit = false;
+    this.animateSteps = 0; // 0=use default; <n>=make n steps
     // this.revealed = false; // user is holding mouse on a buried non-grabbable card
 
     /** @type {!SVGGElement} */this.g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
@@ -690,7 +691,7 @@ class Card {
         this.moveTail(cc);
       } else {
         this.grabbedTail.forEach( c => {
-          c.animate(c.ptOriginal, 10);
+          c.animate(c.ptOriginal);
         });
       }
     }
@@ -709,7 +710,7 @@ class Card {
   onpointercancel(event) {
     console.warn('pointer cancel', event);
     if ( this.grabbedTail ) {
-      this.grabbedTail.forEach( c => c.animate(c.ptOriginal, 10) );
+      this.grabbedTail.forEach( c => c.animate(c.ptOriginal) );
     }
     this.grabbedTail = null;
     this.removeDragListeners_();
@@ -780,9 +781,8 @@ class Card {
   /**
    * Animate this card to a new position
    * @param {SVGPoint} ptTo
-   * @param {number=} speedUp 
    */
-  animate(ptTo, speedUp=0) {
+  animate(ptTo) {
     // http://sol.gfxile.net/interpolation
     console.assert(ptTo!==this.pt);    // needs a new point
     const speed = [0,50,40,30,20,10];   // index will be 1..5
@@ -805,8 +805,8 @@ class Card {
       this.g.setAttributeNS(null, 'transform', `translate(${pt2.x} ${pt2.y})`);
       // if ( this.id === '0♥02' ) console.log('transform', this.id, this.inTransit);
 
-      if ( speedUp ) {
-        i -= distance/speedUp;
+      if ( this.animateSteps ) {
+        i -= distance/this.animateSteps;
       } else {
         i -= distance/speed[stats.Options.aniSpeed];
       }
@@ -816,6 +816,7 @@ class Card {
         if ( pt2.x !== this.pt.x || pt2.y !== this.pt.y )
           this.position0();
         this.inTransit = false;
+        this.animateSteps = 0;
         // if ( this.id === '0♥02' ) console.log('positioned', this.id, this.inTransit);
       }
     };
@@ -829,14 +830,13 @@ class Card {
   /**
    * Move top card if this stack to another stack
    * @param {!CardContainer} to
-   * @param {number=} speedUp
    */
-  moveTop(to, speedUp=0) {
+  moveTop(to) {
     const from = this.owner;
 
     from.pop();
     this.bringToTop();
-    to.push(this, speedUp);
+    to.push(this);
 
     undoPushMove(from, to, 1);
     tallyMan.increment();
@@ -1063,8 +1063,10 @@ function doundo() {
   undoing = false;
 
   // robot will cause an autoMove/autoCollect loop
-  tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-  reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+  waitForCards().then( () => {
+    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+  });
   availableMoves();   // repaint moveable cards
 }
 
@@ -1166,12 +1168,11 @@ class CardContainer {
 
   /**
    * @param {!Card} c
-   * @param {number=} speedUp
    */
-  push(c, speedUp=0) {
+  push(c) {
     c.owner = this;
     this.cards.push(c);
-    c.animate(this.pt, speedUp);
+    c.animate(this.pt);
   }
 
   /**
@@ -1518,16 +1519,11 @@ class CardContainer {
         arr = this.dynamicArrayY_();
       }
       if ( this.stackFactor !== oldStackFactor ) {
-        waitForCards().then( (value) => {
-          console.log('scrunchwait', value);
-          console.assert(!someCardsInTransit());
-          for ( let i=0; i<this.cards.length; i++ ) {
-            const c = this.cards[i];
-            console.assert(!c.inTransit);
-            // c.position0(this.pt.x, arr[i]);
-            c.animate(Util.newPoint(this.pt.x, arr[i]), 10);
-          }
-        });
+        for ( let i=0; i<this.cards.length; i++ ) {
+          const c = this.cards[i];
+          c.animateSteps = 10;
+          c.animate(Util.newPoint(this.pt.x, arr[i]));
+        }
       }
     } else if ( rules.fan === 'Right' ) {
       this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;
@@ -1539,16 +1535,11 @@ class CardContainer {
         arr = this.dynamicArrayX_();
       }
       if ( this.stackFactor !== oldStackFactor ) {
-        waitForCards().then( (value) => {
-          console.log('scrunchwait', value);
-          console.assert(!someCardsInTransit());
-          for ( let i=0; i<this.cards.length; i++ ) {
-            const c = this.cards[i];
-            console.assert(!c.inTransit);
-            // c.position0(arr[i], this.pt.y);
-            c.animate(Util.newPoint(arr[i], this.pt.y), 10);
-          }
-        });
+        for ( let i=0; i<this.cards.length; i++ ) {
+          const c = this.cards[i];
+          c.animateSteps = 10;
+          c.animate(Util.newPoint(arr[i], this.pt.y));
+        }
       }
     } else if ( rules.fan === 'None' ) {
     } else {
@@ -1670,7 +1661,7 @@ class CellCarpet extends Cell {
         c = stock.peek();
       if ( c ) {
         tallyMan.decrement();
-        c.moveTop(this, 10);
+        c.moveTop(this);
       }
     }
   }
@@ -1939,7 +1930,8 @@ class Stock extends CardContainer {
     if ( waste && this.redealsAvailable() ) {
       tallyMan.sleep( () => {
         for ( let c=waste.peek(); c; c=waste.peek() ) {
-          c.moveTop(stock, 10);
+          c.animateSteps = 10;
+          c.moveTop(stock);
         }
         this.decreaseRedeals();
       });
@@ -2376,17 +2368,17 @@ class Waste extends CardContainer {
       // card in middle needs to go to left position
       const cMiddle = this.cards[this.cards.length-2];
       const ptLeft = Util.newPoint(this.pt.x, this.pt.y);
-      cMiddle.animate(ptLeft, 10);
+      cMiddle.animate(ptLeft);
       // card on right (top card) needs to go to middle position
       const cTop = this.peek();
       const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
-      cTop.animate(ptMiddle, 10);
+      cTop.animate(ptMiddle);
     }
     c.owner = this;
     this.cards.push(c);
     if ( c.faceDown )
       c.flipUp(false);
-    c.animate(ptNew, 10);
+    c.animate(ptNew);
   }
 
   /**
@@ -2400,17 +2392,17 @@ class Waste extends CardContainer {
       // top card needs to go to right position
       const cTop = this.cards[this.cards.length-1];
       const ptRight = Util.newPoint(this.rightX_(), this.pt.y);
-      cTop.animate(ptRight, 10);
+      cTop.animate(ptRight);
 
       // top-1 card needs to go to middle position
       const cTop1 = this.cards[this.cards.length-2];
       const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
-      cTop1.animate(ptMiddle, 10);
+      cTop1.animate(ptMiddle);
 
       // top-2 card needs to go to left position
       const cTop2 = this.cards[this.cards.length-3];
       const ptLeft = Util.newPoint(this.pt.x, this.pt.y);
-      cTop2.animate(ptLeft, 10);
+      cTop2.animate(ptLeft);
     }
 
     return c;
@@ -2625,7 +2617,8 @@ class Foundation extends CardContainer {
     const _solve = (c) => {
       if ( c && !c.faceDown ) {
         if ( c.owner.canTarget(this) && this.canAcceptCard(c) ) {
-          c.moveTop(this, 5);
+          c.animateSteps = 10;
+          c.moveTop(this);
           cardMoved = true;
         }
       }
@@ -3949,8 +3942,10 @@ function robot() {
     }
   });
 
-  tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-  reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+  waitForCards().then( (value) => {
+    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+  });
 
   waitForCards().then( (value) => {
     // console.log(`wait 3 ${Math.round(value)}ms`);
