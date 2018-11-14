@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.14.1',
+  GAME_VERSION: '0.11.14.2',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -276,7 +276,7 @@ class Baize {
       this.borderWidth_ = 0;
     }
     this.setBox_();
-    cardContainers.forEach( cc => {
+    cardContainers.forEach( cc => { // TODO ghostCards
       cc.cards.forEach( c => {
         while ( c.g.hasChildNodes() ) {
           c.g.removeChild(c.g.lastChild);
@@ -288,6 +288,7 @@ class Baize {
   }
 }
 
+const /** Array<Card> */ghostCards = [];
 const /** Array<CardContainer> */cardContainers = [];
 
 const baize = new Baize;
@@ -367,13 +368,15 @@ class Card {
     this.cancelHandler = this.onpointercancel.bind(this);
     this.overHandler = this.onpointerover.bind(this);
 
-    this.inTransit = false;                 // set when moving
-    // this.revealed = false;                  // user is holding mouse on a buried non-grabbable card
+    this.inTransit = false;
+    // this.revealed = false; // user is holding mouse on a buried non-grabbable card
 
     /** @type {!SVGGElement} */this.g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
     this.putRectInG_();
     this.position0();
     this.addListeners_();
+
+    ghostCards.push(this);
   }
 
   /**
@@ -687,7 +690,7 @@ class Card {
         this.moveTail(cc);
       } else {
         this.grabbedTail.forEach( c => {
-          c.animate(c.ptOriginal);
+          c.animate(c.ptOriginal, 10);
         });
       }
     }
@@ -706,7 +709,7 @@ class Card {
   onpointercancel(event) {
     console.warn('pointer cancel', event);
     if ( this.grabbedTail ) {
-      this.grabbedTail.forEach( c => c.animate(c.ptOriginal) );
+      this.grabbedTail.forEach( c => c.animate(c.ptOriginal, 10) );
     }
     this.grabbedTail = null;
     this.removeDragListeners_();
@@ -724,7 +727,7 @@ class Card {
   /**
    * @param {boolean} undoable
    */
-  flipUp(undoable=true) {
+  flipUp(undoable) {
     if ( this.faceDown ) {
       this.faceDown = false;
       while ( this.g.hasChildNodes() )
@@ -738,9 +741,9 @@ class Card {
   }
 
   /**
-   * @param {boolean} undoable
+   * @param {boolean} undoable (always false, because user can't flip down a card)
    */
-  flipDown(undoable=true) {
+  flipDown(undoable) {
     if ( !this.faceDown ) {
       this.faceDown = true;
       while ( this.g.hasChildNodes() )
@@ -777,18 +780,19 @@ class Card {
   /**
    * Animate this card to a new position
    * @param {SVGPoint} ptTo
+   * @param {number=} speedUp 
    */
-  animate(ptTo) {
+  animate(ptTo, speedUp=0) {
     // http://sol.gfxile.net/interpolation
     console.assert(ptTo!==this.pt);    // needs a new point
     const speed = [0,50,40,30,20,10];   // index will be 1..5
-    const ptFrom = Util.newPoint(this.pt);
+    const ptFrom = Util.newPoint(this.pt); // save this point
     this.pt.x = ptTo.x; // update final pos immediately in case we're interrupted
     this.pt.y = ptTo.y;
 
     const distance = Util.getDistance(ptFrom, ptTo);
     if ( 0 === distance ) {
-      this.inTransit = false;
+      // if ( this.id === '0♥02' ) console.log('not moving', this.id, this.inTransit);
       return;
     }
 
@@ -799,17 +803,25 @@ class Card {
         Math.round((ptFrom.x * v) + (ptTo.x * (1 - v))),
         Math.round((ptFrom.y * v) + (ptTo.y * (1 - v))) );
       this.g.setAttributeNS(null, 'transform', `translate(${pt2.x} ${pt2.y})`);
+      // if ( this.id === '0♥02' ) console.log('transform', this.id, this.inTransit);
 
-      i -= distance/speed[stats.Options.aniSpeed];
+      if ( speedUp ) {
+        i -= distance/speedUp;
+      } else {
+        i -= distance/speed[stats.Options.aniSpeed];
+      }
       if ( i > 0 ) {
         window.requestAnimationFrame(step);
       } else {
         if ( pt2.x !== this.pt.x || pt2.y !== this.pt.y )
           this.position0();
         this.inTransit = false;
+        // if ( this.id === '0♥02' ) console.log('positioned', this.id, this.inTransit);
       }
     };
 
+    // if ( this.id === '0♥02' ) console.trace(this.id, this.inTransit);
+    if (this.inTransit) console.trace(this.id);
     this.inTransit = true;
     window.requestAnimationFrame(step);
   }
@@ -817,13 +829,14 @@ class Card {
   /**
    * Move top card if this stack to another stack
    * @param {!CardContainer} to
+   * @param {number=} speedUp
    */
-  moveTop(to) {
+  moveTop(to, speedUp=0) {
     const from = this.owner;
 
     from.pop();
     this.bringToTop();
-    to.push(this);
+    to.push(this, speedUp);
 
     undoPushMove(from, to, 1);
     tallyMan.increment();
@@ -1153,11 +1166,12 @@ class CardContainer {
 
   /**
    * @param {!Card} c
+   * @param {number=} speedUp
    */
-  push(c) {
+  push(c, speedUp=0) {
     c.owner = this;
     this.cards.push(c);
-    c.animate(this.pt);
+    c.animate(this.pt, speedUp);
   }
 
   /**
@@ -1504,11 +1518,16 @@ class CardContainer {
         arr = this.dynamicArrayY_();
       }
       if ( this.stackFactor !== oldStackFactor ) {
-        for ( let i=0; i<this.cards.length; i++ ) {
-          const c = this.cards[i];
-          // c.position0(this.pt.x, arr[i]);
-          c.animate(Util.newPoint(this.pt.x, arr[i]));
-        }
+        waitForCards().then( (value) => {
+          console.log('scrunchwait', value);
+          console.assert(!someCardsInTransit());
+          for ( let i=0; i<this.cards.length; i++ ) {
+            const c = this.cards[i];
+            console.assert(!c.inTransit);
+            // c.position0(this.pt.x, arr[i]);
+            c.animate(Util.newPoint(this.pt.x, arr[i]), 10);
+          }
+        });
       }
     } else if ( rules.fan === 'Right' ) {
       this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;
@@ -1520,11 +1539,16 @@ class CardContainer {
         arr = this.dynamicArrayX_();
       }
       if ( this.stackFactor !== oldStackFactor ) {
-        for ( let i=0; i<this.cards.length; i++ ) {
-          const c = this.cards[i];
-          // c.position0(arr[i], this.pt.y);
-          c.animate(Util.newPoint(arr[i], this.pt.y));
-        }
+        waitForCards().then( (value) => {
+          console.log('scrunchwait', value);
+          console.assert(!someCardsInTransit());
+          for ( let i=0; i<this.cards.length; i++ ) {
+            const c = this.cards[i];
+            console.assert(!c.inTransit);
+            // c.position0(arr[i], this.pt.y);
+            c.animate(Util.newPoint(arr[i], this.pt.y), 10);
+          }
+        });
       }
     } else if ( rules.fan === 'None' ) {
     } else {
@@ -1646,7 +1670,7 @@ class CellCarpet extends Cell {
         c = stock.peek();
       if ( c ) {
         tallyMan.decrement();
-        c.moveTop(this);
+        c.moveTop(this, 10);
       }
     }
   }
@@ -1750,9 +1774,9 @@ class Reserve extends CardContainer {
     // same as Tableau
     const c = this.peek();
     if ( c && c.faceDown ) {
-      tallyMan.decrement();
-      c.flipUp();
-      tallyMan.increment();
+      tallyMan.decrement();   // make this half-move belong to previous move
+      c.flipUp(true);
+      tallyMan.increment();   // restore the move counter, then robot
     }
   }
 
@@ -1915,7 +1939,7 @@ class Stock extends CardContainer {
     if ( waste && this.redealsAvailable() ) {
       tallyMan.sleep( () => {
         for ( let c=waste.peek(); c; c=waste.peek() ) {
-          c.moveTop(stock);
+          c.moveTop(stock, 10);
         }
         this.decreaseRedeals();
       });
@@ -2274,7 +2298,7 @@ class StockFan extends Stock {
         c.owner = stock;
         // all fan games are all face up?
         // if ( !c.faceDown )
-        //     c.flipDown();
+        //     c.flipDown(false);
         c.position0(stock.pt.x, stock.pt.y);
       });
 
@@ -2352,17 +2376,17 @@ class Waste extends CardContainer {
       // card in middle needs to go to left position
       const cMiddle = this.cards[this.cards.length-2];
       const ptLeft = Util.newPoint(this.pt.x, this.pt.y);
-      cMiddle.animate(ptLeft);
+      cMiddle.animate(ptLeft, 10);
       // card on right (top card) needs to go to middle position
       const cTop = this.peek();
       const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
-      cTop.animate(ptMiddle);
+      cTop.animate(ptMiddle, 10);
     }
     c.owner = this;
     this.cards.push(c);
     if ( c.faceDown )
       c.flipUp(false);
-    c.animate(ptNew);
+    c.animate(ptNew, 10);
   }
 
   /**
@@ -2376,17 +2400,17 @@ class Waste extends CardContainer {
       // top card needs to go to right position
       const cTop = this.cards[this.cards.length-1];
       const ptRight = Util.newPoint(this.rightX_(), this.pt.y);
-      cTop.animate(ptRight);
+      cTop.animate(ptRight, 10);
 
       // top-1 card needs to go to middle position
       const cTop1 = this.cards[this.cards.length-2];
       const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
-      cTop1.animate(ptMiddle);
+      cTop1.animate(ptMiddle, 10);
 
       // top-2 card needs to go to left position
       const cTop2 = this.cards[this.cards.length-3];
       const ptLeft = Util.newPoint(this.pt.x, this.pt.y);
-      cTop2.animate(ptLeft);
+      cTop2.animate(ptLeft, 10);
     }
 
     return c;
@@ -2601,7 +2625,7 @@ class Foundation extends CardContainer {
     const _solve = (c) => {
       if ( c && !c.faceDown ) {
         if ( c.owner.canTarget(this) && this.canAcceptCard(c) ) {
-          c.moveTop(this);
+          c.moveTop(this, 5);
           cardMoved = true;
         }
       }
@@ -2983,7 +3007,7 @@ class Tableau extends CardContainer {
     const c = this.peek();
     if ( c && c.faceDown ) {
       tallyMan.decrement();
-      c.flipUp();
+      c.flipUp(true);
       tallyMan.increment();
     }
   }
@@ -3578,6 +3602,7 @@ function doload() {
 
   if ( stats[rules.Name].saved ) {
     // console.log('loading', stats[rules.Name].saved);
+    ghostCards.length = 0;
     for ( let i=0; i<cardContainers.length; i++ ) {
       cardContainers[i].load(stats[rules.Name].saved.containers[i]);
     }
@@ -3591,10 +3616,8 @@ function doload() {
     tallyMan.count = stats[rules.Name].saved.moves;
     undo = stats[rules.Name].saved.undo;
 
-    waitForCards().then( () => {    // TODO DRY
-      tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-      reserves.forEach( res => res.scrunchCards(rules.Reserve) );
-    });
+    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
 
     delete stats[rules.Name].saved;
   } else {
@@ -3891,17 +3914,18 @@ window.onbeforeunload = function(e) {
 };
 
 const someCardsInTransit = () => {
-  cardContainers.forEach( cc => {
-    if ( cc.cards.some( c => c.inTransit ) )
-      return true;
-  });
-  return false;
+  // cardContainers.forEach( cc => {
+  //   if ( cc.cards.some( c => c.inTransit ) )
+  //     return true;
+  // });
+  // return false;
+  return ghostCards.some( c => c.inTransit );
 };
 
 const waitForCards = () => new Promise((resolve,reject) => {
   const t0 = performance.now();
   const timeoutStep = 100;
-  let timeoutMs = 10000;
+  let timeoutMs = 20000;
   const check = () => {
     if ( !someCardsInTransit() ) {
       resolve(performance.now() - t0);
@@ -3915,16 +3939,13 @@ const waitForCards = () => new Promise((resolve,reject) => {
 });
 
 function robot() {
-  waitForCards().then( (value) => {
-    // console.log(`wait 1 ${Math.round(value)}ms`);
-    [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => cc.autoMove()) );
-  });
+  [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => cc.autoMove()) );
 
   waitForCards().then( (value) => {
     // console.log(`wait 2 ${Math.round(value)}ms`);
     if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY ) {
       while ( pullCardsToFoundations() )
-        waitForCards();
+        ;
     }
   });
 
@@ -3936,7 +3957,7 @@ function robot() {
     if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE
         && cardContainers.every( f => f.isSolveable() ) ) {
       while ( pullCardsToFoundations() )
-        waitForCards();
+        ;
     }
   });
   
