@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.14.2',
+  GAME_VERSION: '0.11.15.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -90,6 +90,16 @@ const Util = {
       throw new TypeError();
     }
     return pt;
+  },
+
+  /**
+   * 
+   * @param {SVGPoint} ptDst 
+   * @param {SVGPoint} ptSrc 
+   */
+  copyPoint: function(ptDst, ptSrc) {
+    ptDst.x = ptSrc.x;
+    ptDst.y = ptSrc.y;
   },
 
   // samePoint: function(pt1, pt2) {
@@ -276,7 +286,7 @@ class Baize {
       this.borderWidth_ = 0;
     }
     this.setBox_();
-    cardContainers.forEach( cc => { // TODO ghostCards
+    cardContainers.forEach( cc => { // TODO could use ghostCards
       cc.cards.forEach( c => {
         while ( c.g.hasChildNodes() ) {
           c.g.removeChild(c.g.lastChild);
@@ -368,7 +378,10 @@ class Card {
     this.cancelHandler = this.onpointercancel.bind(this);
     this.overHandler = this.onpointerover.bind(this);
 
-    this.inTransit = 0;
+    this.ptFrom = Util.newPoint(0,0);
+    this.ptCurr = Util.newPoint(0,0);
+    this.ptTo = Util.newPoint(0,0);
+    this.animationIds = [];
     // this.revealed = false; // user is holding mouse on a buried non-grabbable card
 
     /** @type {!SVGGElement} */this.g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
@@ -779,52 +792,65 @@ class Card {
 
   /**
    * Animate this card to a new position
+   * Designed to be invoked when card is already mid-animation;
+   * the card will swerve to a new destination
+   * 
    * @param {SVGPoint} ptTo
-   * @param {number=} steps override the default animation speed
+   * @param {number=} stepsOverride override the default animation speed
    */
-  animate(ptTo, steps=0) {
+  animate(ptTo, stepsOverride=0) {
     // http://sol.gfxile.net/interpolation
-    console.assert(ptTo!==this.pt);    // needs a new point
-    const speed = [0,50,40,30,20,10];   // index will be 1..5
-    const ptFrom = Util.newPoint(this.pt); // save this point
-    this.pt.x = ptTo.x; // update final pos immediately in case we're interrupted
-    this.pt.y = ptTo.y;
-
-    const distance = Util.getDistance(ptFrom, ptTo);
-    if ( 0 === distance ) {
-      // if ( this.id === '0♥02' ) console.log('not moving', this.id, this.inTransit);
-      return;
-    }
-
-    let i = distance;
+    /*
+      for (i = 0; i < N; i++)
+      {
+        v = i / N;
+        v = SMOOTHSTEP(v);
+        X = (A * v) + (B * (1 - v));
+      }
+      N.B. this will animate cards backwards
+    */
+    const steps = [0,50,40,30,20,10];   // index will be 1..5
+  
     const step = (timestamp) => {
-      const v = this.smootherstep_(i / distance);
-      const pt2 = Util.newPoint(
-        Math.round((ptFrom.x * v) + (ptTo.x * (1 - v))),
-        Math.round((ptFrom.y * v) + (ptTo.y * (1 - v))) );
-      this.g.setAttributeNS(null, 'transform', `translate(${pt2.x} ${pt2.y})`);
-      // if ( this.id === '0♥02' ) console.log('transform', this.id, this.inTransit);
-
-      if ( steps ) {
-        i -= distance/steps;
+      let v = i / N;
+      v = this.smootherstep_(v);
+      this.ptCurr.x = Math.round((this.ptFrom.x * v) + (this.ptTo.x * (1 - v)));
+      this.ptCurr.y = Math.round((this.ptFrom.y * v) + (this.ptTo.y * (1 - v)));
+      this.g.setAttributeNS(null, 'transform', `translate(${this.ptCurr.x} ${this.ptCurr.y})`);
+      // TODO can we remove first entry from this.animationIds?
+      if ( stepsOverride ) {
+        i -= N/stepsOverride;
       } else {
-        i -= distance/speed[stats.Options.aniSpeed];
+        i -= N/steps[stats.Options.aniSpeed];
       }
       if ( i > 0 ) {
-        window.requestAnimationFrame(step);
+        this.animationIds.push(window.requestAnimationFrame(step));
       } else {
-        if ( pt2.x !== this.pt.x || pt2.y !== this.pt.y )
+        if ( this.ptCurr.x !== this.pt.x || this.ptCurr.y !== this.pt.y ) {
+          Util.copyPoint(this.ptCurr, this.pt);
           this.position0();
-        this.inTransit -= 1;
-        // if ( this.id === '0♥02' ) console.log('positioned', this.id, this.inTransit);
+        }
+        this.animationIds.length = 0;
       }
     };
 
-    // if ( this.id === '0♥02' ) console.trace(this.id, this.inTransit);
-    // if (this.inTransit) console.trace(this.id);
-    console.assert(0===this.inTransit);
-    this.inTransit += 1;
-    window.requestAnimationFrame(step);
+    Util.copyPoint(this.ptFrom, this.animationIds.length ? this.ptCurr : this.pt);
+    Util.copyPoint(this.ptTo, ptTo);
+    Util.copyPoint(this.pt, ptTo); // update final pos immediately in case we're interrupted
+
+    const N = Util.getDistance(this.ptFrom, this.ptTo);
+    let i = N;
+
+    if ( this.animationIds.length ) {
+      console.log('cancelling', this.animationIds.length, 'animations');
+      for ( let id=this.animationIds.pop(); id; id=this.animationIds.pop() )
+        window.cancelAnimationFrame(id); 
+    }
+    if ( N ) {
+      this.animationIds.push(window.requestAnimationFrame(step));
+    } else {
+      // console.log('no need to animate', this.id);
+    }
   }
 
   /**
@@ -1063,10 +1089,10 @@ function doundo() {
   undoing = false;
 
   // robot will cause an autoMove/autoCollect loop
-  waitForCards().then( () => {
+  // waitForCards().then( () => {
     tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
     reserves.forEach( res => res.scrunchCards(rules.Reserve) );
-  });
+  // });
   availableMoves();   // repaint moveable cards
 }
 
@@ -1515,13 +1541,13 @@ class CardContainer {
 
       let arr = this.dynamicArrayY_();
       while ( arr[arr.length-1] + Constants.CARD_HEIGHT > max && this.stackFactor < Constants.MAX_STACK_FACTOR ) {
-        this.stackFactor += (1.0/3.0);
+        this.stackFactor += (1.0/4.0);
         arr = this.dynamicArrayY_();
       }
       if ( this.stackFactor !== oldStackFactor ) {
         for ( let i=0; i<this.cards.length; i++ ) {
           const c = this.cards[i];
-          c.animate(Util.newPoint(this.pt.x, arr[i]), 5);
+          c.animate(Util.newPoint(this.pt.x, arr[i]));
         }
       }
     } else if ( rules.fan === 'Right' ) {
@@ -1530,13 +1556,13 @@ class CardContainer {
 
       let arr = this.dynamicArrayX_();
       while ( arr[arr.length-1] + Constants.CARD_WIDTH > max && this.stackFactor < Constants.MAX_STACK_FACTOR ) {
-        this.stackFactor += (1.0/3.0);
+        this.stackFactor += (1.0/4.0);
         arr = this.dynamicArrayX_();
       }
       if ( this.stackFactor !== oldStackFactor ) {
         for ( let i=0; i<this.cards.length; i++ ) {
           const c = this.cards[i];
-          c.animate(Util.newPoint(arr[i], this.pt.y), 5);
+          c.animate(Util.newPoint(arr[i], this.pt.y));
         }
       }
     } else if ( rules.fan === 'None' ) {
@@ -3905,12 +3931,13 @@ window.onbeforeunload = function(e) {
 };
 
 const someCardsInTransit = () => {
+  // TODO - why doesn't this work?
   // cardContainers.forEach( cc => {
-  //   if ( cc.cards.some( c => c.inTransit ) )
+  //   if ( cc.cards.some( c => c.animationIds.length ) )
   //     return true;
   // });
   // return false;
-  return ghostCards.some( c => c.inTransit );
+  return ghostCards.some( c => c.animationIds.length );
 };
 
 const waitForCards = () => new Promise((resolve,reject) => {
@@ -3921,7 +3948,7 @@ const waitForCards = () => new Promise((resolve,reject) => {
     if ( !someCardsInTransit() ) {
       resolve(performance.now() - t0);
     } else if ( (timeoutMs -= timeoutStep) < 0 ) {
-      reject('timed out');
+      reject('waitForCards timed out');
     } else {
       window.setTimeout(check, timeoutStep);
     }
@@ -3930,32 +3957,37 @@ const waitForCards = () => new Promise((resolve,reject) => {
 });
 
 function robot() {
+  // let autoMove happen without waiting for cards
   [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => cc.autoMove()) );
 
-  waitForCards().then( (value) => {
-    // console.log(`wait 2 ${Math.round(value)}ms`);
+  waitForCards()
+  .then( (value) => {
+    // console.log(`wait 1 ${Math.round(value)}ms`);
     if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY ) {
       while ( pullCardsToFoundations() )
         waitForCards();
     }
-  });
+  })
+  .catch( (reason) => console.log(reason) );
 
-  waitForCards().then( (value) => {
-    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
-  });
+  // let scrunch happen without waiting for cards
+  tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+  reserves.forEach( res => res.scrunchCards(rules.Reserve) );
 
-  waitForCards().then( (value) => {
-    // console.log(`wait 3 ${Math.round(value)}ms`);
+  // waitForCards()
+  // .then( (value) => {
+    // console.log(`wait 2 ${Math.round(value)}ms`);
     if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE
         && cardContainers.every( f => f.isSolveable() ) ) {
       while ( pullCardsToFoundations() )
         waitForCards();
     }
-  });
+  // })
+  // .catch( (reason) => console.log(reason) );
   
-  waitForCards().then( (value) => {
-    // console.log(`wait 4 ${Math.round(value)}ms`);
+  waitForCards()
+  .then( (value) => {
+    // console.log(`wait 3 ${Math.round(value)}ms`);
     if ( isComplete() ) {
       if ( foundations.every( f => !f.scattered ) ) {
         foundations.forEach( f => f.scatter() );
@@ -3968,7 +4000,8 @@ function robot() {
     } else if ( !availableMoves() ) {
       displayToastNoAvailableMoves();
     }
-  });
+  })
+  .catch( (reason) => console.log(reason) );
 }
 
 /**
