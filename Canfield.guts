@@ -2,7 +2,7 @@
 {
   "Name":"Canfield",
   "Wikipedia":"https://en.wikipedia.org/wiki/Canfield_(solitaire)",
-  "Winnable":[981,70742,125110,412569,727651,772354],
+  "Winnable":[981,70742,125110,412569,727651,772354,777531],
   "Stock":{"packs":1, "cards":3},
   "Foundation":{"suit":2, "rank":1, "rankwrap":1},
   "Tableau":{"build":{"suit":4, "rank":2, "rankwrap":1}, "move":{"suit":4, "rank":2, "rankwrap":1}}

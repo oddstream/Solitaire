@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.16.0',
+  GAME_VERSION: '0.11.16.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -216,7 +216,7 @@ class Random {
 
 class Baize {
   constructor() {
-    /** @type {SVGElement} */ this.ele = document.getElementById('baize');
+    this.ele = /** @type {SVGSVGElement} */(document.getElementById('baize'));
     /** @private @type {number} */ this.borderWidth_ = 0;
     /** @private @type {number} */ this.gutsWidth_ = 0;
     /** @type {number} */ this.width = 0;
@@ -384,7 +384,7 @@ class Card {
     this.animationIds = [];
     // this.revealed = false; // user is holding mouse on a buried non-grabbable card
 
-    /** @type {!SVGGElement} */this.g = document.createElementNS(Constants.SVG_NAMESPACE, 'g');
+    this.g = /** @type {!SVGGElement} */(document.createElementNS(Constants.SVG_NAMESPACE, 'g'));
     this.putRectInG_();
     this.position0();
     this.addListeners_();
@@ -3159,7 +3159,7 @@ class TableauCanfield extends TableauTail {
    */
   autoMove() {
     if ( 0 === this.cards.length ) {
-      const c = reserve.peek();
+      const c = reserves[0].peek();
       if ( c ) {
         tallyMan.decrement();
         c.moveTop(this);
@@ -3747,13 +3747,13 @@ function areYouSure(f) {
 const modalShowRules = M.Modal.getInstance(document.getElementById('modalShowRules'));
 modalShowRules.options.onOpenStart = function() {
   let r = '<p>' + stock.english() + '</p>';
-  [waste,foundations[0],tableaux[0],cells[0],reserve].forEach( cc => {
+  [waste,foundations[0],tableaux[0],cells[0],reserves[0]].forEach( cc => {
     if ( cc )
       r = r + '<p>' + cc.english() + '</p>';
   });
   document.getElementById('therules').innerHTML = r;
 
-  /** @type {HTMLAnchorElement} */const ele = document.getElementById('theruleswikipedia');
+  const ele = /** @type {HTMLAnchorElement} */(document.getElementById('theruleswikipedia'));
   if ( rules.hasOwnProperty('Wikipedia') && rules.Wikipedia.length ) {
     ele.hidden = false;
     ele.href = rules.Wikipedia;
@@ -3897,15 +3897,14 @@ if ( !stats[rules.Name].worstStreak )   stats[rules.Name].worstStreak = 0;
 
 stats.Options.lastGame = window.location.pathname.split('/').pop();
 
-/** @type {Array<Stock>} */ const stocks = linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]);
-/** @type {Stock} */ const stock = stocks[0];
-/** @type {Array<Waste>} */ const wastes = linkClasses([Waste]);
-/** @type {Waste} */ const waste = wastes[0];
-/** @type {Array<Foundation>} */ const foundations = linkClasses([Foundation,FoundationCanfield,FoundationGolf,FoundationOsmosis,FoundationPenguin,FoundationSpider]);
-/** @type {Array<Tableau>} */ const tableaux = linkClasses([Tableau,TableauBlockade,TableauCanfield,TableauFortunesFavor,TableauFreecell,TableauGolf,TableauSpider,TableauTail]);
-/** @type {Array<Cell>} */ const cells = linkClasses([Cell,CellCarpet]);
-/** @type {Array<Reserve>} */ const reserves = linkClasses([Reserve,ReserveFrog]);
-/** @type {Reserve} */ const reserve = reserves[0];
+const stocks = /** @type {Array<Stock>} */ (linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]));
+const stock = stocks[0];
+const wastes = /** @type {Array<Waste>} */ (linkClasses([Waste]));
+const waste = wastes[0];
+const foundations = /** @type {Array<Foundation>} */ (linkClasses([Foundation,FoundationCanfield,FoundationGolf,FoundationOsmosis,FoundationPenguin,FoundationSpider]));
+const tableaux = /** @type {Array<Tableau>} */ (linkClasses([Tableau,TableauBlockade,TableauCanfield,TableauFortunesFavor,TableauFreecell,TableauGolf,TableauSpider,TableauTail]));
+const cells = /** @type {Array<Cell>} */ (linkClasses([Cell,CellCarpet]));
+const reserves = /** @type {Array<Reserve>} */ (linkClasses([Reserve,ReserveFrog]));
 
 document.documentElement.style.setProperty('--bg-color', 'darkgreen');
 document.documentElement.style.setProperty('--hi-color', 'lightgreen');
@@ -3999,14 +3998,12 @@ function robot() {
   console.assert(!inRobot);
   inRobot = true;
 
-  [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => {
+  [tableaux,cells].forEach( ccl => ccl.forEach(cc => {
     waitForCards()
     .then( () => cc.autoMove() ) 
     .catch( (reason) => console.log(reason) )
   }));
 
-  waitForCards();
-  
   if ( autoCollectAny() || autoCollectWhenSolveable() ) {
     for ( let cardMoved = pullCardsToFoundations(); cardMoved; cardMoved = pullCardsToFoundations() ) {
       waitForCards()
