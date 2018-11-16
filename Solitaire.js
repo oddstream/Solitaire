@@ -817,7 +817,7 @@ class Card {
       this.ptCurr.x = Math.round((this.ptFrom.x * v) + (this.ptTo.x * (1 - v)));
       this.ptCurr.y = Math.round((this.ptFrom.y * v) + (this.ptTo.y * (1 - v)));
       this.g.setAttributeNS(null, 'transform', `translate(${this.ptCurr.x} ${this.ptCurr.y})`);
-      // TODO can we remove first entry from this.animationIds?
+      // TODO can we remove first? oldest? entry from this.animationIds?
       if ( stepsOverride ) {
         i -= N/stepsOverride;
       } else {
@@ -856,6 +856,8 @@ class Card {
   /**
    * Move top card if this stack to another stack
    * @param {!CardContainer} to
+   * 
+   * TODO method probably belongs in CardContainer
    */
   moveTop(to) {
     const from = this.owner;
@@ -2378,7 +2380,7 @@ class Waste extends CardContainer {
    * @param {Card} c 
    */
   push(c) {
-    let ptNew = Util.newPoint(this.pt);
+    const ptNew = Util.newPoint(this.pt);
     if ( 0 === this.cards.length ) {
       // incoming card will go to left position
 
@@ -2394,17 +2396,17 @@ class Waste extends CardContainer {
       // card in middle needs to go to left position
       const cMiddle = this.cards[this.cards.length-2];
       const ptLeft = Util.newPoint(this.pt.x, this.pt.y);
-      cMiddle.animate(ptLeft);
+      cMiddle.animate(ptLeft, 50);
       // card on right (top card) needs to go to middle position
       const cTop = this.peek();
       const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
-      cTop.animate(ptMiddle);
+      cTop.animate(ptMiddle, 50);
     }
     c.owner = this;
     this.cards.push(c);
     if ( c.faceDown )
       c.flipUp(false);
-    c.animate(ptNew);
+    c.animate(ptNew, 50);
   }
 
   /**
@@ -2491,7 +2493,7 @@ class Waste extends CardContainer {
    * @returns {number}
    */
   availableMoves() {
-    if ( stock.redeals === null || stock.redeals > 0 )  // TODO type warning; redeals does not exist on CardContainer (but it does in Stock)
+    if ( stock.redeals === null || stock.redeals > 0 )
       return this.avilableMovesStackAll_();
     else
       return super.availableMoves();   // just the top card
@@ -3948,7 +3950,7 @@ const waitForCards = () => new Promise((resolve,reject) => {
     if ( !someCardsInTransit() ) {
       resolve(performance.now() - t0);
     } else if ( (timeoutMs -= timeoutStep) < 0 ) {
-      reject('waitForCards timed out');
+      reject('timed out waiting for cards to finish moving');
     } else {
       window.setTimeout(check, timeoutStep);
     }
@@ -3957,41 +3959,39 @@ const waitForCards = () => new Promise((resolve,reject) => {
 });
 
 function robot() {
-  // let autoMove happen without waiting for cards
-  [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => cc.autoMove()) );
+  const autoCollectAny_ = () => {
+    return stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY;
+  };
+  const autoCollectWhenSolveable_ = () => {
+    return stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE
+          && cardContainers.every( f => f.isSolveable() );
+  };
 
   waitForCards()
   .then( (value) => {
-    // console.log(`wait 1 ${Math.round(value)}ms`);
-    if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY ) {
-      while ( pullCardsToFoundations() )
-        waitForCards();
-    }
+    [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => cc.autoMove()) );
   })
   .catch( (reason) => console.log(reason) );
+
+  if ( autoCollectAny_() || autoCollectWhenSolveable_() ) {
+    do {
+      waitForCards()
+      .catch( (reason) => console.log(reason) );
+    } while ( pullCardsToFoundations() );
+  }
 
   // let scrunch happen without waiting for cards
   tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
   reserves.forEach( res => res.scrunchCards(rules.Reserve) );
 
-  // waitForCards()
-  // .then( (value) => {
-    // console.log(`wait 2 ${Math.round(value)}ms`);
-    if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE
-        && cardContainers.every( f => f.isSolveable() ) ) {
-      while ( pullCardsToFoundations() )
-        waitForCards();
-    }
-  // })
-  // .catch( (reason) => console.log(reason) );
-  
   waitForCards()
   .then( (value) => {
-    // console.log(`wait 3 ${Math.round(value)}ms`);
+    // console.log(`wait ${Math.round(value)}ms`);
     if ( isComplete() ) {
       if ( foundations.every( f => !f.scattered ) ) {
         foundations.forEach( f => f.scatter() );
-        waitForCards().then( () => {
+        waitForCards()
+        .then( () => {
           undo.length = 0;
           gameOver(true);
           modalGameOver.open();
@@ -4008,12 +4008,11 @@ function robot() {
  * Beware differences between Chrome, Edge, Firefox
  * https://unixpapa.com/js/key.html
  */
-document.addEventListener('keypress', function(/** @type {KeyboardEvent} */ev) {
-  // console.log(ev,ev.key,ev.keyCode,ev.ctrlKey);
-  // console.log(ev.key,ev.keyCode);
-  switch ( ev.key ) {
+document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) {
+  // console.log(kev,kev.key,kev.keyCode,kev.ctrlKey);
+  // console.log(kev.key,kev.keyCode);
+  switch ( kev.key.toLowerCase() ) {
     case 'a':
-    case 'A':
       const a = availableMoves();
       if ( 0 === a )
         displayToastNoAvailableMoves();
@@ -4021,15 +4020,12 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */ev) {
         displayToast(`<span>${Util.plural(a, 'move')} available</span>`);
       break;
     case 'r':
-    case 'R':
       modalShowRules.open();
       break;
     case 's':
-    case 'S':
       modalStatistics.open();
       break;
     case 'u':
-    case 'U':
       doundo();
       break;
   }
