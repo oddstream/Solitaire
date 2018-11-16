@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.15.0',
+  GAME_VERSION: '0.11.16.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -811,20 +811,23 @@ class Card {
     */
     const steps = [0,50,40,30,20,10];   // index will be 1..5
   
-    const step = (timestamp) => {
+    /**
+     * @param {number} timestamp 
+     */
+    const step_ = (timestamp) => {
       let v = i / N;
       v = this.smootherstep_(v);
       this.ptCurr.x = Math.round((this.ptFrom.x * v) + (this.ptTo.x * (1 - v)));
       this.ptCurr.y = Math.round((this.ptFrom.y * v) + (this.ptTo.y * (1 - v)));
       this.g.setAttributeNS(null, 'transform', `translate(${this.ptCurr.x} ${this.ptCurr.y})`);
-      // TODO can we remove first? oldest? entry from this.animationIds?
+
       if ( stepsOverride ) {
         i -= N/stepsOverride;
       } else {
         i -= N/steps[stats.Options.aniSpeed];
       }
       if ( i > 0 ) {
-        this.animationIds.push(window.requestAnimationFrame(step));
+        this.animationIds.push(window.requestAnimationFrame(step_));
       } else {
         if ( this.ptCurr.x !== this.pt.x || this.ptCurr.y !== this.pt.y ) {
           Util.copyPoint(this.ptCurr, this.pt);
@@ -834,7 +837,7 @@ class Card {
       }
     };
 
-    Util.copyPoint(this.ptFrom, this.animationIds.length ? this.ptCurr : this.pt);
+    Util.copyPoint(this.ptFrom, this.pt);
     Util.copyPoint(this.ptTo, ptTo);
     Util.copyPoint(this.pt, ptTo); // update final pos immediately in case we're interrupted
 
@@ -842,12 +845,12 @@ class Card {
     let i = N;
 
     if ( this.animationIds.length ) {
-      console.log('cancelling', this.animationIds.length, 'animations');
-      for ( let id=this.animationIds.pop(); id; id=this.animationIds.pop() )
-        window.cancelAnimationFrame(id); 
+      waitForCard(this)
+      .then( (value) => console.log(`waited ${Math.round(value)} for ${this.id}`) )
+      .catch( (reason) => console.log(reason) );
     }
     if ( N ) {
-      this.animationIds.push(window.requestAnimationFrame(step));
+      this.animationIds.push(window.requestAnimationFrame(step_));
     } else {
       // console.log('no need to animate', this.id);
     }
@@ -862,12 +865,12 @@ class Card {
   moveTop(to) {
     const from = this.owner;
 
+    undoPushMove(from, to, 1);  // record undo before pop
+    tallyMan.increment();
+
     from.pop();
     this.bringToTop();
     to.push(this);
-
-    undoPushMove(from, to, 1);
-    tallyMan.increment();
   }
 
   /**
@@ -1091,10 +1094,7 @@ function doundo() {
   undoing = false;
 
   // robot will cause an autoMove/autoCollect loop
-  // waitForCards().then( () => {
-    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
-  // });
+  scrunchContainers();
   availableMoves();   // repaint moveable cards
 }
 
@@ -1737,6 +1737,19 @@ class Reserve extends CardContainer {
 
   /**
    * @override
+   * @returns {Card}
+   */
+  pop() {
+    const c = super.pop();
+    const cExposed = this.peek();
+    if ( cExposed && cExposed.faceDown ) {
+      cExposed.flipUp(false);  // TODO defer this flip until after any move
+    }
+    return c;
+  }
+
+  /**
+   * @override
    * @param {Card} c 
    */
   onclick(c) {
@@ -1782,19 +1795,6 @@ class Reserve extends CardContainer {
    */
   isSolveable() {
     return 0 === this.cards.length;
-  }
-
-  /**
-   * @override
-   */
-  autoMove() {
-    // same as Tableau
-    const c = this.peek();
-    if ( c && c.faceDown ) {
-      tallyMan.decrement();   // make this half-move belong to previous move
-      c.flipUp(true);
-      tallyMan.increment();   // restore the move counter, then robot
-    }
   }
 
   /**
@@ -2396,17 +2396,17 @@ class Waste extends CardContainer {
       // card in middle needs to go to left position
       const cMiddle = this.cards[this.cards.length-2];
       const ptLeft = Util.newPoint(this.pt.x, this.pt.y);
-      cMiddle.animate(ptLeft, 50);
+      cMiddle.animate(ptLeft);
       // card on right (top card) needs to go to middle position
       const cTop = this.peek();
       const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
-      cTop.animate(ptMiddle, 50);
+      cTop.animate(ptMiddle);
     }
     c.owner = this;
     this.cards.push(c);
     if ( c.faceDown )
       c.flipUp(false);
-    c.animate(ptNew, 50);
+    c.animate(ptNew);
   }
 
   /**
@@ -2941,6 +2941,18 @@ class Tableau extends CardContainer {
     this.cards.push(c);
     c.animate(pt);
   }
+  /**
+   * @override
+   * @returns {Card}
+   */
+  pop() {
+    const c = super.pop();
+    const cExposed = this.peek();
+    if ( cExposed && cExposed.faceDown ) {
+      cExposed.flipUp(false);  // TODO defer this flip until after any move
+    }
+    return c;
+  }
 
   /**
    * @override
@@ -3016,19 +3028,6 @@ class Tableau extends CardContainer {
       return isConformant(rules.Tableau.build, this.cards);
     else
       return true;
-  }
-
-  /**
-   * @override
-   */
-  autoMove() {
-    // same as Reserve
-    const c = this.peek();
-    if ( c && c.faceDown ) {
-      tallyMan.decrement();
-      c.flipUp(true);
-      tallyMan.increment();
-    }
   }
 
   /**
@@ -3634,10 +3633,7 @@ function doload() {
     stock.updateRedealsSVG_();
     tallyMan.count = stats[rules.Name].saved.moves;
     undo = stats[rules.Name].saved.undo;
-
-    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
-
+    scrunchContainers();
     delete stats[rules.Name].saved;
   } else {
     displayToast('no saved game');
@@ -3942,6 +3938,9 @@ const someCardsInTransit = () => {
   return ghostCards.some( c => c.animationIds.length );
 };
 
+/**
+ * @returns {Promise}
+ */
 const waitForCards = () => new Promise((resolve,reject) => {
   const t0 = performance.now();
   const timeoutStep = 100;
@@ -3958,31 +3957,64 @@ const waitForCards = () => new Promise((resolve,reject) => {
   window.setTimeout(check, 0);  // run the first check ASAP
 });
 
+/**
+ * @param {Card} c 
+ * @returns {Promise}
+ */
+const waitForCard = (c) => new Promise((resolve,reject) => {
+  const t0 = performance.now();
+  const timeoutStep = 10;
+  let timeoutMs = 10000;
+  const check = () => {
+    if ( 0 === c.animationIds.length ) {
+      resolve(performance.now() - t0);
+    } else if ( (timeoutMs -= timeoutStep) < 0 ) {
+      reject('timed out waiting for card to finish moving');
+    } else {
+      window.setTimeout(check, timeoutStep);
+    }
+  };
+  window.setTimeout(check, 0);  // run the first check ASAP
+});
+
+const scrunchContainers = () => {
+  waitForCards()
+  .then( (value) => {
+    tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
+    reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+  })
+  .catch( (reason) => console.log(reason) );
+};
+
+let inRobot = false;
 function robot() {
-  const autoCollectAny_ = () => {
+  const autoCollectAny = () => {
     return stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY;
   };
-  const autoCollectWhenSolveable_ = () => {
+  const autoCollectWhenSolveable = () => {
     return stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE
           && cardContainers.every( f => f.isSolveable() );
   };
 
-  waitForCards()
-  .then( (value) => {
-    [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => cc.autoMove()) );
-  })
-  .catch( (reason) => console.log(reason) );
+  console.assert(!inRobot);
+  inRobot = true;
 
-  if ( autoCollectAny_() || autoCollectWhenSolveable_() ) {
-    do {
+  [tableaux,reserves,cells].forEach( ccl => ccl.forEach(cc => {
+    waitForCards()
+    .then( () => cc.autoMove() ) 
+    .catch( (reason) => console.log(reason) )
+  }));
+
+  waitForCards();
+  
+  if ( autoCollectAny() || autoCollectWhenSolveable() ) {
+    for ( let cardMoved = pullCardsToFoundations(); cardMoved; cardMoved = pullCardsToFoundations() ) {
       waitForCards()
       .catch( (reason) => console.log(reason) );
-    } while ( pullCardsToFoundations() );
+    }
   }
 
-  // let scrunch happen without waiting for cards
-  tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
-  reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+  scrunchContainers();
 
   waitForCards()
   .then( (value) => {
@@ -4002,6 +4034,8 @@ function robot() {
     }
   })
   .catch( (reason) => console.log(reason) );
+
+  inRobot = false;
 }
 
 /**
@@ -4019,6 +4053,11 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
       else
         displayToast(`<span>${Util.plural(a, 'move')} available</span>`);
       break;
+    case 'e':
+      if ( waste && waste.peek() ) {
+        waste.onclick(waste.peek());
+      }
+      break;
     case 'r':
       modalShowRules.open();
       break;
@@ -4027,6 +4066,10 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
       break;
     case 'u':
       doundo();
+      break;
+    case 'w':
+      if ( stock.peek() )
+        stock.onclick(stock.peek());
       break;
   }
 });

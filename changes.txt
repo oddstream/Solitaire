@@ -1,3 +1,9 @@
+16/11/2018
+rewrite Card.animate to wait for a card rather than using cancelAnimationFrame
+Reserve and Tableau now subclass pop instead of using autoMove to flip up exposed cards
+    (problems with stacking after undo...)
+    (currently not bothering to flip down undone cards)
+    
 15/11/2018
 rewrite Card.animate to allow mid-animate cards to be reanimated
 
