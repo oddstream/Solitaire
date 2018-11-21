@@ -1,3 +1,7 @@
+21/11/2018
+refactoring of CardContainer.push()
+retired FoundationGolf, added rules.Foundation.maxfan
+
 16/11/2018
 rewrite Card.animate to wait for a card rather than using cancelAnimationFrame
 Reserve and Tableau now subclass pop instead of using autoMove to flip up exposed cards

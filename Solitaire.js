@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.16.1',
+  GAME_VERSION: '0.11.21.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -296,6 +296,15 @@ class Baize {
     });
     availableMoves();   // repaint moveable cards
   }
+
+  /**
+   * Move card to end of baize so it appears on top of other cards
+   * Should be using SVG z-index to do this, but it's not implemented
+   * @param {Card} c
+   */
+  elevateCard(c) {
+    this.ele.appendChild(c.g);
+  }
 }
 
 const /** Array<Card> */ghostCards = [];
@@ -382,7 +391,6 @@ class Card {
     this.ptCurr = Util.newPoint(0,0);
     this.ptTo = Util.newPoint(0,0);
     this.animationIds = [];
-    // this.revealed = false; // user is holding mouse on a buried non-grabbable card
 
     this.g = /** @type {!SVGGElement} */(document.createElementNS(Constants.SVG_NAMESPACE, 'g'));
     this.putRectInG_();
@@ -602,12 +610,6 @@ class Card {
     this.grabbedTail = this.owner.canGrab(this);
     if ( !this.grabbedTail ) {
       console.log('cannot grab', this.id);
-      // if ( !this.faceDown ) {
-      //     this.markGrabbed();
-      //     this.bringToTop();
-      //     this.revealed = true;
-      // }
-      // this.addDragListeners_();
       return false;
     }
 
@@ -657,9 +659,6 @@ class Card {
   onpointermove(event) {
     Util.absorbEvent(event);
 
-    // if ( this.revealed )
-    //     return false;
-
     const ptNew = this.getPointerPoint_(event);
     this.scalePointer_(ptNew);
     this.grabbedTail.forEach( c => {
@@ -676,14 +675,6 @@ class Card {
    */
   onpointerup(event) {
     Util.absorbEvent(event);
-
-    // if ( this.revealed ) {
-    // this.unmarkGrabbed();
-    // this.owner.cards.forEach( c => c.bringToTop() );
-    // this.revealed = false;
-    // this.removeDragListeners_();
-    //     return false;
-    // }
 
     const ptNew = this.getPointerPoint_(event);
     const ptNewCard = Util.newPoint(
@@ -731,9 +722,11 @@ class Card {
   /**
    * Move card to end of baize so it appears on top of other cards
    * Should be using SVG z-index to do this, but it's not implemented
+   * @deprecated
    * @return {void}
    */
   bringToTop() {
+    // TODO check for and report any instances of this card already being the last
     baize.ele.appendChild(this.g);
   }
 
@@ -864,12 +857,9 @@ class Card {
    */
   moveTop(to) {
     const from = this.owner;
-
     undoPushMove(from, to, 1);  // record undo before pop
     tallyMan.increment();
-
     from.pop();
-    this.bringToTop();
     to.push(this);
   }
 
@@ -887,9 +877,7 @@ class Card {
     }
     const nCardsMoved = tmp.length;
     while ( tmp.length ) {
-      const c = tmp.pop();
-      c.bringToTop();
-      to.push(c);
+      to.push(tmp.pop());
     }
     undoPushMove(from, to, nCardsMoved);
     tallyMan.increment();
@@ -1074,7 +1062,6 @@ function doundo() {
       while ( tmp.length ) {
         const c = tmp.pop();
         // console.log(c, 'going from', dst, 'to', src);
-        c.bringToTop();
         src.push(c);
       }
     } else if ( (u.hasOwnProperty('turn') || u.hasOwnProperty('flip')) && u.hasOwnProperty('dir') ) {
@@ -1196,11 +1183,13 @@ class CardContainer {
 
   /**
    * @param {!Card} c
+   * @param {SVGPoint=} pt
    */
-  push(c) {
+  push(c, pt = undefined) {
     c.owner = this;
     this.cards.push(c);
-    c.animate(this.pt);
+    baize.elevateCard(c);
+    c.animate(pt ? pt : this.pt);
   }
 
   /**
@@ -1388,7 +1377,6 @@ class CardContainer {
       // console.log(this.cards, ':=', tmp);
       this.cards = [];
       tmp.forEach( c => {
-        c.bringToTop();
         this.push(c);
       });
     }
@@ -1442,7 +1430,6 @@ class CardContainer {
         console.error('unexpected character in deal', ch);
       }
 
-      c.bringToTop();
       this.push(c);
 
       if ( 'd' === ch ) {
@@ -1723,16 +1710,13 @@ class Reserve extends CardContainer {
     if ( 0 === this.cards.length )
       this.resetStackFactor_(rules.Reserve);
 
-    let pt = null;
+    const ptNew = Util.newPoint(c.pt);
     if ( rules.Reserve.fan === 'Down' )
-      pt = Util.newPoint(this.pt.x, this.dynamicY_());
+      ptNew.y = this.dynamicY_();
     else if ( rules.Reserve.fan === 'Right' )
-      pt = Util.newPoint(this.dynamicX_(), this.pt.y);
-    else if ( rules.Reserve.fan === 'None' )
-      pt = Util.newPoint(this.pt.x, this.pt.y);
-    c.owner = this;
-    this.cards.push(c);
-    c.animate(pt);
+      ptNew.x = this.dynamicX_();
+
+    super.push(c, ptNew);
   }
 
   /**
@@ -1824,7 +1808,6 @@ class ReserveFrog extends Reserve {
           }
         }
       } else {
-        c.bringToTop();
         this.push(c);   // popping off stock flips card up
       }
     }
@@ -1957,7 +1940,6 @@ class Stock extends CardContainer {
       tallyMan.sleep( () => {
         while ( waste.cards.length ) {
           const c = waste.cards.pop(); // low level pop to bypass 3-card shuffle
-          c.bringToTop();
           stock.push(c);
           undoPushMove(waste,stock,1);
         }
@@ -2383,7 +2365,6 @@ class Waste extends CardContainer {
     const ptNew = Util.newPoint(this.pt);
     if ( 0 === this.cards.length ) {
       // incoming card will go to left position
-
     } else if ( 1 === this.cards.length ) {
       // incoming card will go to middle position
       ptNew.x = this.middleX_();
@@ -2402,11 +2383,9 @@ class Waste extends CardContainer {
       const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
       cTop.animate(ptMiddle);
     }
-    c.owner = this;
-    this.cards.push(c);
+    super.push(c, ptNew);
     if ( c.faceDown )
-      c.flipUp(false);
-    c.animate(ptNew);
+      c.flipUp(false); // automatic
   }
 
   /**
@@ -2546,16 +2525,12 @@ class Foundation extends CardContainer {
   push(c) {
     // override to fan
     console.assert(!c.faceDown);
-    let pt = null;
+    const ptNew = Util.newPoint(this.pt);
     if ( rules.Foundation.fan === 'Down' )
-      pt = Util.newPoint(this.pt.x, this.dynamicY_());
+      ptNew.y = this.dynamicY_();
     else if ( rules.Foundation.fan === 'Right' )
-      pt = Util.newPoint(this.dynamicX_(), this.pt.y);
-    else if ( rules.Foundation.fan === 'None' )
-      pt = Util.newPoint(this.pt.x, this.pt.y);
-    c.owner = this;
-    this.cards.push(c);
-    c.animate(pt);
+      ptNew.x = this.dynamicX_();
+    super.push(c, ptNew);
   }
 
   /**
@@ -2836,24 +2811,6 @@ class FoundationPenguin extends Foundation {
   }
 }
 
-class FoundationGolf extends Foundation {
-
-  /**
-   * @override
-   * @param {Card} c
-   */
-  push(c) {
-    // override to fan card to the right
-    console.assert(!c.faceDown);
-    const pt = Util.newPoint(
-      this.pt.x + (this.cards.length * 4),  // TODO magic number
-      this.pt.y);
-    c.owner = this;
-    this.cards.push(c);
-    c.animate(pt);
-  }
-}
-
 class FoundationSpider extends Foundation {
 
   /**
@@ -2930,16 +2887,12 @@ class Tableau extends CardContainer {
     if ( 0 === this.cards.length )
       this.resetStackFactor_(rules.Tableau);
 
-    let pt = null;
+    const ptNew = Util.newPoint(this.pt);
     if ( rules.Tableau.fan === 'Down' )
-      pt = Util.newPoint(this.pt.x, this.dynamicY_());
+      ptNew.y = this.dynamicY_();
     else if ( rules.Tableau.fan === 'Right' )
-      pt = Util.newPoint(this.dynamicX_(), this.pt.y);
-    else if ( rules.Tableau.fan === 'None' )
-      pt = Util.newPoint(this.pt.x, this.pt.y);
-    c.owner = this;
-    this.cards.push(c);
-    c.animate(pt);
+      ptNew.x = this.dynamicX_();
+    super.push(c, ptNew);
   }
   /**
    * @override
@@ -3573,8 +3526,8 @@ function restart(seed) {
   });
 
   stock.sort(seed);
-  stock.cards.forEach( c => c.bringToTop() );
-  stock.redeals = rules.Stock.redeals;    // could be null
+  stock.cards.forEach( c => c.bringToTop() ); // TODO what does this really do?
+  stock.redeals = rules.Stock.redeals; // could be null
   undo.length = 0;
   tallyMan.reset();
   foundations.forEach( f => f.scattered = false );
@@ -3695,7 +3648,7 @@ modalStatistics.options.onOpenStart = function() {
     let n = 0, c = 0;
     foundations.forEach( f => {
       n += f.cards.length;
-      if ( f instanceof FoundationGolf )
+      if ( stock instanceof StockGolf ) // TODO ugly kludge
         c += 52;
       else
         c += 13;    // TODO Grandfather's Clock
@@ -3849,6 +3802,7 @@ if ( !rules.Reserve.hasOwnProperty('maxfan') )      rules.Reserve.maxfan = 0;   
 if ( !rules.Reserve.hasOwnProperty('target') )      rules.Reserve.target = null;
 
 if ( !rules.Foundation.hasOwnProperty('fan') )      rules.Foundation.fan = 'None';
+if ( !rules.Foundation.hasOwnProperty('maxfan') )   rules.Foundation.maxfan = 0;
 if ( !rules.Foundation.hasOwnProperty('scatter') )  rules.Foundation.scatter = 'Down';
 if ( !rules.Foundation.hasOwnProperty('hidden') )   rules.Foundation.hidden = false;
 if ( !rules.Foundation.hasOwnProperty('target') )   rules.Foundation.target = null;
@@ -3901,7 +3855,7 @@ const stocks = /** @type {Array<Stock>} */ (linkClasses([Stock, StockAgnes, Stoc
 const stock = stocks[0];
 const wastes = /** @type {Array<Waste>} */ (linkClasses([Waste]));
 const waste = wastes[0];
-const foundations = /** @type {Array<Foundation>} */ (linkClasses([Foundation,FoundationCanfield,FoundationGolf,FoundationOsmosis,FoundationPenguin,FoundationSpider]));
+const foundations = /** @type {Array<Foundation>} */ (linkClasses([Foundation,FoundationCanfield,FoundationOsmosis,FoundationPenguin,FoundationSpider]));
 const tableaux = /** @type {Array<Tableau>} */ (linkClasses([Tableau,TableauBlockade,TableauCanfield,TableauFortunesFavor,TableauFreecell,TableauGolf,TableauSpider,TableauTail]));
 const cells = /** @type {Array<Cell>} */ (linkClasses([Cell,CellCarpet]));
 const reserves = /** @type {Array<Reserve>} */ (linkClasses([Reserve,ReserveFrog]));
@@ -3929,11 +3883,19 @@ window.onbeforeunload = function(e) {
 
 const someCardsInTransit = () => {
   // TODO - why doesn't this work?
+  // let n = 0;
   // cardContainers.forEach( cc => {
+  //   cc.cards.forEach( c => n += c.animationIds.length );
+  // });
+  // if ( n )
+  //   console.log(n, 'cc cards waiting');
   //   if ( cc.cards.some( c => c.animationIds.length ) )
   //     return true;
   // });
   // return false;
+  const arr = ghostCards.filter( c => c.animationIds.length );
+  if ( arr.length )
+    console.log(arr.length, 'ghost cards waiting');
   return ghostCards.some( c => c.animationIds.length );
 };
 
@@ -3981,6 +3943,7 @@ const scrunchContainers = () => {
   .then( (value) => {
     tableaux.forEach( tab => tab.scrunchCards(rules.Tableau) );
     reserves.forEach( res => res.scrunchCards(rules.Reserve) );
+    foundations.forEach( res => res.scrunchCards(rules.Foundation) );
   })
   .catch( (reason) => console.log(reason) );
 };

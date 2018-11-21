@@ -75,7 +75,7 @@ svg {
     stroke-width: 1;
 }
 
-.Foundation, .FoundationCanfield, .FoundationGolf, .FoundationOsmosis, .FoundationPenguin, .FoundationSpider {
+.Foundation, .FoundationCanfield, .FoundationOsmosis, .FoundationPenguin, .FoundationSpider {
     fill: var(--bg-color, darkgreen);
     stroke: var(--hi-color, lightgreen);
     stroke-width: 1;
