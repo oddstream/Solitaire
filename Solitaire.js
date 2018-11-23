@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.21.0',
+  GAME_VERSION: '0.11.23.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -286,7 +286,7 @@ class Baize {
       this.borderWidth_ = 0;
     }
     this.setBox_();
-    cardContainers.forEach( cc => { // TODO could use ghostCards
+    cardContainers.forEach( cc => {
       cc.cards.forEach( c => {
         while ( c.g.hasChildNodes() ) {
           c.g.removeChild(c.g.lastChild);
@@ -303,11 +303,11 @@ class Baize {
    * @param {Card} c
    */
   elevateCard(c) {
-    this.ele.appendChild(c.g);
+    if ( c.g !== this.ele.lastChild )
+      this.ele.appendChild(c.g);
   }
 }
 
-const /** Array<Card> */ghostCards = [];
 const /** Array<CardContainer> */cardContainers = [];
 
 const baize = new Baize;
@@ -387,17 +387,12 @@ class Card {
     this.cancelHandler = this.onpointercancel.bind(this);
     this.overHandler = this.onpointerover.bind(this);
 
-    this.ptFrom = Util.newPoint(0,0);
-    this.ptCurr = Util.newPoint(0,0);
-    this.ptTo = Util.newPoint(0,0);
     this.animationIds = [];
 
     this.g = /** @type {!SVGGElement} */(document.createElementNS(Constants.SVG_NAMESPACE, 'g'));
     this.putRectInG_();
     this.position0();
     this.addListeners_();
-
-    ghostCards.push(this);
   }
 
   /**
@@ -620,7 +615,7 @@ class Card {
         this.ptOriginalPointerDown.x - c.pt.x,
         this.ptOriginalPointerDown.y - c.pt.y
       );
-      c.bringToTop();
+      baize.elevateCard(c);
     });
 
     this.addDragListeners_();
@@ -720,17 +715,6 @@ class Card {
   }
 
   /**
-   * Move card to end of baize so it appears on top of other cards
-   * Should be using SVG z-index to do this, but it's not implemented
-   * @deprecated
-   * @return {void}
-   */
-  bringToTop() {
-    // TODO check for and report any instances of this card already being the last
-    baize.ele.appendChild(this.g);
-  }
-
-  /**
    * @param {boolean} undoable
    */
   flipUp(undoable) {
@@ -808,11 +792,10 @@ class Card {
      * @param {number} timestamp 
      */
     const step_ = (timestamp) => {
-      let v = i / N;
-      v = this.smootherstep_(v);
-      this.ptCurr.x = Math.round((this.ptFrom.x * v) + (this.ptTo.x * (1 - v)));
-      this.ptCurr.y = Math.round((this.ptFrom.y * v) + (this.ptTo.y * (1 - v)));
-      this.g.setAttributeNS(null, 'transform', `translate(${this.ptCurr.x} ${this.ptCurr.y})`);
+      const v = this.smootherstep_(i / N);
+      const x = Math.round((ptFrom.x * v) + (ptTo.x * (1 - v)));
+      const y = Math.round((ptFrom.y * v) + (ptTo.y * (1 - v)));
+      this.g.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
 
       if ( stepsOverride ) {
         i -= N/stepsOverride;
@@ -822,24 +805,22 @@ class Card {
       if ( i > 0 ) {
         this.animationIds.push(window.requestAnimationFrame(step_));
       } else {
-        if ( this.ptCurr.x !== this.pt.x || this.ptCurr.y !== this.pt.y ) {
-          Util.copyPoint(this.ptCurr, this.pt);
+        if ( x !== this.pt.x || y !== this.pt.y ) {
           this.position0();
         }
         this.animationIds.length = 0;
       }
     };
 
-    Util.copyPoint(this.ptFrom, this.pt);
-    Util.copyPoint(this.ptTo, ptTo);
+    const ptFrom = Util.newPoint(this.pt);
     Util.copyPoint(this.pt, ptTo); // update final pos immediately in case we're interrupted
 
-    const N = Util.getDistance(this.ptFrom, this.ptTo);
+    const N = Util.getDistance(ptFrom, ptTo);
     let i = N;
 
     if ( this.animationIds.length ) {
       waitForCard(this)
-      .then( (value) => console.log(`waited ${Math.round(value)} for ${this.id}`) )
+      // .then( (value) => console.log(`waited ${Math.round(value)} for ${this.id}`) )
       .catch( (reason) => console.log(reason) );
     }
     if ( N ) {
@@ -1299,11 +1280,8 @@ class CardContainer {
     let count = 0;
     const c = this.peek();
     if ( c ) {
-      if ( c.faceDown ) {
-        count += 1;     // the move is that it can be turned up?
-      } else {
-        count += this.availableMovesForThisCard_(c);
-      }
+      console.assert(!c.faceDown);
+      count += this.availableMovesForThisCard_(c);
     }
     return count;
   }
@@ -1316,15 +1294,10 @@ class CardContainer {
     // used by TableauTail, TableauFreecell
     let count = 0;
     this.cards.forEach( c => {
-      if ( c.faceDown ) {
-        if ( c.isTopCard() ) {
-          count += 1;
-        }
-      } else {
-        c.markMoveable(false);
-        if ( this.canGrab(c) ) {
-          count += this.availableMovesForThisCard_(c);
-        }
+      // console.assert(!c.faceDown);
+      c.markMoveable(false);
+      if ( !c.faceDown && this.canGrab(c) ) {
+        count += this.availableMovesForThisCard_(c);
       }
     });
     return count;
@@ -1376,9 +1349,9 @@ class CardContainer {
       );
       // console.log(this.cards, ':=', tmp);
       this.cards = [];
-      tmp.forEach( c => {
+      for ( const c of tmp ) {
         this.push(c);
-      });
+      }
     }
   }
 
@@ -1390,35 +1363,39 @@ class CardContainer {
       //console.warn('no deal specified', this);
       return;
     }
-    for ( let i=0; i<this.a_deal.length; i++ ) {
+    for ( let ch of this.a_deal ) {
       let c = null;
-      const ch = this.a_deal.charAt(i);
-      if ( 'dDuU'.includes(ch) ) {
-        c = stock.pop();
-        if ( !c ) {
-          // StockFan will trigger this
-          console.warn('out of stock during deal', this);
-          return;
+
+      if ( 'uU'.includes(ch) ) {
+        if ( c = stock.pop() ) { // StockFan
+          this.push(c);
         }
-      } else if ( 'Pp'.includes(ch) ) {
+      } else if ( 'dD'.includes(ch) ) {
+        if ( c = stock.pop() ) { // StockFan
+          this.push(c);
+          c.flipDown(false);
+        }
+      } else if ( 'pP'.includes(ch) ) {
         /*
             The beak; see http://www.parlettgames.uk/patience/penguin.html
             Move the three other cards of the same ordinal in this Stock to Foundations[0,1,2]
             Then place this card as if it were an 'u'
         */
-        c = stock.pop();
-        const stock3 = stock.cards.filter( sc => sc.ordinal === c.ordinal );
-        console.assert(stock3.length===3);
-        stock3.forEach( sc => sc.flipUp(false) );
-        stock.cards = stock.cards.filter( sc => sc.ordinal !== c.ordinal );
-        for ( let i=0; i<stock3.length; i++ )
-          foundations[i].push(stock3[i]);
+        if ( c = stock.pop() ) {
+          const stock3 = stock.cards.filter( sc => sc.ordinal === c.ordinal );
+          console.assert(stock3.length===3);
+          stock3.forEach( sc => sc.flipUp(false) );
+          stock.cards = stock.cards.filter( sc => sc.ordinal !== c.ordinal );
+          for ( let i=0; i<stock3.length; i++ )
+            foundations[i].push(stock3[i]);
+          this.push(c);
+        }
       } else if ( '♥♦♣♠'.includes(ch) ) {
         // e.g. ♥01
         const suit = ch;
         const ord = Number.parseInt(this.a_deal.slice(1), 10);
         const idx = stock.cards.findIndex( e => e.suit === suit && e.ordinal === ord );
-        i = this.a_deal.length;     // to break out of loop
+        // i = this.a_deal.length;     // to break out of loop
         if ( idx > -1 ) {
           c = stock.cards.splice(idx, 1)[0];  // returns an array of deleted items
           c.flipUp(false);
@@ -1426,16 +1403,10 @@ class CardContainer {
           console.error('cannot find', suit, ord, 'in stock');
           return;
         }
+        this.push(c);
+        break; // this will be the only thing in this.a_deal
       } else {
         console.error('unexpected character in deal', ch);
-      }
-
-      this.push(c);
-
-      if ( 'd' === ch ) {
-        c.flipDown(false);
-      // } else if ( 'u' === ch ) {
-      //   // popping off stock flips card up automatically
       }
     }
 
@@ -1710,7 +1681,7 @@ class Reserve extends CardContainer {
     if ( 0 === this.cards.length )
       this.resetStackFactor_(rules.Reserve);
 
-    const ptNew = Util.newPoint(c.pt);
+    const ptNew = Util.newPoint(this.pt);
     if ( rules.Reserve.fan === 'Down' )
       ptNew.y = this.dynamicY_();
     else if ( rules.Reserve.fan === 'Right' )
@@ -2230,7 +2201,7 @@ class StockCruel extends Stock
       for ( let j=0; j<tab.cards.length; j++ ) {
         const c = tab.cards[j];
         c.owner = tab;
-        c.bringToTop();
+        baize.elevateCard(c);
         if ( rules.Tableau.fan === 'Down' )
           c.animate(Util.newPoint(tab.pt.x, tab.dynamicY_(j)));
         else if ( rules.Tableau.fan === 'Right' )
@@ -3526,7 +3497,7 @@ function restart(seed) {
   });
 
   stock.sort(seed);
-  stock.cards.forEach( c => c.bringToTop() ); // TODO what does this really do?
+  stock.cards.forEach( c => baize.elevateCard(c) );
   stock.redeals = rules.Stock.redeals; // could be null
   undo.length = 0;
   tallyMan.reset();
@@ -3573,7 +3544,6 @@ function doload() {
 
   if ( stats[rules.Name].saved ) {
     // console.log('loading', stats[rules.Name].saved);
-    ghostCards.length = 0;
     for ( let i=0; i<cardContainers.length; i++ ) {
       cardContainers[i].load(stats[rules.Name].saved.containers[i]);
     }
@@ -3850,6 +3820,7 @@ if ( !stats[rules.Name].bestStreak )    stats[rules.Name].bestStreak = 0;
 if ( !stats[rules.Name].worstStreak )   stats[rules.Name].worstStreak = 0;
 
 stats.Options.lastGame = window.location.pathname.split('/').pop();
+stats.Options.lastVersion = Constants.GAME_VERSION;
 
 const stocks = /** @type {Array<Stock>} */ (linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]));
 const stock = stocks[0];
@@ -3882,21 +3853,11 @@ window.onbeforeunload = function(e) {
 };
 
 const someCardsInTransit = () => {
-  // TODO - why doesn't this work?
-  // let n = 0;
-  // cardContainers.forEach( cc => {
-  //   cc.cards.forEach( c => n += c.animationIds.length );
-  // });
-  // if ( n )
-  //   console.log(n, 'cc cards waiting');
-  //   if ( cc.cards.some( c => c.animationIds.length ) )
-  //     return true;
-  // });
-  // return false;
-  const arr = ghostCards.filter( c => c.animationIds.length );
-  if ( arr.length )
-    console.log(arr.length, 'ghost cards waiting');
-  return ghostCards.some( c => c.animationIds.length );
+  for ( let cc of cardContainers ) {
+    if ( cc.cards.some( c => c.animationIds.length ) )
+      return true;
+  }
+  return false;
 };
 
 /**

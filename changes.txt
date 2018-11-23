@@ -1,3 +1,7 @@
+23/11/2018
+refactoring
+retired ghostCards
+
 21/11/2018
 refactoring of CardContainer.push()
 retired FoundationGolf, added rules.Foundation.maxfan
