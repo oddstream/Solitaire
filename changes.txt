@@ -1,3 +1,7 @@
+24/11/2018
+retired undo flip
+added Card.shake (ok, ok, I was looking at the Microsoft game)
+
 23/11/2018
 refactoring
 retired ghostCards

@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.23.0',
+  GAME_VERSION: '0.11.24.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -93,7 +93,6 @@ const Util = {
   },
 
   /**
-   * 
    * @param {SVGPoint} ptDst 
    * @param {SVGPoint} ptSrc 
    */
@@ -109,13 +108,14 @@ const Util = {
   /**
    * @param {SVGPoint} pt1
    * @param {SVGPoint} pt2
+   * @param {number} slack
    * @returns {boolean}
    */
-  nearlySamePoint: function(pt1, pt2) {
-    const xMin = pt1.x - 4;
-    const xMax = pt1.x + 4;
-    const yMin = pt1.y - 4;
-    const yMax = pt1.y + 4;
+  nearlySamePoint: function(pt1, pt2, slack) {
+    const xMin = pt1.x - slack;
+    const xMax = pt1.x + slack;
+    const yMin = pt1.y - slack;
+    const yMax = pt1.y + slack;
     return ( pt2.x > xMin && pt2.x < xMax && pt2.y > yMin && pt2.y < yMax );
   },
 
@@ -604,7 +604,7 @@ class Card {
 
     this.grabbedTail = this.owner.canGrab(this);
     if ( !this.grabbedTail ) {
-      console.log('cannot grab', this.id);
+      this.shake();
       return false;
     }
 
@@ -676,7 +676,7 @@ class Card {
       ptNew.x - this.ptOffset.x,
       ptNew.y - this.ptOffset.y
     );
-    if ( Util.nearlySamePoint(ptNewCard, this.ptOriginal) ) {
+    if ( Util.nearlySamePoint(ptNewCard, this.ptOriginal, 4) ) {
       // console.log('nearly same point', ptNewCard, this.ptOriginal);
       this.grabbedTail.forEach( c => {
         c.position0(c.ptOriginal.x, c.ptOriginal.y);
@@ -715,32 +715,26 @@ class Card {
   }
 
   /**
-   * @param {boolean} undoable
    */
-  flipUp(undoable) {
+  flipUp() {
     if ( this.faceDown ) {
       this.faceDown = false;
       while ( this.g.hasChildNodes() )
         this.g.removeChild(this.g.lastChild);
       this.putRectInG_();
-      if ( undoable )
-        undoPushFlip(this, 'up');
     } else {
       console.warn(this.id, 'is already up');
     }
   }
 
   /**
-   * @param {boolean} undoable (always false, because user can't flip down a card)
    */
-  flipDown(undoable) {
+  flipDown() {
     if ( !this.faceDown ) {
       this.faceDown = true;
       while ( this.g.hasChildNodes() )
         this.g.removeChild(this.g.lastChild);
       this.putRectInG_();
-      if ( undoable )
-        undoPushFlip(this, 'down');
     } else {
       console.warn(this.id, 'is already down');
     }
@@ -828,6 +822,30 @@ class Card {
     } else {
       // console.log('no need to animate', this.id);
     }
+  }
+
+  /**
+   * 
+   */
+  shake() {
+    const shake_ = (timestamp) => {
+      if ( --shakes > 0 ) {
+        let x = (shakes % 2) ? this.pt.x + shakes : this.pt.x - shakes;
+        this.g.setAttributeNS(null, 'transform', `translate(${x} ${this.pt.y})`);
+        this.animationIds.push(window.requestAnimationFrame(shake_));
+      } else {
+        this.position0();
+        this.animationIds.length = 0;
+      }
+    }
+
+    if ( this.animationIds.length ) {
+      waitForCard(this)
+      // .then( (value) => console.log(`waited ${Math.round(value)} for ${this.id}`) )
+      .catch( (reason) => console.log(reason) );
+    }
+    let shakes = 8;
+    this.animationIds.push(window.requestAnimationFrame(shake_));
   }
 
   /**
@@ -927,6 +945,19 @@ class Card {
   }
 
   /**
+   * @param {Array} ccListList 
+   * @returns {CardContainer|null} 
+   */
+  findFullestAcceptingContainerList(ccListList) {
+    ccListList.forEach( ccList => {
+      const cc = this.findFullestAcceptingContainer(ccList);
+      if ( cc )
+        return cc;
+    });
+    return null;
+  }
+
+  /**
    * Get a shallow copy of tail from this card to end of stack
    * @returns {!Array<Card>} 
    */
@@ -1004,16 +1035,6 @@ function undoPushMove(f, t, c) {
   }
 }
 
-/**
- * @param {!Card} c
- * @param {!string} di flip direction - up or down
- */
-function undoPushFlip(c, di) {
-  if ( !undoing ) {
-    undo.push({move:tallyMan.count, flip:c.id, dir:di});
-  }
-}
-
 function doundo() {
   if ( 0 === undo.length ) {
     displayToast('nothing to undo');
@@ -1026,7 +1047,7 @@ function doundo() {
   const ua = undo.filter( e => e.move === m );  // not .reverse()
 
   while ( ua.length ) {
-    const u = ua.pop();       // console.log('undo', u);
+    const u = ua.pop();
 
     if ( u.hasOwnProperty('from') && u.hasOwnProperty('to') ) {
       const src = cardContainers[u.from];
@@ -1045,25 +1066,16 @@ function doundo() {
         // console.log(c, 'going from', dst, 'to', src);
         src.push(c);
       }
-    } else if ( (u.hasOwnProperty('turn') || u.hasOwnProperty('flip')) && u.hasOwnProperty('dir') ) {
-      const c = Util.id2Card(u.hasOwnProperty('flip') ? u.flip : u.turn);
-      if ( u.dir === 'up' ) {
-        c.flipDown(false);
-      } else if ( u.dir === 'down' ) {
-        c.flipUp(false);
-      } else {
-        debugger;
-      }
     } else {
-      debugger;
+      console.error('unknown undo', u);
     }
   }
   undo = undo.filter( e => e.move !== m );
   undoing = false;
 
-  // robot will cause an autoMove/autoCollect loop
+  // calling robot() here will cause an autoMove/autoCollect loop
   scrunchContainers();
-  availableMoves();   // repaint moveable cards
+  availableMoves(); // repaint moveable cards
 }
 
 class CardContainer {
@@ -1373,7 +1385,7 @@ class CardContainer {
       } else if ( 'dD'.includes(ch) ) {
         if ( c = stock.pop() ) { // StockFan
           this.push(c);
-          c.flipDown(false);
+          c.flipDown();
         }
       } else if ( 'pP'.includes(ch) ) {
         /*
@@ -1384,7 +1396,7 @@ class CardContainer {
         if ( c = stock.pop() ) {
           const stock3 = stock.cards.filter( sc => sc.ordinal === c.ordinal );
           console.assert(stock3.length===3);
-          stock3.forEach( sc => sc.flipUp(false) );
+          stock3.forEach( sc => sc.flipUp() );
           stock.cards = stock.cards.filter( sc => sc.ordinal !== c.ordinal );
           for ( let i=0; i<stock3.length; i++ )
             foundations[i].push(stock3[i]);
@@ -1398,7 +1410,7 @@ class CardContainer {
         // i = this.a_deal.length;     // to break out of loop
         if ( idx > -1 ) {
           c = stock.cards.splice(idx, 1)[0];  // returns an array of deleted items
-          c.flipUp(false);
+          c.flipUp();
         } else {
           console.error('cannot find', suit, ord, 'in stock');
           return;
@@ -1582,8 +1594,11 @@ class Cell extends CardContainer {
     cc = c.findFullestAcceptingContainer(foundations);
     if ( !cc )
       cc = c.findFullestAcceptingContainer(tableaux);
+    // const cc = c.findFullestAcceptingContainerList([foundations,tableaux]);
     if ( cc )
       c.moveTop(cc);
+    else
+      c.shake();
   }
 
   /**
@@ -1698,7 +1713,7 @@ class Reserve extends CardContainer {
     const c = super.pop();
     const cExposed = this.peek();
     if ( cExposed && cExposed.faceDown ) {
-      cExposed.flipUp(false);  // TODO defer this flip until after any move
+      cExposed.flipUp();  // TODO defer this flip until after any move
     }
     return c;
   }
@@ -1720,8 +1735,11 @@ class Reserve extends CardContainer {
     cc = c.findFullestAcceptingContainer(foundations);
     if ( !cc )
       cc = c.findFullestAcceptingContainer(tableaux);
+    // const cc = c.findFullestAcceptingContainerList([foundations,tableaux]);
     if ( cc )
       c.moveTop(cc);
+    else
+      c.shake();
   }
 
   /**
@@ -1789,7 +1807,7 @@ class ReserveFrog extends Reserve {
       const idx = stock.cards.findIndex( c => 1 === c.ordinal );
       const c = stock.cards.splice(idx, 1)[0];    // returns array of deleted items
       foundations[0].push(c);
-      c.flipUp(false);
+      c.flipUp();
     }
   }
 }
@@ -1806,7 +1824,7 @@ class Stock extends CardContainer {
       this.g.style.display = 'none';
     }
 
-    /** number */this.redeals = rules.Stock.redeals;
+    this.redeals = rules.Stock.redeals;
     // this.updateRedealsSVG_();
 
     g.onclick = this.clickOnEmpty.bind(this);
@@ -1819,10 +1837,10 @@ class Stock extends CardContainer {
    * @private
    */
   createPacks_() {
-    for ( let ord=1; ord<Constants.cardValues.length; ord++ ) {
+    for ( let o=1; o<Constants.cardValues.length; o++ ) {
       for ( let p=0; p<rules.Stock.packs; p++ ) {
         for ( let s of rules.Stock.suitfilter ) { // defaults to '♠♥♦♣'
-          const c = new Card(p, s, ord, true, this.pt); // created on top of stock container
+          const c = new Card(p, s, o, true, this.pt); // created on top of stock container
           c.owner = this;
           this.cards.push(c);
         }
@@ -1851,16 +1869,10 @@ class Stock extends CardContainer {
    */
   updateRedealsSVG_() {
     // g has rect and text children
-    let txt = this.g.querySelector('text');
+    const txt = this.g.querySelector('text');
     if ( txt ) {
-      if ( 0 === this.redeals )
-      // if ( 0 === this.cards.length && 0 === this.redeals )
-      // if ( this.redealsAvailable() )
-        txt.innerHTML = '';
-      else
-        txt.innerHTML = Constants.REDEALS_SYMBOL;
+      txt.innerHTML = this.redealsAvailable() ? Constants.REDEALS_SYMBOL : '';
     }
-    // else we don't have a redeals indicator
   }
 
   /**
@@ -1870,7 +1882,7 @@ class Stock extends CardContainer {
   pop() {
     const c = super.pop();
     if ( c && c.faceDown )
-      c.flipUp(false);    // automatic
+      c.flipUp(); // automatic
     if ( 0 === this.cards.length ) {
       this.updateRedealsSVG_();
     }
@@ -1884,7 +1896,7 @@ class Stock extends CardContainer {
   push(c) {
     super.push(c);
     if ( !c.faceDown )
-      c.flipDown(false);  // automatic
+      c.flipDown(); // automatic
   }
 
   /**
@@ -2271,7 +2283,7 @@ class StockFan extends Stock {
         c.owner = stock;
         // all fan games are all face up?
         // if ( !c.faceDown )
-        //     c.flipDown(false);
+        //     c.flipDown();
         c.position0(stock.pt.x, stock.pt.y);
       });
 
@@ -2356,7 +2368,7 @@ class Waste extends CardContainer {
     }
     super.push(c, ptNew);
     if ( c.faceDown )
-      c.flipUp(false); // automatic
+      c.flipUp(); // automatic
   }
 
   /**
@@ -2404,9 +2416,11 @@ class Waste extends CardContainer {
       cc = c.findFullestAcceptingContainer(tableaux);
     if ( !cc )
       cc = c.findFullestAcceptingContainer(cells);      // Carpet
-    if ( cc ) {
+    // const cc = c.findFullestAcceptingContainerList([foundations,tableaux,cells]);
+    if ( cc )
       c.moveTop(cc);
-    }
+    else
+      c.shake();
   }
 
   /**
@@ -2514,9 +2528,11 @@ class Foundation extends CardContainer {
       return;
     if ( !stats.Options.autoPlay )
       return;
-    let cc = c.findFullestAcceptingContainer(tableaux);
+    const cc = c.findFullestAcceptingContainer(tableaux);
     if ( cc )
       c.moveTop(cc);
+    else
+      c.shake();
   }
 
   /**
@@ -2873,7 +2889,7 @@ class Tableau extends CardContainer {
     const c = super.pop();
     const cExposed = this.peek();
     if ( cExposed && cExposed.faceDown ) {
-      cExposed.flipUp(false);  // TODO defer this flip until after any move
+      cExposed.flipUp(); // TODO defer this flip until after any move
     }
     return c;
   }
@@ -2941,6 +2957,8 @@ class Tableau extends CardContainer {
       cc = c.findFullestAcceptingContainer(cells);
     if ( cc )
       c.moveTail(cc);
+    else
+      c.shake();
   }
 
   /**
@@ -3102,7 +3120,7 @@ class TableauCanfield extends TableauTail {
   }
 }
 
-class TableauSpider extends TableauTail {   
+class TableauSpider extends TableauTail {
   // override to click on a conformant stack to move to foundation
   /**
    * @override
@@ -3122,8 +3140,11 @@ class TableauSpider extends TableauTail {
     let cc = c.findFullestAcceptingContainer(foundations);
     if ( !cc )
       cc = c.findFullestAcceptingContainer(tableaux);
+    // const cc = c.findFullestAcceptingContainerList([foundations,tableaux]);
     if ( cc )
       c.moveTail(cc);
+    else
+      c.shake();
   }
 }
 
@@ -3225,6 +3246,8 @@ class TableauGolf extends Tableau {
     if ( c.isTopCard() ) {
       if ( foundations[0].canAcceptCard(c) ) {
         c.moveTop(foundations[0]);
+      } else {
+        c.shake();
       }
     }
   }
@@ -3492,7 +3515,7 @@ function restart(seed) {
   stock.cards.forEach( c => {
     c.owner = stock;
     if ( !c.faceDown )
-      c.flipDown(false);
+      c.flipDown();
     c.position0(stock.pt.x, stock.pt.y);
   });
 
