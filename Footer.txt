@@ -33,8 +33,8 @@
 <div id="modalStatistics" class="modal">
     <div class="modal-content">
       <h4 class="noselect">Statistics<a class="modal-close right noselect hide-on-small-only"><i class="material-icons">close</i></a></h4>
-      <p id="gamesPlayedStats"></p>
       <p id="thisGameStats"></p>
+      <p id="gamesPlayedStats"></p>
       <p id="gamesStreakStats"></p>
       <p id="gamesTotalStats"></p>
       <a class="modal-close noselect" onclick="areYouSure('dostatsreset')">reset statistics for this game</a>

@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Solitaire',
-  GAME_VERSION: '0.11.24.0',
+  GAME_VERSION: '0.11.26.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
@@ -844,7 +844,7 @@ class Card {
       // .then( (value) => console.log(`waited ${Math.round(value)} for ${this.id}`) )
       .catch( (reason) => console.log(reason) );
     }
-    let shakes = 8;
+    let shakes = 6;
     this.animationIds.push(window.requestAnimationFrame(shake_));
   }
 
@@ -945,7 +945,7 @@ class Card {
   }
 
   /**
-   * @param {Array} ccListList 
+   * @param {Array} ccListList array of container arrays
    * @returns {CardContainer|null} 
    */
   findFullestAcceptingContainerList(ccListList) {
@@ -974,11 +974,11 @@ class Card {
   }
 
   /**
-   * Mark this card moveable
-   * (odd logic because modalSettings may turn flag on/off)
-   * @param {boolean} moveable 
+   * Mark this card moveable/unmoveable
+   * (odd logic because modalSettings may turn sensory cues flag on/off)
+   * @param {CardContainer} ccDst 
    */
-  markMoveable(moveable) {
+  markMoveable(ccDst=null) {
     if ( this.faceDown )
       return;
     if ( this.g.firstChild.localName !== 'rect' )
@@ -986,10 +986,12 @@ class Card {
     const cl = this.g.firstChild.classList;
     const UN = 'unmoveable';
     if ( stats.Options.sensoryCues ) {
-      if ( moveable )
+      if ( ccDst ) {
+        console.assert(!(ccDst instanceof Cell));
         cl.remove(UN);
-      else
-        cl.add(UN);     // ignored if class already there
+      } else {
+        cl.add(UN); // ignored if class already there
+      }
     } else {
       cl.remove(UN);
     }
@@ -1276,7 +1278,8 @@ class CardContainer {
           // moving empty cell/tab to empty cell/tab - legal but not useful
         } else {
           count += 1;
-          c.markMoveable(true);
+          if ( !(dst instanceof Cell) )
+            c.markMoveable(dst);
         }
       }
     }
@@ -1307,7 +1310,7 @@ class CardContainer {
     let count = 0;
     this.cards.forEach( c => {
       // console.assert(!c.faceDown);
-      c.markMoveable(false);
+      c.markMoveable();
       if ( !c.faceDown && this.canGrab(c) ) {
         count += this.availableMovesForThisCard_(c);
       }
@@ -1319,17 +1322,18 @@ class CardContainer {
    * @private
    * @returns {number}
    */
-  avilableMovesStackAll_() {
+  availableMovesStackAll_() {
     // used by Stock, Waste
     let count = 0;
     this.cards.forEach( c => {
-      c.markMoveable(false);
+      c.markMoveable();
       cardContainers.forEach( dst => {
         if ( dst !== this ) {
           const oldFaceDown = c.faceDown;
           c.faceDown = false;
           if ( c.owner.canTarget(dst) && dst.canAcceptCard(c) ) {
-            c.markMoveable(true);
+            if ( !(dst instanceof Cell) )
+              c.markMoveable(dst);
             count++;
           }
           c.faceDown = oldFaceDown;
@@ -1344,7 +1348,7 @@ class CardContainer {
    */
   availableMoves() {
     // default just test top card; can be overridden by derived classes
-    this.cards.forEach( c => c.markMoveable(false) );
+    this.cards.forEach( c => c.markMoveable() );
     return this.availableMovesTopCard_();
   }
 
@@ -1583,6 +1587,15 @@ class CardContainer {
 
 class Cell extends CardContainer {
   /**
+   * @param {SVGPoint} pt
+   * @param {SVGGElement} g
+   */
+  constructor(pt, g) {
+    super(pt, g);
+    this.rules = rules.Cell;
+  }
+
+  /**
    * @override
    * @param {Card} c 
    */
@@ -1618,9 +1631,9 @@ class Cell extends CardContainer {
    * @returns {boolean} 
    */
   canTarget(cc) {
-    if ( null === rules.Cell.target )
+    if ( null === this.rules.target )
       return true;
-    return ( rules.Cell.target === cc.constructor.name );
+    return ( this.rules.target === cc.constructor.name );
   }
 
   /**
@@ -1640,16 +1653,6 @@ class Cell extends CardContainer {
 }
 
 class CellCarpet extends Cell {
-  /**
-   * @override
-   * @returns {number}
-   */
-  availableMoves() {
-    // TODO total fudge
-    this.cards.forEach( c => c.markMoveable(true) );
-    return this.cards.length;
-  }
-
   /**
    * @override
    */
@@ -1684,7 +1687,8 @@ class Reserve extends CardContainer {
    */
   constructor(pt, g) {
     super(pt, g);
-    this.resetStackFactor_(rules.Reserve);
+    this.rules = rules.Reserve;
+    this.resetStackFactor_(this.rules);
   }
 
   /**
@@ -1694,12 +1698,12 @@ class Reserve extends CardContainer {
   push(c) {
     // DRY same as Tableau.push
     if ( 0 === this.cards.length )
-      this.resetStackFactor_(rules.Reserve);
+      this.resetStackFactor_(this.rules);
 
     const ptNew = Util.newPoint(this.pt);
-    if ( rules.Reserve.fan === 'Down' )
+    if ( this.rules.fan === 'Down' )
       ptNew.y = this.dynamicY_();
-    else if ( rules.Reserve.fan === 'Right' )
+    else if ( this.rules.fan === 'Right' )
       ptNew.x = this.dynamicX_();
 
     super.push(c, ptNew);
@@ -1757,9 +1761,9 @@ class Reserve extends CardContainer {
    * @returns {boolean} 
    */
   canTarget(cc) {
-    if ( null === rules.Reserve.target )
+    if ( null === this.rules.target )
       return true;
-    return ( rules.Reserve.target === cc.constructor.name );
+    return ( this.rules.target === cc.constructor.name );
   }
 
   /**
@@ -1820,11 +1824,12 @@ class Stock extends CardContainer {
   constructor(pt, g) {
     super(pt, g);
 
-    if ( rules.Stock.hidden ) {
+    this.rules = rules.Stock;
+    if ( this.rules.hidden ) {
       this.g.style.display = 'none';
     }
 
-    this.redeals = rules.Stock.redeals;
+    this.redeals = this.rules.redeals;
     // this.updateRedealsSVG_();
 
     g.onclick = this.clickOnEmpty.bind(this);
@@ -1838,15 +1843,15 @@ class Stock extends CardContainer {
    */
   createPacks_() {
     for ( let o=1; o<Constants.cardValues.length; o++ ) {
-      for ( let p=0; p<rules.Stock.packs; p++ ) {
-        for ( let s of rules.Stock.suitfilter ) { // defaults to '♠♥♦♣'
+      for ( let p=0; p<this.rules.packs; p++ ) {
+        for ( let s of this.rules.suitfilter ) { // defaults to '♠♥♦♣'
           const c = new Card(p, s, o, true, this.pt); // created on top of stock container
           c.owner = this;
           this.cards.push(c);
         }
       }
     }
-    if ( this.cards.length !== (rules.Stock.packs*52) ) { console.warn(this.cards.length, ' cards in pack'); }
+    if ( this.cards.length !== (this.rules.packs*52) ) { console.warn(this.cards.length, ' cards in pack'); }
     this.sort();
     this.cards.forEach( c => baize.ele.appendChild(c.g) );
   }
@@ -1947,9 +1952,9 @@ class Stock extends CardContainer {
    */
   canTarget(cc) {
     // override base class to implement
-    if ( null === rules.Stock.target )
+    if ( null === this.rules.target )
       return true;
-    return ( rules.Stock.target === cc.constructor.name );
+    return ( this.rules.target === cc.constructor.name );
   }
 
   /**
@@ -1965,7 +1970,7 @@ class Stock extends CardContainer {
    * @returns {number}
    */
   availableMoves() {
-    return this.avilableMovesStackAll_();
+    return this.availableMovesStackAll_();
   }
 
   /**
@@ -1973,18 +1978,16 @@ class Stock extends CardContainer {
    * @returns {string}
    */
   english() {
-    let r = '';
-    if ( null === rules.Stock.redeals )
-      r = 'The stock can be redealt any number of times';
-    else if ( Number.isInteger(rules.Stock.redeals) && rules.Stock.redeals > 0 )
-      r = `The stock can be redealt ${Util.plural(rules.Stock.redeals, 'time')}`;
-    else
-      r = 'The stock cannot be redealt';
-
-    if ( rules.Stock.hidden )
-      return `The game uses ${Util.plural(rules.Stock.packs, 'pack')} of cards.`;
-    else
-      return `Stock ${countInstances(Stock)}. The stock is made from ${Util.plural(rules.Stock.packs, 'pack')} of cards. ${r}.`;
+    let r = `The game uses ${Util.plural(this.rules.packs, 'pack')} of cards.`;
+    if ( !this.rules.hidden ) {
+      if ( null === this.rules.redeals )
+        r += ' The stock can be redealt any number of times.';
+      else if ( Number.isInteger(this.rules.redeals) && this.rules.redeals > 0 )
+        r += ` The stock can be redealt ${Util.plural(this.rules.redeals, 'time')}.`;
+      else
+        r += ' The stock cannot be redealt.';
+    }
+    return r;
   }
 }
 
@@ -2004,10 +2007,10 @@ class StockKlondike extends Stock {
    * @param {Card} c 
    */
   onclick(c) {
-    // override to move 1 or 3 cards at once to waste
+    // override to move 1 or 3 cards at once to waste; kludge (rule peeking)
     if ( Number.isInteger(rules.Waste.maxcards) && !(waste.cards.length < rules.Waste.maxcards) )
       return;
-    c.moveSome(waste, rules.Stock.cards);
+    c.moveSome(waste, this.rules.cards);
   }
 
   /**
@@ -2016,7 +2019,7 @@ class StockKlondike extends Stock {
    */
   english() {
     let e = super.english();
-    return `${e} Clicking on the stock will transfer ${Util.plural(rules.Stock.cards, 'card')} to the waste stack.`;
+    return `${e} Clicking on the stock will transfer ${Util.plural(this.rules.cards, 'card')} to the waste stack.`;
   }
 }
 
@@ -2330,6 +2333,14 @@ class StockFan extends Stock {
 
 class Waste extends CardContainer {
   /**
+   * @param {SVGPoint} pt
+   * @param {SVGGElement} g
+   */
+  constructor(pt, g) {
+    super(pt, g);
+    this.rules = rules.Waste;
+  }
+  /**
    * @private
    * @returns {number}
    */
@@ -2428,9 +2439,10 @@ class Waste extends CardContainer {
    * @param {Card} c 
    */
   canAcceptCard(c) {
-    if ( Number.isInteger(rules.Waste.maxcards) && !(this.cards.length < rules.Waste.maxcards) )
+    if ( Number.isInteger(this.rules.maxcards) && !(this.cards.length < this.rules.maxcards) )
       return false;
-    return (c.owner instanceof Stock) && (1 === rules.Stock.cards);
+    // waste can accept a dragged card only from stock
+    return (c.owner instanceof Stock) && (1 === rules.Stock.cards); // TODO kludge (rule peeking)
   }
 
   /**
@@ -2439,9 +2451,9 @@ class Waste extends CardContainer {
    * @returns {boolean} 
    */
   canTarget(cc) {
-    if ( null === rules.Waste.target )
+    if ( null === this.rules.target )
       return true;
-    return ( rules.Waste.target === cc.constructor.name );
+    return ( this.rules.target === cc.constructor.name );
   }
 
   /**
@@ -2458,7 +2470,7 @@ class Waste extends CardContainer {
    */
   availableMoves() {
     if ( stock.redeals === null || stock.redeals > 0 )
-      return this.avilableMovesStackAll_();
+      return this.availableMovesStackAll_();
     else
       return super.availableMoves();   // just the top card
   }
@@ -2549,7 +2561,7 @@ class Foundation extends CardContainer {
    */
   availableMoves() {
     // override - we don't allow play from foundation
-    this.cards.forEach( c => c.markMoveable(false) );
+    this.cards.forEach( c => c.markMoveable() );
     return 0;
   }
 
@@ -2653,7 +2665,7 @@ class Foundation extends CardContainer {
 
   scatterNone() {
     function scat() {
-      this.markMoveable(true);
+      this.markMoveable(foundations[0]);
     }
 
     this.cards.forEach ( c => window.setTimeout(scat.bind(c), 500) );
@@ -2661,7 +2673,7 @@ class Foundation extends CardContainer {
 
   scatterCircle() {
     function scat() {
-      this.markMoveable(true);
+      this.markMoveable(foundations[0]);
       let angle = this.owner.cards.indexOf(this) * (360 / this.owner.cards.length);
       angle = Math.PI * angle / 180;
       const radius = 150;
@@ -2676,7 +2688,7 @@ class Foundation extends CardContainer {
 
   scatterDown() {
     function scat() {
-      this.markMoveable(true);
+      this.markMoveable(foundations[0]);
       const pt = Util.newPoint(
         this.pt.x,
         this.pt.y + ((this.ordinal-1) * Math.round(Constants.CARD_HEIGHT/3)));
@@ -2688,7 +2700,7 @@ class Foundation extends CardContainer {
 
   scatterLeft() {
     function scat() {
-      this.markMoveable(true);
+      this.markMoveable(foundations[0]);
       const pt = Util.newPoint(
         this.pt.x - ((this.ordinal-1) * Math.round(Constants.CARD_WIDTH/2)),
         this.pt.y);
@@ -2702,7 +2714,7 @@ class Foundation extends CardContainer {
 
   scatterRight() {
     function scat() {
-      this.markMoveable(true);
+      this.markMoveable(foundations[0]);
       const pt = Util.newPoint(
         this.pt.x + ((this.ordinal-1) * Math.round(Constants.CARD_WIDTH/2)),
         this.pt.y);
@@ -2858,10 +2870,11 @@ class Tableau extends CardContainer {
    */
   constructor(pt, g) {
     super(pt, g);
-    this.resetStackFactor_(rules.Tableau);
-    if ( 0 === this.a_accept && rules.Tableau.accept )
+    this.rules = rules.Tableau;
+    this.resetStackFactor_(this.rules);
+    if ( 0 === this.a_accept && this.rules.accept )
     {   // accept not specified in guts, so we use rules
-      this.a_accept = rules.Tableau.accept;
+      this.a_accept = this.rules.accept;
       this.createAcceptSVG_();
     }
   }
@@ -2872,12 +2885,12 @@ class Tableau extends CardContainer {
    */
   push(c) {   // DRY same as Reserve.push
     if ( 0 === this.cards.length )
-      this.resetStackFactor_(rules.Tableau);
+      this.resetStackFactor_(this.rules);
 
     const ptNew = Util.newPoint(this.pt);
-    if ( rules.Tableau.fan === 'Down' )
+    if ( this.rules.fan === 'Down' )
       ptNew.y = this.dynamicY_();
-    else if ( rules.Tableau.fan === 'Right' )
+    else if ( this.rules.fan === 'Right' )
       ptNew.x = this.dynamicX_();
     super.push(c, ptNew);
   }
@@ -2902,7 +2915,7 @@ class Tableau extends CardContainer {
   canAcceptCard(c) {
     let accept = true;
 
-    if ( Number.isInteger(rules.Tableau.maxcards) && !(this.cards.length < rules.Tableau.maxcards) ) {
+    if ( Number.isInteger(this.rules.maxcards) && !(this.cards.length < this.rules.maxcards) ) {
       accept = false;
     } else if ( c.owner === this ) {
       accept = false;
@@ -2917,7 +2930,7 @@ class Tableau extends CardContainer {
           accept = ( c.ordinal === this.a_accept );
         }
       } else {
-        accept = isConformant0(rules.Tableau.build, tc, c);
+        accept = isConformant0(this.rules.build, tc, c);
       }
     }
     return accept;
@@ -2929,9 +2942,9 @@ class Tableau extends CardContainer {
    * @returns {boolean}
    */
   canTarget(cc) {
-    if ( null === rules.Tableau.target )
+    if ( null === this.rules.target )
       return true;
-    return ( rules.Tableau.target === cc.constructor.name );
+    return ( this.rules.target === cc.constructor.name );
   }
 
   /**
@@ -2967,7 +2980,7 @@ class Tableau extends CardContainer {
    */
   isSolveable() {
     if ( this.cards.length )
-      return isConformant(rules.Tableau.build, this.cards);
+      return isConformant(this.rules.build, this.cards);
     else
       return true;
   }
@@ -2978,14 +2991,14 @@ class Tableau extends CardContainer {
    */
   english() {
     let r = '';
-    if ( rules.Tableau.build.suit === rules.Tableau.move.suit
-      && rules.Tableau.build.rank === rules.Tableau.move.rank )
-      r = `Tableau ${countInstances(Tableau)}. Build ${englishRules(rules.Tableau.build)}.`;
+    if ( this.rules.build.suit === this.rules.move.suit
+      && this.rules.build.rank === this.rules.move.rank )
+      r = `Tableau ${countInstances(Tableau)}. Build ${englishRules(this.rules.build)}.`;
     else
-      r = `Tableau ${countInstances(Tableau)}. Build ${englishRules(rules.Tableau.build)}. Move sequences ${englishRules(rules.Tableau.move)}.`;
+      r = `Tableau ${countInstances(Tableau)}. Build ${englishRules(this.rules.build)}. Move sequences ${englishRules(this.rules.move)}.`;
 
-    if ( rules.Tableau.bury )
-      r += ` At the start, ${Constants.cardValuesEnglish[rules.Tableau.bury]}s are moved to the bottom of the tableau.`;
+    if ( this.rules.bury )
+      r += ` At the start, ${Constants.cardValuesEnglish[this.rules.bury]}s are moved to the bottom of the tableau.`;
 
     if ( tableaux[0].a_accept === Constants.ACCEPT_NOTHING_SYMBOL )
       r += ' Cards may not be placed in an empty tableau.';
@@ -3007,7 +3020,7 @@ class TableauTail extends Tableau {
    */
   canGrab(c) {
     const tail = c.getTail();
-    if ( isConformant(rules.Tableau.move, tail) )
+    if ( isConformant(this.rules.move, tail) )
       return tail;
     return null;
   }
@@ -3181,7 +3194,7 @@ class TableauFreecell extends Tableau {
    */
   canGrab(c) {
     const tail = c.getTail();
-    if ( !isConformant(rules.Tableau.move, tail) ) {
+    if ( !isConformant(this.rules.move, tail) ) {
       // console.warn('tail is not conformant');
       return null;
     }
@@ -3257,11 +3270,11 @@ class TableauGolf extends Tableau {
    * @returns {number}
    */
   availableMoves() {
-    this.cards.forEach( c => c.markMoveable(false) );
+    this.cards.forEach( c => c.markMoveable() );
 
     const c = this.peek();
     if ( c && foundations[0].canAcceptCard(c) ) {
-      c.markMoveable(true);
+      c.markMoveable(foundations[0]);
       return 1;
     }
     return 0;
@@ -3275,6 +3288,7 @@ class TableauGolf extends Tableau {
 function linkClasses(src) {
   const /** Array<CardContainer> */dst = [];
   src.forEach ( e => {
+    // window[e] = e; // export for --compilation_level ADVANCED_OPTIMIZATIONS 
     document.querySelectorAll('g.' + e.name).forEach( g => {
       // g contains a rect, the rect contains x,y attributes in SVG coords
       const r = g.querySelector('rect');
@@ -3555,7 +3569,7 @@ function dosave() {
   stats[rules.Name].saved = new Saved();
   try {
     localStorage.setItem(Constants.GAME_NAME, JSON.stringify(stats));
-    displayToast('position saved');
+    displayToast('this position saved');
   } catch(e) {
     console.error(e);
   }
@@ -3621,12 +3635,8 @@ modalSettings.options.onCloseEnd = function() {
 
 const modalStatistics = M.Modal.getInstance(document.getElementById('modalStatistics'));
 modalStatistics.options.onOpenStart = function() {
-  document.getElementById('gamesPlayedStats').innerHTML = stats[rules.Name].totalGames === 0
-    ? `You've not played ${rules.Name} before`
-    : `You've played ${rules.Name} ${stats[rules.Name].totalGames} times, and won ${stats[rules.Name].gamesWon} (${Math.round(stats[rules.Name].gamesWon/stats[rules.Name].totalGames*100)}%)`;
-
   {
-    let s = `In this game (number ${stats[rules.Name].seed}) you've made `;
+    let s = `In this game of ${rules.Name} (number ${stats[rules.Name].seed}) you've made `;
     s += Util.plural(tallyMan.count, 'move');
     s += ', there are ';
     s += Util.plural(availableMoves(), 'available move');
@@ -3638,22 +3648,22 @@ modalStatistics.options.onOpenStart = function() {
       s += ', ';
       s += Util.plural(waste.cards.length, 'waste card');
     }
-    let n = 0, c = 0;
-    foundations.forEach( f => {
-      n += f.cards.length;
-      if ( stock instanceof StockGolf ) // TODO ugly kludge
-        c += 52;
-      else
-        c += 13;    // TODO Grandfather's Clock
-    });
-    s += `, and ${Math.round(n/c*100)}% of the foundation is complete`;
+    /*
+      used to calculate % of foundation complete here
+      but the calculation gets kludgey with Grandfather's Clock and Golf
+    */
     document.getElementById('thisGameStats').innerHTML = s;
   }
+
+  document.getElementById('gamesPlayedStats').innerHTML = stats[rules.Name].totalGames === 0
+    ? `You've not played ${rules.Name} before`
+    : `You've played ${rules.Name} ${stats[rules.Name].totalGames} times, and won ${stats[rules.Name].gamesWon} (${Math.round(stats[rules.Name].gamesWon/stats[rules.Name].totalGames*100)}%)`;
 
   if ( stats[rules.Name].totalGames > 0 )
     document.getElementById('gamesStreakStats').innerHTML = `Your current streak is ${stats[rules.Name].currStreak}, your best winning streak is ${stats[rules.Name].bestStreak}, your worst is ${stats[rules.Name].worstStreak}`;
   else
     document.getElementById('gamesStreakStats').innerHTML = '';
+
   let totalPlayed = 0;
   let totalWon = 0;
 
@@ -3815,6 +3825,12 @@ try {
   console.error(e);
 }
 
+/*
+  5.3.3 Do not mix quoted and unquoted keys
+  stats.Options
+  stats[rules.Name]
+*/
+
 if ( !stats.Options ) {
   stats.Options = {
     aniSpeed:3,
@@ -3876,9 +3892,27 @@ window.onbeforeunload = function(e) {
 };
 
 const someCardsInTransit = () => {
-  for ( let cc of cardContainers ) {
-    if ( cc.cards.some( c => c.animationIds.length ) )
-      return true;
+  // let arr = [];
+  // for ( let i=0; i<cardContainers.length; i++ ) {
+  //   for ( let j=0; j<cardContainers[i].cards.length; j++ ) {
+  //     if ( cardContainers[i].cards[j].animationIds.length > 0 )
+  //       arr.push(cardContainers[i].cards[j].id);
+  //   }
+  // }
+  // if ( arr.length ) console.log(arr);
+
+  // for ( const cc of cardContainers ) {
+  //   if ( cc.cards.some( c => c.animationIds.length ) )
+  //     return true;
+  // }
+
+  // use array indexing for speed
+  for ( let i=0; i<cardContainers.length; i++ ) {
+    const ccds = cardContainers[i].cards;
+    for ( let j=0; j<ccds.length; j++ ) {
+      if ( ccds[j].animationIds.length > 0 )
+        return true;
+    }
   }
   return false;
 };
@@ -3888,18 +3922,17 @@ const someCardsInTransit = () => {
  */
 const waitForCards = () => new Promise((resolve,reject) => {
   const t0 = performance.now();
-  const timeoutStep = 100;
-  let timeoutMs = 10000;
+  const t1 = t0 + 10000;
   const check = () => {
     if ( !someCardsInTransit() ) {
       resolve(performance.now() - t0);
-    } else if ( (timeoutMs -= timeoutStep) < 0 ) {
+    } else if ( performance.now() > t1 ) {
       reject('timed out waiting for cards to finish moving');
     } else {
-      window.setTimeout(check, timeoutStep);
+      window.setTimeout(check, 100);
     }
   };
-  window.setTimeout(check, 0);  // run the first check ASAP
+  window.setTimeout(check, 0);
 });
 
 /**
@@ -3908,18 +3941,17 @@ const waitForCards = () => new Promise((resolve,reject) => {
  */
 const waitForCard = (c) => new Promise((resolve,reject) => {
   const t0 = performance.now();
-  const timeoutStep = 10;
-  let timeoutMs = 10000;
+  const t1 = t0 + 10000;
   const check = () => {
     if ( 0 === c.animationIds.length ) {
       resolve(performance.now() - t0);
-    } else if ( (timeoutMs -= timeoutStep) < 0 ) {
+    } else if ( performance.now() > t1 ) {
       reject('timed out waiting for card to finish moving');
     } else {
-      window.setTimeout(check, timeoutStep);
+      window.setTimeout(check, 100);
     }
   };
-  window.setTimeout(check, 0);  // run the first check ASAP
+  window.setTimeout(check, 0);
 });
 
 const scrunchContainers = () => {

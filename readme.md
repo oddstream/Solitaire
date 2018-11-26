@@ -30,6 +30,16 @@ and no unnecessary features.
 Also, make the games authentic, by taking the rules from reputable sources
 and implementing them exactly.
 
+# What's being worked on next
+
+Refactoring
+
+At the moment, the game state is saved to the user agent localStorage object when 
+a game is won or lost, or when the page unloads. It would be nice if the game state 
+gets saved into the cloud somewhere, so you can start a game on one computer/browser,
+and continue it on another computer/browser. Inspired by StackEdit, I'm working
+at saving the game state to Google Drive and/or Dropbox.
+
 # Forth
 
 The eventual idea is to implement a small Forth engine, with small scripts for each variant.
