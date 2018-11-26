@@ -5,7 +5,7 @@
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
   GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.11.26.0',
+  GAME_VERSION: '0.11.26.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
