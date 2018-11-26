@@ -1,3 +1,8 @@
+26/11/2018
+Changed localStorage item, title from 'Solitaire' to 'Oddstream Solitaire'
+Refactored rules into CardContainers
+dosave() no longer writes to localStorage (it never needed to)
+
 24/11/2018
 retired undo flip
 added Card.shake (ok, ok, I was looking at the Microsoft game)

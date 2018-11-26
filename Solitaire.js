@@ -3,7 +3,8 @@
 /* jshint esversion:6 */
 
 const Constants = {
-  GAME_NAME: 'Solitaire',
+  GAME_NAME: 'Oddstream Solitaire',
+  GAME_NAME_OLD: 'Solitaire',
   GAME_VERSION: '0.11.26.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
 
@@ -3567,12 +3568,7 @@ class Saved {
 
 function dosave() {
   stats[rules.Name].saved = new Saved();
-  try {
-    localStorage.setItem(Constants.GAME_NAME, JSON.stringify(stats));
-    displayToast('this position saved');
-  } catch(e) {
-    console.error(e);
-  }
+  displayToast('this position saved');
 }
 
 function doload() {
@@ -3819,7 +3815,14 @@ if ( !rules.Tableau.hasOwnProperty('target') )      rules.Tableau.target = null;
 
 let stats = null;
 try {
-  stats = JSON.parse(localStorage.getItem(Constants.GAME_NAME)) || {};
+  let s = localStorage.getItem(Constants.GAME_NAME_OLD);
+  if ( s ) {
+    console.log('removing old localStorageItem');
+    localStorage.removeItem(Constants.GAME_NAME_OLD);
+  } else {
+    s  = localStorage.getItem(Constants.GAME_NAME);
+  }
+  stats = JSON.parse(s) || {};
 } catch(e) {
   stats = {};
   console.error(e);
