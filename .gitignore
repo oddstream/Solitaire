@@ -17,5 +17,6 @@ img/*
 make.exe
 compiler.jar
 compiler-help.txt
+notes.txt
 package*.json
 desktop.ini

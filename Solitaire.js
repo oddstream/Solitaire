@@ -5,8 +5,10 @@
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
   GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.11.26.1',
+  GAME_VERSION: '0.11.29.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
+  LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
+  LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
   CHROME:     navigator.userAgent.indexOf('Chrome/') != -1,   // also Brave, Opera
@@ -535,7 +537,7 @@ class Card {
     if ( this.faceDown && this === this.owner.peek() ) {
       cur = 'pointer';
     } else if ( this.owner.canGrab(this) ) {
-      if ( stats.Options.autoPlay )
+      if ( settings.autoPlay )
         cur = 'pointer';
       else
         cur = 'grab';
@@ -795,7 +797,7 @@ class Card {
       if ( stepsOverride ) {
         i -= N/stepsOverride;
       } else {
-        i -= N/steps[stats.Options.aniSpeed];
+        i -= N/steps[settings.aniSpeed];
       }
       if ( i > 0 ) {
         this.animationIds.push(window.requestAnimationFrame(step_));
@@ -986,7 +988,7 @@ class Card {
       return;
     const cl = this.g.firstChild.classList;
     const UN = 'unmoveable';
-    if ( stats.Options.sensoryCues ) {
+    if ( settings.sensoryCues ) {
       if ( ccDst ) {
         console.assert(!(ccDst instanceof Cell));
         cl.remove(UN);
@@ -1208,7 +1210,7 @@ class CardContainer {
     // seed may be a number, undefined or 0
     if ( seed ) {
       console.log('reusing seed', seed);
-    } else if ( stats.Options.dealWinnable && rules.Winnable.length ) {
+    } else if ( settings.dealWinnable && rules.Winnable.length ) {
       seed = rules.Winnable[Math.floor(Math.random()*rules.Winnable.length)];
       console.log('winnable seed', seed);
     } else {
@@ -1229,7 +1231,7 @@ class CardContainer {
       }
     }
 
-    stats[rules.Name].seed = seed;
+    gameState[rules.Name].seed = seed;
   }
 
   /**
@@ -1601,7 +1603,7 @@ class Cell extends CardContainer {
    * @param {Card} c 
    */
   onclick(c) {
-    if ( !stats.Options.autoPlay )
+    if ( !settings.autoPlay )
       return;
 
     let cc = null;
@@ -1733,7 +1735,7 @@ class Reserve extends CardContainer {
       return;
     if ( !c.isTopCard() )
       return;
-    if ( !stats.Options.autoPlay )
+    if ( !settings.autoPlay )
       return;
 
     let cc = null;
@@ -1835,7 +1837,7 @@ class Stock extends CardContainer {
 
     g.onclick = this.clickOnEmpty.bind(this);
 
-    if ( !stats.Options.loadSaved || !stats[rules.Name].saved )
+    if ( !settings.loadSaved || !gameState[rules.Name].saved )
       this.createPacks_();
   }
 
@@ -2291,9 +2293,9 @@ class StockFan extends Stock {
         c.position0(stock.pt.x, stock.pt.y);
       });
 
-      const oldSeed = stats[rules.Name].seed;
+      const oldSeed = gameState[rules.Name].seed;
       stock.sort(123456);         // just some made up, reproduceable seed
-      stats[rules.Name].seed = oldSeed;   // sort(n) over-writes this
+      gameState[rules.Name].seed = oldSeed;   // sort(n) over-writes this
       undo.length = 0;            // can't undo a jumble
 
       tableaux.forEach( t => {
@@ -2416,7 +2418,7 @@ class Waste extends CardContainer {
    */
   onclick(c) {
     // always face up
-    if ( !stats.Options.autoPlay )
+    if ( !settings.autoPlay )
       return;
 
     if ( !c.isTopCard() )
@@ -2537,9 +2539,9 @@ class Foundation extends CardContainer {
    */
   onclick(c) {
     console.assert(!c.faceDown);
-    if ( !stats.Options.playFromFoundation )
+    if ( !settings.playFromFoundation )
       return;
-    if ( !stats.Options.autoPlay )
+    if ( !settings.autoPlay )
       return;
     const cc = c.findFullestAcceptingContainer(tableaux);
     if ( cc )
@@ -2608,7 +2610,7 @@ class Foundation extends CardContainer {
    * @returns {Array|null}
    */
   canGrab(c) {
-    if ( stats.Options.playFromFoundation )
+    if ( settings.playFromFoundation )
       return [c];
     return null;
   }
@@ -2659,22 +2661,17 @@ class Foundation extends CardContainer {
 
   scatter() {
     if ( !this.scattered ) {
+      this.cards.forEach( c => c.markMoveable(this) );
       this['scatter'+rules.Foundation.scatter]();
       this.scattered = true;
     }
   }
 
   scatterNone() {
-    function scat() {
-      this.markMoveable(foundations[0]);
-    }
-
-    this.cards.forEach ( c => window.setTimeout(scat.bind(c), 500) );
   }
 
   scatterCircle() {
     function scat() {
-      this.markMoveable(foundations[0]);
       let angle = this.owner.cards.indexOf(this) * (360 / this.owner.cards.length);
       angle = Math.PI * angle / 180;
       const radius = 150;
@@ -2689,7 +2686,6 @@ class Foundation extends CardContainer {
 
   scatterDown() {
     function scat() {
-      this.markMoveable(foundations[0]);
       const pt = Util.newPoint(
         this.pt.x,
         this.pt.y + ((this.ordinal-1) * Math.round(Constants.CARD_HEIGHT/3)));
@@ -2701,7 +2697,6 @@ class Foundation extends CardContainer {
 
   scatterLeft() {
     function scat() {
-      this.markMoveable(foundations[0]);
       const pt = Util.newPoint(
         this.pt.x - ((this.ordinal-1) * Math.round(Constants.CARD_WIDTH/2)),
         this.pt.y);
@@ -2715,7 +2710,6 @@ class Foundation extends CardContainer {
 
   scatterRight() {
     function scat() {
-      this.markMoveable(foundations[0]);
       const pt = Util.newPoint(
         this.pt.x + ((this.ordinal-1) * Math.round(Constants.CARD_WIDTH/2)),
         this.pt.y);
@@ -2956,7 +2950,7 @@ class Tableau extends CardContainer {
     if ( c.faceDown )
       return;
 
-    if ( !stats.Options.autoPlay )
+    if ( !settings.autoPlay )
       return;
 
     if ( !this.canGrab(c) )
@@ -3145,7 +3139,7 @@ class TableauSpider extends TableauTail {
     if ( c.faceDown )
       return;
 
-    if ( !stats.Options.autoPlay )
+    if ( !settings.autoPlay )
       return;
 
     if ( !this.canGrab(c) )
@@ -3480,7 +3474,7 @@ function availableMoves() {
 }
 
 function gameOver(won) {
-  const st = stats[rules.Name];
+  const st = gameState[rules.Name];
 
   if ( won ) {
     console.log('recording stats for won game', st);
@@ -3497,8 +3491,8 @@ function gameOver(won) {
     if ( st.currStreak > st.bestStreak )
       st.bestStreak = st.currStreak;
 
-    if ( stats[rules.Name].saved )
-      delete stats[rules.Name].saved; // start with a new deal
+    if ( gameState[rules.Name].saved )
+      delete gameState[rules.Name].saved; // start with a new deal
   } else if ( tallyMan.count > 0 && !isComplete() ) {
     console.log('recording stats for lost game', st);
 
@@ -3511,8 +3505,8 @@ function gameOver(won) {
     if ( st.currStreak < st.worstStreak )
       st.worstStreak = st.currStreak;
 
-    if ( stats[rules.Name].saved )
-      delete stats[rules.Name].saved; // start with a new deal
+    if ( gameState[rules.Name].saved )
+      delete gameState[rules.Name].saved; // start with a new deal
   }
 }
 
@@ -3540,8 +3534,8 @@ function restart(seed) {
   undo.length = 0;
   tallyMan.reset();
   foundations.forEach( f => f.scattered = false );
-  if ( stats[rules.Name].saved )
-    delete stats[rules.Name].saved; // .saved will now be 'undefined'
+  if ( gameState[rules.Name].saved )
+    delete gameState[rules.Name].saved; // .saved will now be 'undefined'
   dealCards();
 }
 
@@ -3550,12 +3544,12 @@ function dostar() {
 }
 
 function doreplay() {
-  restart(stats[rules.Name].seed);
+  restart(gameState[rules.Name].seed);
 }
 
 class Saved {
   constructor() {
-    this.seed = stats[rules.Name].seed;
+    this.seed = gameState[rules.Name].seed;
     this.redeals = stock.redeals;
     this.moves = tallyMan.count;
     this.undo = undo;
@@ -3567,30 +3561,30 @@ class Saved {
 }
 
 function dosave() {
-  stats[rules.Name].saved = new Saved();
+  gameState[rules.Name].saved = new Saved();
   displayToast('this position saved');
 }
 
 function doload() {
-  if ( !stats.Options.loadSaved )
+  if ( !settings.loadSaved )
     return;
 
-  if ( stats[rules.Name].saved ) {
-    // console.log('loading', stats[rules.Name].saved);
+  if ( gameState[rules.Name].saved ) {
+    // console.log('loading', gameState[rules.Name].saved);
     for ( let i=0; i<cardContainers.length; i++ ) {
-      cardContainers[i].load(stats[rules.Name].saved.containers[i]);
+      cardContainers[i].load(gameState[rules.Name].saved.containers[i]);
     }
-    stats[rules.Name].seed = stats[rules.Name].saved.seed;
-    if ( stats[rules.Name].saved.hasOwnProperty('redeals') ) {
-      stock.redeals = stats[rules.Name].saved.redeals;
+    gameState[rules.Name].seed = gameState[rules.Name].saved.seed;
+    if ( gameState[rules.Name].saved.hasOwnProperty('redeals') ) {
+      stock.redeals = gameState[rules.Name].saved.redeals;
     } else {
       stock.redeals = null;
     }
     stock.updateRedealsSVG_();
-    tallyMan.count = stats[rules.Name].saved.moves;
-    undo = stats[rules.Name].saved.undo;
+    tallyMan.count = gameState[rules.Name].saved.moves;
+    undo = gameState[rules.Name].saved.undo;
     scrunchContainers();
-    delete stats[rules.Name].saved;
+    delete gameState[rules.Name].saved;
   } else {
     displayToast('no saved game');
   }
@@ -3598,33 +3592,33 @@ function doload() {
 
 const modalSettings = M.Modal.getInstance(document.getElementById('modalSettings'));
 modalSettings.options.onOpenStart = function() {
-  document.getElementById('aniSpeed').value = stats.Options.aniSpeed;
-  document.getElementById('sensoryCues').checked = stats.Options.sensoryCues;
-  document.getElementById('autoPlay').checked = stats.Options.autoPlay;
-  // document.getElementById('autoFlip').checked = stats.Options.autoFlip;
-  // document.getElementById('playFromFoundation').checked = stats.Options.playFromFoundation;
+  document.getElementById('aniSpeed').value = settings.aniSpeed;
+  document.getElementById('sensoryCues').checked = settings.sensoryCues;
+  document.getElementById('autoPlay').checked = settings.autoPlay;
+  // document.getElementById('autoFlip').checked = settings.autoFlip;
+  // document.getElementById('playFromFoundation').checked = settings.playFromFoundation;
 
-  document.getElementById('autoOff').checked = stats.Options.autoCollect === Constants.AUTOCOLLECT_OFF;
-  document.getElementById('autoSolve').checked = stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE;
-  // document.getElementById('autoAces').checked = stats.Options.autoCollect === Constants.AUTOCOLLECT_ACES;
-  document.getElementById('autoAny').checked = stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY;
+  document.getElementById('autoOff').checked = settings.autoCollect === Constants.AUTOCOLLECT_OFF;
+  document.getElementById('autoSolve').checked = settings.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE;
+  // document.getElementById('autoAces').checked = settings.autoCollect === Constants.AUTOCOLLECT_ACES;
+  document.getElementById('autoAny').checked = settings.autoCollect === Constants.AUTOCOLLECT_ANY;
 };
 
 modalSettings.options.onCloseEnd = function() {
-  stats.Options.aniSpeed = document.getElementById('aniSpeed').value;
-  stats.Options.sensoryCues = document.getElementById('sensoryCues').checked;
-  stats.Options.autoPlay = document.getElementById('autoPlay').checked;
-  // stats.Options.autoFlip = document.getElementById('autoFlip').checked;
-  // stats.Options.playFromFoundation = document.getElementById('playFromFoundation').checked;
+  settings.aniSpeed = document.getElementById('aniSpeed').value;
+  settings.sensoryCues = document.getElementById('sensoryCues').checked;
+  settings.autoPlay = document.getElementById('autoPlay').checked;
+  // settings.autoFlip = document.getElementById('autoFlip').checked;
+  // settings.playFromFoundation = document.getElementById('playFromFoundation').checked;
 
   if ( document.getElementById('autoOff').checked )
-    stats.Options.autoCollect = Constants.AUTOCOLLECT_OFF;
+    settings.autoCollect = Constants.AUTOCOLLECT_OFF;
   else if ( document.getElementById('autoSolve').checked )
-    stats.Options.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
+    settings.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
   // else if ( document.getElementById('autoAces').checked )
-  //     stats.Options.autoCollect = Constants.AUTOCOLLECT_ACES;
+  //     settings.autoCollect = Constants.AUTOCOLLECT_ACES;
   else if ( document.getElementById('autoAny').checked )
-    stats.Options.autoCollect = Constants.AUTOCOLLECT_ANY;
+    settings.autoCollect = Constants.AUTOCOLLECT_ANY;
 
   availableMoves();   // mark moveable cards
 };
@@ -3632,7 +3626,7 @@ modalSettings.options.onCloseEnd = function() {
 const modalStatistics = M.Modal.getInstance(document.getElementById('modalStatistics'));
 modalStatistics.options.onOpenStart = function() {
   {
-    let s = `In this game of ${rules.Name} (number ${stats[rules.Name].seed}) you've made `;
+    let s = `In this game of ${rules.Name} (number ${gameState[rules.Name].seed}) you've made `;
     s += Util.plural(tallyMan.count, 'move');
     s += ', there are ';
     s += Util.plural(availableMoves(), 'available move');
@@ -3651,23 +3645,23 @@ modalStatistics.options.onOpenStart = function() {
     document.getElementById('thisGameStats').innerHTML = s;
   }
 
-  document.getElementById('gamesPlayedStats').innerHTML = stats[rules.Name].totalGames === 0
+  document.getElementById('gamesPlayedStats').innerHTML = gameState[rules.Name].totalGames === 0
     ? `You've not played ${rules.Name} before`
-    : `You've played ${rules.Name} ${stats[rules.Name].totalGames} times, and won ${stats[rules.Name].gamesWon} (${Math.round(stats[rules.Name].gamesWon/stats[rules.Name].totalGames*100)}%)`;
+    : `You've played ${rules.Name} ${gameState[rules.Name].totalGames} times, and won ${gameState[rules.Name].gamesWon} (${Math.round(gameState[rules.Name].gamesWon/gameState[rules.Name].totalGames*100)}%)`;
 
-  if ( stats[rules.Name].totalGames > 0 )
-    document.getElementById('gamesStreakStats').innerHTML = `Your current streak is ${stats[rules.Name].currStreak}, your best winning streak is ${stats[rules.Name].bestStreak}, your worst is ${stats[rules.Name].worstStreak}`;
+  if ( gameState[rules.Name].totalGames > 0 )
+    document.getElementById('gamesStreakStats').innerHTML = `Your current streak is ${gameState[rules.Name].currStreak}, your best winning streak is ${gameState[rules.Name].bestStreak}, your worst is ${gameState[rules.Name].worstStreak}`;
   else
     document.getElementById('gamesStreakStats').innerHTML = '';
 
   let totalPlayed = 0;
   let totalWon = 0;
 
-  Object.keys(stats).forEach( g => {
-    if ( stats[g].totalGames )
-      totalPlayed += stats[g].totalGames;
-    if ( stats[g].gamesWon )
-      totalWon += stats[g].gamesWon;
+  Object.keys(gameState).forEach( g => {
+    if ( gameState[g].totalGames )
+      totalPlayed += gameState[g].totalGames;
+    if ( gameState[g].gamesWon )
+      totalWon += gameState[g].gamesWon;
   });
 
   if ( totalPlayed )
@@ -3679,9 +3673,9 @@ modalStatistics.options.onCloseEnd = function() {
 
 const modalGameOver = M.Modal.getInstance(document.getElementById('modalGameOver'));
 modalGameOver.options.onOpenStart = function() {
-  document.getElementById('movesMade').innerHTML = `Game ${stats[rules.Name].seed} of ${rules.Name} solved in ${tallyMan.count} moves; your average is ${Math.round(stats[rules.Name].totalMoves/stats[rules.Name].gamesWon)}`;
-  document.getElementById('gamesPlayed').innerHTML = `You've played ${rules.Name} ${stats[rules.Name].totalGames} times, and won ${stats[rules.Name].gamesWon}`;
-  document.getElementById('gamesStreak').innerHTML = `Your current winning streak is ${stats[rules.Name].currStreak}, your best winning streak is ${stats[rules.Name].bestStreak}, your worst is ${stats[rules.Name].worstStreak}`;
+  document.getElementById('movesMade').innerHTML = `Game ${gameState[rules.Name].seed} of ${rules.Name} solved in ${tallyMan.count} moves; your average is ${Math.round(gameState[rules.Name].totalMoves/gameState[rules.Name].gamesWon)}`;
+  document.getElementById('gamesPlayed').innerHTML = `You've played ${rules.Name} ${gameState[rules.Name].totalGames} times, and won ${gameState[rules.Name].gamesWon}`;
+  document.getElementById('gamesStreak').innerHTML = `Your current winning streak is ${gameState[rules.Name].currStreak}, your best winning streak is ${gameState[rules.Name].bestStreak}, your worst is ${gameState[rules.Name].worstStreak}`;
 };
 
 modalGameOver.options.onCloseEnd = function() {
@@ -3719,13 +3713,13 @@ function doshowrules() {
 }
 
 function dostatsreset() {
-  stats[rules.Name].totalMoves = 0;
-  stats[rules.Name].totalGames = 0;
-  stats[rules.Name].gamesWon = 0;
+  gameState[rules.Name].totalMoves = 0;
+  gameState[rules.Name].totalGames = 0;
+  gameState[rules.Name].gamesWon = 0;
 
-  stats[rules.Name].currStreak = 0;
-  stats[rules.Name].bestStreak = 0;
-  stats[rules.Name].worstStreak = 0;
+  gameState[rules.Name].currStreak = 0;
+  gameState[rules.Name].bestStreak = 0;
+  gameState[rules.Name].worstStreak = 0;
 }
 
 function displayToast(msg) {
@@ -3813,29 +3807,58 @@ if ( !rules.Tableau.hasOwnProperty('build') )       rules.Tableau.build = {suit:
 if ( !rules.Tableau.hasOwnProperty('move') )        rules.Tableau.move = {suit:4, rank:2};
 if ( !rules.Tableau.hasOwnProperty('target') )      rules.Tableau.target = null;
 
-let stats = null;
+let stats = null; // legacy
+let settings = null;
+let gameState = null;
+
 try {
   let s = localStorage.getItem(Constants.GAME_NAME_OLD);
   if ( s ) {
-    console.log('removing old localStorageItem');
+    console.log('removing very old localStorageItem');
     localStorage.removeItem(Constants.GAME_NAME_OLD);
+    stats = JSON.parse(s) || {};
+    if ( stats.Options ) {
+      settings = stats.Options;
+      stats.Options = null;
+    }
+    gameState = stats;
   } else {
     s  = localStorage.getItem(Constants.GAME_NAME);
+    if ( s ) {
+      console.log('removing old localStorageItem');
+      localStorage.removeItem(Constants.GAME_NAME);
+      stats = JSON.parse(s) || {};
+      if ( stats.Options ) {
+        settings = stats.Options;
+        stats.Options = null;
+      }
+      gameState = stats;
+    } else {
+      s = localStorage.getItem(Constants.LOCALSTORAGE_SETTINGS);
+      if ( s ) {
+        settings = JSON.parse(s) || {};
+      }
+      s = localStorage.getItem(Constants.LOCALSTORAGE_GAMES);
+      if ( s ) {
+        gameState = JSON.parse(s) || {};
+      }
+    }
   }
-  stats = JSON.parse(s) || {};
 } catch(e) {
-  stats = {};
+  settings = null;
+  gameState = {};
   console.error(e);
 }
+stats = null // legacy
 
 /*
   5.3.3 Do not mix quoted and unquoted keys
-  stats.Options
-  stats[rules.Name]
+  settings
+  gameState[rules.Name]
 */
 
-if ( !stats.Options ) {
-  stats.Options = {
+if ( !settings ) {
+  settings = {
     aniSpeed:3,
     autoCollect:Constants.AUTOCOLLECT_SOLVEABLE,
     sensoryCues:false,
@@ -3847,22 +3870,24 @@ if ( !stats.Options ) {
   };
 }
 
-if ( stats.Options.aniSpeed < 1 || stats.Options.aniSpeed > 5 )
-  stats.Options.aniSpeed = 3;
-if ( stats.Options.autoCollect === Constants.AUTOCOLLECT_ACES )
-  stats.Options.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
+settings.lastGame = window.location.pathname.split('/').pop();
+settings.lastVersion = Constants.GAME_VERSION;
+if ( settings.aniSpeed < 1 || settings.aniSpeed > 5 )
+  settings.aniSpeed = 3;
+if ( settings.autoCollect === Constants.AUTOCOLLECT_ACES )
+  settings.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
 
-if ( !stats[rules.Name] )               stats[rules.Name] = {};
-if ( !stats[rules.Name].totalMoves )    stats[rules.Name].totalMoves = 0;
-if ( !stats[rules.Name].totalGames )    stats[rules.Name].totalGames = 0;
-if ( !stats[rules.Name].gamesWon )      stats[rules.Name].gamesWon = 0;
+if ( gameState.hasOwnProperty('Options') )
+  delete gameState.Options;
 
-if ( !stats[rules.Name].currStreak )    stats[rules.Name].currStreak = 0;
-if ( !stats[rules.Name].bestStreak )    stats[rules.Name].bestStreak = 0;
-if ( !stats[rules.Name].worstStreak )   stats[rules.Name].worstStreak = 0;
+if ( !gameState[rules.Name] )               gameState[rules.Name] = {};
+if ( !gameState[rules.Name].totalMoves )    gameState[rules.Name].totalMoves = 0;
+if ( !gameState[rules.Name].totalGames )    gameState[rules.Name].totalGames = 0;
+if ( !gameState[rules.Name].gamesWon )      gameState[rules.Name].gamesWon = 0;
 
-stats.Options.lastGame = window.location.pathname.split('/').pop();
-stats.Options.lastVersion = Constants.GAME_VERSION;
+if ( !gameState[rules.Name].currStreak )    gameState[rules.Name].currStreak = 0;
+if ( !gameState[rules.Name].bestStreak )    gameState[rules.Name].bestStreak = 0;
+if ( !gameState[rules.Name].worstStreak )   gameState[rules.Name].worstStreak = 0;
 
 const stocks = /** @type {Array<Stock>} */ (linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]));
 const stock = stocks[0];
@@ -3882,16 +3907,18 @@ document.documentElement.style.setProperty('--ffont', 'Acme');
 window.onbeforeunload = function(e) {
   // if scattered, force a new game, otherwise loaded game won't be scattered
   if ( foundations.some( f => f.scattered ) )
-    delete stats[rules.Name].saved;
+    delete gameState[rules.Name].saved;
   else
-    stats[rules.Name].saved = new Saved();
+    gameState[rules.Name].saved = new Saved();
   try {
-    localStorage.setItem(Constants.GAME_NAME, JSON.stringify(stats));
+    localStorage.setItem(Constants.LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
+    localStorage.setItem(Constants.LOCALSTORAGE_GAMES, JSON.stringify(gameState));
+    // localStorage.setItem(Constants.GAME_NAME, JSON.stringify(stats));
   } catch(err) {
     console.error(err);
   }
 // setting e.returnValue makes Chrome display a dialog
-//    e.returnValue = stats[rules.Name];
+//    e.returnValue = gameState[rules.Name];
 };
 
 const someCardsInTransit = () => {
@@ -3970,10 +3997,10 @@ const scrunchContainers = () => {
 let inRobot = false;
 function robot() {
   const autoCollectAny = () => {
-    return stats.Options.autoCollect === Constants.AUTOCOLLECT_ANY;
+    return settings.autoCollect === Constants.AUTOCOLLECT_ANY;
   };
   const autoCollectWhenSolveable = () => {
-    return stats.Options.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE
+    return settings.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE
           && cardContainers.every( f => f.isSolveable() );
   };
 
@@ -4053,10 +4080,10 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
   }
 });
 
-if ( stats.Options.loadSaved && stats[rules.Name].saved )
+if ( settings.loadSaved && gameState[rules.Name].saved )
   doload();
 else
   window.onload = dealCards;
 
-if ( 0 === stats[rules.Name].totalGames )
+if ( 0 === gameState[rules.Name].totalGames )
   doshowrules();

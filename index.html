@@ -17,10 +17,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Solitaire Card Games</title>
 
+    <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
-    <link rel="manifest" href="site.webmanifest">
     <link rel="mask-icon" href="img/safari-pinned-tab.svg" color="dir#5bbad5">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
@@ -1068,33 +1068,35 @@ for ( let i=0; i<types.length; i++ )
 
 M.AutoInit();
 
-const stats = JSON.parse(localStorage.getItem('Solitaire')) || new Object;
-if ( stats.Options )
+var settings = JSON.parse(localStorage.getItem('Oddstream Solitaire Settings'));
+if ( settings )
 {
-    if ( stats.Options.lastGame )
+    if ( settings.lastGame )
     {
-        document.getElementById('lastgame').setAttributeNS(null, 'href', stats.Options.lastGame);
+        document.getElementById('lastgame').setAttributeNS(null, 'href', settings.lastGame);
     }
     else
     {
         document.getElementById('lastgame').display = 'none';
     }
+} else {
+    settings = {};
 }
     
-const modalSettings = M.Modal.getInstance(document.getElementById('modalSettings'));
+var modalSettings = M.Modal.getInstance(document.getElementById('modalSettings'));
 modalSettings.options.onOpenStart = function()
 {
-    document.getElementById("dealWinnable").checked = stats.Options.dealWinnable;
-    document.getElementById("loadSaved").checked = stats.Options.loadSaved;
+    document.getElementById("dealWinnable").checked = settings.dealWinnable;
+    document.getElementById("loadSaved").checked = settings.loadSaved;
 };
 
 modalSettings.options.onCloseEnd = function()
 {
-    stats.Options.dealWinnable = document.getElementById("dealWinnable").checked;
-    stats.Options.loadSaved = document.getElementById("loadSaved").checked;
+    settings.dealWinnable = document.getElementById("dealWinnable").checked;
+    settings.loadSaved = document.getElementById("loadSaved").checked;
 
     try {
-        localStorage.setItem('Solitaire', JSON.stringify(stats));
+        localStorage.setItem('Oddstream Solitaire Settings', JSON.stringify(settings));
     } catch(e) {
         console.error(e);
     }
