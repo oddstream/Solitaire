@@ -5,7 +5,7 @@
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
   GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.11.29.1',
+  GAME_VERSION: '0.11.29.2',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -543,7 +543,12 @@ class Card {
         cur = 'grab';
     }
 
-    for ( const ch of this.g.children ) {
+    // .children is an HTMLCollection
+    const coll = this.g.children;
+    // for ( const ch of this.g.children ) {  Symbol.Iterator not supported in Edge
+    for ( let i=0; i<coll.length; i++ ) {
+      // const ch = coll.item(i);
+      const ch = coll[i]; // HTMLCollection can be treated as an array
       ch.style.cursor = cur;
     }
   }
@@ -3819,7 +3824,6 @@ try {
     stats = JSON.parse(s) || {};
     if ( stats.Options ) {
       settings = stats.Options;
-      stats.Options = null;
     }
     gameState = stats;
   } else {
@@ -3830,7 +3834,6 @@ try {
       stats = JSON.parse(s) || {};
       if ( stats.Options ) {
         settings = stats.Options;
-        stats.Options = null;
       }
       gameState = stats;
     } else {
@@ -3849,7 +3852,6 @@ try {
   gameState = {};
   console.error(e);
 }
-stats = null // legacy
 
 /*
   5.3.3 Do not mix quoted and unquoted keys
@@ -3936,7 +3938,7 @@ const someCardsInTransit = () => {
   //     return true;
   // }
 
-  // use array indexing for speed
+  // use array indexing for memory
   for ( let i=0; i<cardContainers.length; i++ ) {
     const ccds = cardContainers[i].cards;
     for ( let j=0; j<ccds.length; j++ ) {
