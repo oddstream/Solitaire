@@ -1,117 +1,117 @@
 @import url('https://fonts.googleapis.com/css?family=Acme');
 
 body {
-    overflow: auto;
+  overflow: auto;
 }
 
 svg { 
-    background-color: var(--bg-color, darkgreen);   /* cascades to children */
-    width: 100%;
-    height: 100%;
-    -webkit-user-select: none; /* Safari */
-    -khtml-user-select: none; /* Konqueror HTML */
-      -moz-user-select: none; /* Firefox */
-       -ms-user-select: none; /* Internet Explorer/Edge */
-           user-select: none; /* Non-prefixed version, currently
-                                 supported by Chrome and Opera */
-    /*touch-action: none;*/
-    position: static;
+  background-color: var(--bg-color, darkgreen);   /* cascades to children */
+  width: 100%;
+  height: 100%;
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+      -ms-user-select: none; /* Internet Explorer/Edge */
+          user-select: none; /* Non-prefixed version, currently
+                                supported by Chrome and Opera */
+  /*touch-action: none;*/
+  position: static;
 }
 
 .spielkarte {
-    fill:white;
-    stroke-width: 1;
-    stroke:silver;
-    pointer-events: fill;
-    touch-action: none;
+  fill:white;
+  stroke-width: 1;
+  stroke:silver;
+  pointer-events: fill;
+  touch-action: none;
 }
 
 .spielkarteback {
-    fill:steelblue;
-    stroke-width: 1;
-    stroke:silver;
-    pointer-events: fill;
-    touch-action: none;
+  fill:steelblue;
+  stroke-width: 1;
+  stroke:silver;
+  pointer-events: fill;
+  touch-action: none;
 }
 
 .grabbed {
-    stroke-width: 2 !important;
+  stroke-width: 2 !important;
 }
 
 .unmoveable {
-    fill:rgb(233,240,233) !important;
+  fill:rgb(233,240,233) !important;
 }
 
 .spielkartevalue {
-    font-family: var(--ffont), sans-serif;
-    font-size: 26px /*2.1vw*/;
-    /* fill here gets overwritten */
-    pointer-events: none;
-    touch-action: none;
+  font-family: var(--ffont), sans-serif;
+  font-size: 26px /*2.1vw*/;
+  /* fill here gets overwritten */
+  pointer-events: none;
+  touch-action: none;
 }
 
 .spielkartesuit {
-    font-family: var(--ffont), sans-serif;
-    font-size: 30px /*2.6vw*/;
-    /* fill here gets overwritten */
-    pointer-events: none;
-    touch-action: none;
+  font-family: var(--ffont), sans-serif;
+  font-size: 30px /*2.6vw*/;
+  /* fill here gets overwritten */
+  pointer-events: none;
+  touch-action: none;
 }
 
 .Reserve, .ReserveFrog, .Stock, .StockAgnes, .StockCruel, .StockFan, .StockGolf, .StockKlondike, .StockScorpion, .StockSpider, .Waste {
-    fill: var(--bg-color, darkgreen);
-    stroke: none;
+  fill: var(--bg-color, darkgreen);
+  stroke: none;
 }
 
 .Cell, .CellCarpet {
-    fill: var(--bg-color, darkgreen);
-    stroke: white;
-    stroke-width: 1;
+  fill: var(--bg-color, darkgreen);
+  stroke: white;
+  stroke-width: 1;
 }
 
 .Tableau, .TableauBlockade, .TableauCanfield, .TableauFortunesFavor, .TableauFreecell, .TableauGolf, .TableauSpider, .TableauTail {
-    fill: var(--bg-color, darkgreen);
-    stroke: var(--hi-color, lightgreen);
-    stroke-width: 1;
+  fill: var(--bg-color, darkgreen);
+  stroke: var(--hi-color, lightgreen);
+  stroke-width: 1;
 }
 
 .Foundation, .FoundationCanfield, .FoundationOsmosis, .FoundationPenguin, .FoundationSpider {
-    fill: var(--bg-color, darkgreen);
-    stroke: var(--hi-color, lightgreen);
-    stroke-width: 1;
+  fill: var(--bg-color, darkgreen);
+  stroke: var(--hi-color, lightgreen);
+  stroke-width: 1;
 }
 
 .accepts {
-    font-family: var(--ffont), sans-serif;
-    font-size: 24px;
-    stroke: none;
-    fill: var(--hi-color, lightgreen);
+  font-family: var(--ffont), sans-serif;
+  font-size: 24px;
+  stroke: none;
+  fill: var(--hi-color, lightgreen);
 }
 
 .stockredeals {
-    font-family: 'Ariel', sans-serif;
-    font-size: 48px;
-    stroke: none;
-    fill: var(--hi-color, lightgreen);
+  font-family: 'Ariel', sans-serif;
+  font-size: 48px;
+  stroke: none;
+  fill: var(--hi-color, lightgreen);
 }
 /*
 .stocknoredeals {
-    font-family: 'Ariel', sans-serif;
-    font-size: 48px;
-    stroke: none;
-    fill: red;
+  font-family: 'Ariel', sans-serif;
+  font-size: 48px;
+  stroke: none;
+  fill: red;
 }
 */
 .noselect {
-    -webkit-touch-callout: none; /* iOS Safari */
-      -webkit-user-select: none; /* Safari */
-       -khtml-user-select: none; /* Konqueror HTML */
-         -moz-user-select: none; /* Firefox */
-          -ms-user-select: none; /* Internet Explorer/Edge */
-              user-select: none; /* Non-prefixed version, currently
-                                    supported by Chrome and Opera */
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+      -khtml-user-select: none; /* Konqueror HTML */
+        -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome and Opera */
 }
 
 .steelblue {
-    background-color: #4682b4 !important;
+  background-color: #4682b4 !important;
 }

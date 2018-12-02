@@ -1,3 +1,6 @@
+01/12/2018
+Implemented Forecell
+
 29/11/2018
 split stats into settings and gameState, consequent localStorage mess
 

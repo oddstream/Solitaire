@@ -544,11 +544,14 @@ class Card {
     }
 
     // .children is an HTMLCollection
-    const coll = this.g.children;
+    // const coll = this.g.children;
     // for ( const ch of this.g.children ) {  Symbol.Iterator not supported in Edge
-    for ( let i=0; i<coll.length; i++ ) {
+    // for ( let i=0; i<coll.length; i++ ) {
       // const ch = coll.item(i);
-      const ch = coll[i]; // HTMLCollection can be treated as an array
+      // const ch = coll[i]; // HTMLCollection can be treated as an array
+      // ch.style.cursor = cur;
+    // }
+    for ( let ch=this.g.firstChild; ch; ch=ch.nextSibling ) {
       ch.style.cursor = cur;
     }
   }
@@ -3933,19 +3936,19 @@ const someCardsInTransit = () => {
   // }
   // if ( arr.length ) console.log(arr);
 
-  // for ( const cc of cardContainers ) {
-  //   if ( cc.cards.some( c => c.animationIds.length ) )
-  //     return true;
-  // }
+  for ( const cc of cardContainers ) {
+    if ( cc.cards.some( c => c.animationIds.length ) )
+      return true;
+  }
 
   // use array indexing for memory
-  for ( let i=0; i<cardContainers.length; i++ ) {
-    const ccds = cardContainers[i].cards;
-    for ( let j=0; j<ccds.length; j++ ) {
-      if ( ccds[j].animationIds.length > 0 )
-        return true;
-    }
-  }
+  // for ( let i=0; i<cardContainers.length; i++ ) {
+  //   const ccds = cardContainers[i].cards;
+  //   for ( let j=0; j<ccds.length; j++ ) {
+  //     if ( ccds[j].animationIds.length > 0 )
+  //       return true;
+  //   }
+  // }
   return false;
 };
 
