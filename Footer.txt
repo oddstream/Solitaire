@@ -73,7 +73,6 @@
     </div>
 </div>
   
-<!-- <script type="text/javascript" src="https://code.jquery.com/pep/0.4.3/pep.js"></script> -->
 <script type="text/javascript" src="js/materialize.min.js"></script>
 <script>
 M.Sidenav.init(document.querySelectorAll('.sidenav'));

@@ -129,7 +129,10 @@
         <div class="modal-content">
             <h4 class="noselect">Settings<a class="modal-close right noselect"><i class="material-icons">close</i></a></h4>
             <p><label for="dealWinnable"><input type="checkbox" id="dealWinnable" class="filled-in steelblue"/><span>Use winnable deals when available</span></label></p>
-            <p><label for="loadSaved"><input type="checkbox" id="loadSaved" class="filled-in steelblue"/><span>Automatically load previous game</span></label></p>
+            <div class="input-field col s3">
+                <input id="forceSeed" type="number" min="0" max="999999" placeholder="Deal number (1-999999)">
+            </div>
+            <p><a class="modal-close noselect" onclick="dodeletesaved()">delete saved games</a></p>
         </div>
     </div>
     
@@ -903,7 +906,7 @@
     <script>
 'use strict';
 
-var isIE = false || !!document.documentMode;
+let isIE = false || !!document.documentMode;
 if ( isIE )
     window.alert('Internet Explorer is not supported.\n\nPlease try again with a modern browser.');
         
@@ -1019,8 +1022,7 @@ if (!Array.prototype.includes) {
   });
 }
         
-function crel(nm, cl)
-{
+function crel(nm, cl) {
     const ele  = document.createElement(nm);
     if ( cl ) ele.setAttribute('class', cl);
     return ele;
@@ -1039,8 +1041,7 @@ types.sort();
 
 const ulOuter = crel('ul', 'collapsible');
 cont.appendChild(ulOuter);
-for ( let i=0; i<types.length; i++ )
-{
+for ( let i=0; i<types.length; i++ ) {
     const liOuter = crel('li', null);
         ulOuter.appendChild(liOuter);
         
@@ -1053,63 +1054,81 @@ for ( let i=0; i<types.length; i++ )
     let ulInner = crel('ul', null);
         cb.appendChild(ulInner);
 
-        let ty = vs.Variants.filter( function(v) {
-            return v.Type.split(',').includes(types[i]);
-        });
-            
-        ty.sort(function(a, b) { return a.Name.localeCompare(b.Name); });
-        ty.forEach( function(t) {
-            let listItem = crel('li', null);
-                let a = crel('a', null);
-                a.setAttribute('href', t.File + '.html');
-                a.innerHTML = t.Name;
-                listItem.appendChild(a);
-                if ( window.innerWidth > 640 )
-                {
-                    let s = crel('span', 'right');
-                    s.innerHTML = t.Desc;
-                    listItem.appendChild(s);
-                }
-            ulInner.appendChild(listItem);
-        });
+    let ty = vs.Variants.filter( function(v) {
+        return v.Type.split(',').includes(types[i]);
+    });
+        
+    ty.sort(function(a, b) { return a.Name.localeCompare(b.Name); });
+    ty.forEach( function(t) {
+        let listItem = crel('li', null);
+            let a = crel('a', null);
+            a.setAttribute('href', t.File + '.html');
+            a.innerHTML = t.Name;
+            listItem.appendChild(a);
+            if ( window.innerWidth > 640 ) {
+                let s = crel('span', 'right');
+                s.innerHTML = t.Desc;
+                listItem.appendChild(s);
+            }
+        ulInner.appendChild(listItem);
+    });
 }
 
 M.AutoInit();
 
-var settings = JSON.parse(localStorage.getItem('Oddstream Solitaire Settings'));
-if ( settings )
-{
-    if ( settings.lastGame )
-    {
+let settings = JSON.parse(localStorage.getItem('Oddstream Solitaire Settings'));
+if ( settings ) {
+    if ( settings.lastGame ) {
         document.getElementById('lastgame').setAttributeNS(null, 'href', settings.lastGame);
-    }
-    else
-    {
+    } else {
         document.getElementById('lastgame').display = 'none';
     }
 } else {
     settings = {};
 }
     
-var modalSettings = M.Modal.getInstance(document.getElementById('modalSettings'));
-modalSettings.options.onOpenStart = function()
-{
+let modalSettings = M.Modal.getInstance(document.getElementById('modalSettings'));
+modalSettings.options.onOpenStart = function() {
     document.getElementById("dealWinnable").checked = settings.dealWinnable;
-    document.getElementById("loadSaved").checked = settings.loadSaved;
+    document.getElementById("forceSeed").value = settings.forceSeed ? String(settings.forceSeed) : "";
 };
 
-modalSettings.options.onCloseEnd = function()
-{
+modalSettings.options.onCloseEnd = function() {
     settings.dealWinnable = document.getElementById("dealWinnable").checked;
-    settings.loadSaved = document.getElementById("loadSaved").checked;
-
+    settings.forceSeed = parseInt(document.getElementById("forceSeed").value);
+    if ( isNaN(settings.forceSeed) || (settings.forceSeed < 0 || settings.forceSeed > 999999) ) {
+        settings.forceSeed = 0;
+    }
     try {
         localStorage.setItem('Oddstream Solitaire Settings', JSON.stringify(settings));
     } catch(e) {
         console.error(e);
     }
 };
-        
+
+function dodeletesaved() {
+    let gameState = null;
+    try {
+        const s = localStorage.getItem('Oddstream Solitaire Games');
+        if ( s ) {
+            gameState = JSON.parse(s);
+        }
+    } catch(e) {
+        console.log(e);
+    }
+    if ( gameState ) {
+        for ( const g in gameState) {
+            if ( gameState[g].saved ) {
+                delete gameState[g].saved;
+            }
+        }
+        try {
+            localStorage.setItem('Oddstream Solitaire Games', JSON.stringify(gameState));
+        } catch(e) {
+            console.log(e);
+        }
+    }
+}
     </script>
 </body>
 </html>

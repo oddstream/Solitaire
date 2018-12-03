@@ -1,3 +1,7 @@
+03/12/2018
+Probable bug fix: class Saved was not making a deep copy of undo
+Retired settings.loadSaved, add deletesavedgames to index.html
+
 01/12/2018
 Implemented Forecell
 

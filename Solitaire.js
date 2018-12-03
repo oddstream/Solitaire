@@ -5,7 +5,7 @@
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
   GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.11.29.2',
+  GAME_VERSION: '0.12.03.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -1205,12 +1205,6 @@ class CardContainer {
     console.error('onclick not implemented in base CardContainer', c);
   }
 
-  // dump() {
-  //     let str = '';
-  //     this.cards.forEach( c => str = str.concat(c.id + ' ') );
-  //     console.log(str);
-  // }
-
   /**
    * @param {?number} seed 
    */
@@ -1218,6 +1212,10 @@ class CardContainer {
     // seed may be a number, undefined or 0
     if ( seed ) {
       console.log('reusing seed', seed);
+    } else if ( settings.forceSeed ) {
+      seed = settings.forceSeed;
+      settings.forceSeed = 0;
+      console.log('force seed', seed);
     } else if ( settings.dealWinnable && rules.Winnable.length ) {
       seed = rules.Winnable[Math.floor(Math.random()*rules.Winnable.length)];
       console.log('winnable seed', seed);
@@ -1845,7 +1843,7 @@ class Stock extends CardContainer {
 
     g.onclick = this.clickOnEmpty.bind(this);
 
-    if ( !settings.loadSaved || !gameState[rules.Name].saved )
+    if ( !gameState[rules.Name].saved ) // TODO attempt at optimization is a kludge
       this.createPacks_();
   }
 
@@ -3560,7 +3558,7 @@ class Saved {
     this.seed = gameState[rules.Name].seed;
     this.redeals = stock.redeals;
     this.moves = tallyMan.count;
-    this.undo = undo;
+    this.undo = JSON.parse(JSON.stringify(undo));
     this.containers = [];
     for ( let i=0; i<cardContainers.length; i++ ) {
       this.containers[i] = cardContainers[i].getSaveableCards();
@@ -3574,9 +3572,6 @@ function dosave() {
 }
 
 function doload() {
-  if ( !settings.loadSaved )
-    return;
-
   if ( gameState[rules.Name].saved ) {
     // console.log('loading', gameState[rules.Name].saved);
     for ( let i=0; i<cardContainers.length; i++ ) {
@@ -3867,11 +3862,9 @@ if ( !settings ) {
     aniSpeed:3,
     autoCollect:Constants.AUTOCOLLECT_SOLVEABLE,
     sensoryCues:false,
-    autoFlip:true,              // retired
-    playFromFoundation:false,   // retired
     autoPlay:true,
     dealWinnable:false,
-    loadSaved:true
+    forceSeed:0
   };
 }
 
@@ -3911,10 +3904,11 @@ document.documentElement.style.setProperty('--ffont', 'Acme');
 
 window.onbeforeunload = function(e) {
   // if scattered, force a new game, otherwise loaded game won't be scattered
-  if ( foundations.some( f => f.scattered ) )
+  if ( foundations.some( f => f.scattered ) ) {
     delete gameState[rules.Name].saved;
-  else
+  } else {
     gameState[rules.Name].saved = new Saved();
+  }
   try {
     localStorage.setItem(Constants.LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
     localStorage.setItem(Constants.LOCALSTORAGE_GAMES, JSON.stringify(gameState));
@@ -4085,9 +4079,10 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
   }
 });
 
-if ( settings.loadSaved && gameState[rules.Name].saved )
+if ( gameState[rules.Name].saved )
   doload();
 else
+  // there will be stock.createPacks_()
   window.onload = dealCards;
 
 if ( 0 === gameState[rules.Name].totalGames )
