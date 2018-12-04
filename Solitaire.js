@@ -5,7 +5,7 @@
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
   GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.12.04.0',
+  GAME_VERSION: '0.12.04.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -3480,40 +3480,37 @@ function availableMoves() {
 }
 
 function gameOver(won) {
-  const st = gameState[rules.Name];
+  const gs = gameState[rules.Name];
 
   if ( won ) {
-    console.log('recording stats for won game', st);
+    console.log('recording stats for won game', gs);
 
-    st.totalGames += 1;
-    st.totalMoves += tallyMan.count;
+    gs.totalGames += 1;
+    gs.totalMoves += tallyMan.count;
 
-    st.gamesWon += 1;
+    gs.gamesWon += 1;
 
-    if ( st.currStreak < 0 )
-      st.currStreak = 1;
+    if ( gs.currStreak < 0 )
+      gs.currStreak = 1;
     else
-      st.currStreak += 1;
-    if ( st.currStreak > st.bestStreak )
-      st.bestStreak = st.currStreak;
-
-    if ( gameState[rules.Name].saved )
-      delete gameState[rules.Name].saved; // start with a new deal
+      gs.currStreak += 1;
+    if ( gs.currStreak > gs.bestStreak )
+      gs.bestStreak = gs.currStreak;
   } else if ( tallyMan.count > 0 && !isComplete() ) {
-    console.log('recording stats for lost game', st);
+    console.log('recording stats for lost game', gs);
 
-    st.totalGames += 1;
+    gs.totalGames += 1;
 
-    if ( st.currStreak > 0 )
-      st.currStreak = 0;
+    if ( gs.currStreak > 0 )
+      gs.currStreak = 0;
     else
-      st.currStreak -= 1;
-    if ( st.currStreak < st.worstStreak )
-      st.worstStreak = st.currStreak;
-
-    if ( gameState[rules.Name].saved )
-      delete gameState[rules.Name].saved; // start with a new deal
+      gs.currStreak -= 1;
+    if ( gs.currStreak < gs.worstStreak )
+      gs.worstStreak = gs.currStreak;
   }
+
+  if ( gs.saved )
+    delete gs.saved; // either way, start with a new deal
 }
 
 function restart(seed) {
@@ -3572,22 +3569,23 @@ function dosave() {
 }
 
 function doload() {
-  if ( gameState[rules.Name].saved ) {
-    // console.log('loading', gameState[rules.Name].saved);
+  const gss = gameState[rules.Name].saved;
+  if ( gss ) {
+    // console.log('loading', gss);
     for ( let i=0; i<cardContainers.length; i++ ) {
-      cardContainers[i].load(gameState[rules.Name].saved.containers[i]);
+      cardContainers[i].load(gss.containers[i]);
     }
-    gameState[rules.Name].seed = gameState[rules.Name].saved.seed;
-    if ( gameState[rules.Name].saved.hasOwnProperty('redeals') ) {
-      stock.redeals = gameState[rules.Name].saved.redeals;
+    gameState[rules.Name].seed = gss.seed;
+    if ( gss.hasOwnProperty('redeals') ) {
+      stock.redeals = gss.redeals;
     } else {
       stock.redeals = null;
     }
     stock.updateRedealsSVG_();
-    tallyMan.count = gameState[rules.Name].saved.moves;
-    undo = gameState[rules.Name].saved.undo;
+    tallyMan.count = gss.moves;
+    undo = JSON.parse(JSON.stringify(gss.undo));
     scrunchContainers();
-    // delete gameState[rules.Name].saved;
+    // delete gss.saved;
   } else {
     displayToast('no saved game');
   }
@@ -3912,7 +3910,6 @@ window.onbeforeunload = function(e) {
   try {
     localStorage.setItem(Constants.LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
     localStorage.setItem(Constants.LOCALSTORAGE_GAMES, JSON.stringify(gameState));
-    // localStorage.setItem(Constants.GAME_NAME, JSON.stringify(stats));
   } catch(err) {
     console.error(err);
   }
@@ -4079,11 +4076,13 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
   }
 });
 
-if ( gameState[rules.Name].saved )
+if ( gameState[rules.Name].saved ) {
   doload();
-else
+  delete gameState[rules.Name].saved
+} else {
   // there will be stock.createPacks_()
   window.onload = dealCards;
+}
 
 if ( 0 === gameState[rules.Name].totalGames )
   doshowrules();
