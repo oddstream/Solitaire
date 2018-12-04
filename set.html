@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-123485292-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'UA-123485292-1');
+    </script>
+
+    <meta charset="utf-8"/>
+    <meta name="description" content="Free Solitaire Games in Material Design; Klondike, Freecell, Spider, Yukon"/>
+    <meta name="keywords" content="Solitaire, Patience, Klondike, Freecell, Yukon, Spider, Scorpion, Canfield, Forty Thieves"/>
+    <meta name="author" content="Gilbert Oddstream"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Solitaire Card Games</title>
+
+    <link rel="manifest" href="./manifest.json">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
+    <link rel="mask-icon" href="img/safari-pinned-tab.svg" color="dir#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <style>
+    .steelblue {
+        background-color: #4682b4;
+    }
+    </style>
+</head>
+<body>
+ <div class="row">
+    <div class="col s12">
+      <ul class="tabs">
+        <li class="tab col s3"><a href="#tabDeal">Deal</a></li>
+        <li class="tab col s3"><a href="#tabDebug">Debug</a></li>
+        <li class="tab col s3"><a href="#tabDropbox">Dropbox</a></li>
+      </ul>
+    </div>
+    <div id="tabDeal" class="col s12">
+        <div class="input-field col s3">
+            <label for="dealWinnable"><input type="checkbox" id="dealWinnable" class="filled-in steelblue"/><span>Use winnable deals when available</span></label>
+        </div>
+        <div class="input-field col s3">
+            <input id="forceSeed" type="number" min="0" max="999999" placeholder="Deal number (1-999999)">
+        </div>
+        <div class="input-field col s3">
+            <a class="btn" onclick="dosave()">save</a>
+        </div>
+    </div>
+    <div id="tabDebug" class="col s12">
+        <p><a class="btn" onclick="dodeletesaved()">delete saved games</a></p>
+    </div>
+    <div id="tabDropbox" class="col s12">
+        <div class="input-field col s3">
+            <a class="btn" href="https://www.dropbox.com/oauth2/authorize?client_id=gpmr1d1u1j4h2d4&response_type=code" target="_blank" rel="noopener">connect to Dropbox</a>
+        </div>
+        <div class="input-field col s3">
+            <input id="dropboxAccessToken" type="text" placeholder="Dropbox Access Token">
+        </div>
+        <p><a class="btn" onclick="dotodropbox()">save to Dropbox</a></p>
+        <p><a class="btn" onclick="dofromdropbox()">load from Dropbox</a></p>
+    </div>
+</div>
+
+<script type="text/javascript" src="js/materialize.min.js"></script>
+<!--
+    use the Dropbox UMD module, see
+    https://dropbox.github.io/dropbox-sdk-js/tutorial-Getting%20started.html
+-->
+<script src="https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js"></script>
+<script>
+M.AutoInit();
+
+const LOCALSTORAGE_SETTINGS = 'Oddstream Solitaire Settings';
+const LOCALSTORAGE_GAMES = 'Oddstream Solitaire Games';
+
+const settings = JSON.parse(localStorage.getItem(LOCALSTORAGE_SETTINGS)) || {};
+    
+function dosave() {
+    settings.dealWinnable = document.getElementById("dealWinnable").checked;
+    settings.forceSeed = parseInt(document.getElementById("forceSeed").value);
+    if ( isNaN(settings.forceSeed) || (settings.forceSeed < 0 || settings.forceSeed > 999999) ) {
+        settings.forceSeed = 0;
+    }
+    try {
+        localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
+        M.toast({html:'saved'});
+    } catch(err) {
+        console.error(err);
+    }
+}
+
+function dodeletesaved() {
+    let gameState = null;
+    try {
+        const s = localStorage.getItem(LOCALSTORAGE_GAMES);
+        if ( s ) {
+            gameState = JSON.parse(s);
+        }
+    } catch(e) {
+        console.log(e);
+    }
+    if ( gameState ) {
+        for ( const g in gameState) {
+            if ( gameState[g].saved ) {
+                delete gameState[g].saved;
+            }
+        }
+        try {
+            localStorage.setItem(LOCALSTORAGE_GAMES, JSON.stringify(gameState));
+        } catch(e) {
+            console.log(e);
+        }
+        M.toast({html:'saved games deleted'});
+    }
+}
+
+function dotodropbox() {
+    let dbx = new Dropbox.Dropbox({ accessToken: settings.dropboxAccessToken });
+    dbx.usersGetCurrentAccount()
+    .then(function(response) {
+        console.log(response);
+    })
+    .catch(function(error) {
+        console.error(error);
+    });    
+}
+
+function dofromdropbox() {
+    M.toast({html:'not implemented'});
+}
+
+document.getElementById("dealWinnable").checked = settings.dealWinnable;
+document.getElementById("forceSeed").value = settings.forceSeed ? String(settings.forceSeed) : "";
+document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken ? settings.dropboxAccessToken : "";
+
+</script>
+
+</body>
+</html>

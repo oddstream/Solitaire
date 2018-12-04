@@ -5,7 +5,7 @@
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
   GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.12.03.1',
+  GAME_VERSION: '0.12.04.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -3587,7 +3587,7 @@ function doload() {
     tallyMan.count = gameState[rules.Name].saved.moves;
     undo = gameState[rules.Name].saved.undo;
     scrunchContainers();
-    delete gameState[rules.Name].saved;
+    // delete gameState[rules.Name].saved;
   } else {
     displayToast('no saved game');
   }

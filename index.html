@@ -34,7 +34,8 @@
     </style>
 </head>
 <body>
-    <p style="display:none">Collection of authentic solitaire games, implemented for modern web browsers, 
+    <p style="display:none">Collection of authentic solitaire games,
+    implemented for modern web browsers, 
     following Material Design guidelines. 
     Includes 
     Agnes Bernauer,
@@ -117,7 +118,6 @@
     </ul>
     <ul class="right">
         <li><a id="lastgame" class="tooltipped" data-position="bottom" data-tooltip="Go to last game"><i class="material-icons">redo</i></a></li>
-        <li><a class="modal-trigger tooltipped" href="#modalSettings" data-position="bottom" data-tooltip="Settings"><i class="material-icons">settings</i></a></li>
         <li><a href="faq.html" class="tooltipped" data-position="bottom" data-tooltip="FAQ"><i class="material-icons">info</i></a></li>
     </ul>
     </div>
@@ -125,21 +125,11 @@
     </div>
     </nav>
 
-    <div id="modalSettings" class="modal">
-        <div class="modal-content">
-            <h4 class="noselect">Settings<a class="modal-close right noselect"><i class="material-icons">close</i></a></h4>
-            <p><label for="dealWinnable"><input type="checkbox" id="dealWinnable" class="filled-in steelblue"/><span>Use winnable deals when available</span></label></p>
-            <div class="input-field col s3">
-                <input id="forceSeed" type="number" min="0" max="999999" placeholder="Deal number (1-999999)">
-            </div>
-            <p><a class="modal-close noselect" onclick="dodeletesaved()">delete saved games</a></p>
-        </div>
-    </div>
-    
     <div id="content" class="grey lighten-3">
     </div>
     
     <script type="text/javascript" src="js/materialize.min.js"></script>
+    
     <script type="application/json" id="variants">
     { "Variants":[
         {
@@ -1023,10 +1013,11 @@ if (!Array.prototype.includes) {
 }
         
 function crel(nm, cl) {
-    const ele  = document.createElement(nm);
+    const ele = document.createElement(nm);
     if ( cl ) ele.setAttribute('class', cl);
     return ele;
 }
+
 const vs = JSON.parse(document.getElementById('variants').innerText);
 const cont = document.getElementById('content');
     
@@ -1076,59 +1067,13 @@ for ( let i=0; i<types.length; i++ ) {
 
 M.AutoInit();
 
-let settings = JSON.parse(localStorage.getItem('Oddstream Solitaire Settings'));
-if ( settings ) {
-    if ( settings.lastGame ) {
-        document.getElementById('lastgame').setAttributeNS(null, 'href', settings.lastGame);
-    } else {
-        document.getElementById('lastgame').display = 'none';
-    }
+const settings = JSON.parse(localStorage.getItem('Oddstream Solitaire Settings')) || {};
+if ( settings.lastGame ) {
+    document.getElementById('lastgame').setAttributeNS(null, 'href', settings.lastGame);
 } else {
-    settings = {};
+    document.getElementById('lastgame').hidden = true;
 }
-    
-let modalSettings = M.Modal.getInstance(document.getElementById('modalSettings'));
-modalSettings.options.onOpenStart = function() {
-    document.getElementById("dealWinnable").checked = settings.dealWinnable;
-    document.getElementById("forceSeed").value = settings.forceSeed ? String(settings.forceSeed) : "";
-};
 
-modalSettings.options.onCloseEnd = function() {
-    settings.dealWinnable = document.getElementById("dealWinnable").checked;
-    settings.forceSeed = parseInt(document.getElementById("forceSeed").value);
-    if ( isNaN(settings.forceSeed) || (settings.forceSeed < 0 || settings.forceSeed > 999999) ) {
-        settings.forceSeed = 0;
-    }
-    try {
-        localStorage.setItem('Oddstream Solitaire Settings', JSON.stringify(settings));
-    } catch(e) {
-        console.error(e);
-    }
-};
-
-function dodeletesaved() {
-    let gameState = null;
-    try {
-        const s = localStorage.getItem('Oddstream Solitaire Games');
-        if ( s ) {
-            gameState = JSON.parse(s);
-        }
-    } catch(e) {
-        console.log(e);
-    }
-    if ( gameState ) {
-        for ( const g in gameState) {
-            if ( gameState[g].saved ) {
-                delete gameState[g].saved;
-            }
-        }
-        try {
-            localStorage.setItem('Oddstream Solitaire Games', JSON.stringify(gameState));
-        } catch(e) {
-            console.log(e);
-        }
-    }
-}
     </script>
 </body>
 </html>
