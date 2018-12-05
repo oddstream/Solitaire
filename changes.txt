@@ -1,3 +1,9 @@
+05/12/2018
+Finally got dropshadow working on grabbed cards, replaces 2px silver border
+
+04/12/2018
+Retire settings from index.html, started creating set.html
+
 03/12/2018
 Probable bug fix: class Saved was not making a deep copy of undo
 Retired settings.loadSaved, add deletesavedgames to index.html

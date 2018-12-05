@@ -5,7 +5,7 @@
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
   GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.12.04.1',
+  GAME_VERSION: '0.12.5.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -3674,9 +3674,10 @@ modalStatistics.options.onCloseEnd = function() {
 
 const modalGameOver = M.Modal.getInstance(document.getElementById('modalGameOver'));
 modalGameOver.options.onOpenStart = function() {
-  document.getElementById('movesMade').innerHTML = `Game ${gameState[rules.Name].seed} of ${rules.Name} solved in ${tallyMan.count} moves; your average is ${Math.round(gameState[rules.Name].totalMoves/gameState[rules.Name].gamesWon)}`;
-  document.getElementById('gamesPlayed').innerHTML = `You've played ${rules.Name} ${gameState[rules.Name].totalGames} times, and won ${gameState[rules.Name].gamesWon}`;
-  document.getElementById('gamesStreak').innerHTML = `Your current winning streak is ${gameState[rules.Name].currStreak}, your best winning streak is ${gameState[rules.Name].bestStreak}, your worst is ${gameState[rules.Name].worstStreak}`;
+  const GSRN = gameState[rules.Name];
+  document.getElementById('movesMade').innerHTML = `Game ${GSRN.seed} of ${rules.Name} solved in ${tallyMan.count} moves; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
+  document.getElementById('gamesPlayed').innerHTML = `You've played ${rules.Name} ${GSRN.totalGames} times, and won ${GSRN.gamesWon} (${Math.round(GSRN.gamesWon/GSRN.totalGames*100)}%)`;
+  document.getElementById('gamesStreak').innerHTML = `Your current winning streak is ${GSRN.currStreak}, your best winning streak is ${GSRN.bestStreak}, your worst is ${GSRN.worstStreak}`;
 };
 
 modalGameOver.options.onCloseEnd = function() {
@@ -3721,6 +3722,11 @@ function dostatsreset() {
   gameState[rules.Name].currStreak = 0;
   gameState[rules.Name].bestStreak = 0;
   gameState[rules.Name].worstStreak = 0;
+}
+
+const modalKeyboard = M.Modal.getInstance(document.getElementById('modalKeyboard'));
+function doshowkeyboard() {
+  modalKeyboard.open();
 }
 
 function displayToast(msg) {
@@ -4060,11 +4066,14 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
         waste.onclick(waste.peek());
       }
       break;
+    case 'l':
+      doload();
+      break;
     case 'r':
       modalShowRules.open();
       break;
     case 's':
-      modalStatistics.open();
+      dosave();
       break;
     case 'u':
       doundo();

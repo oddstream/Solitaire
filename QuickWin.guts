@@ -44,3 +44,28 @@
     <g class="TableauTail" deal="du"><rect x="613" y="310"></rect></g>
     <g class="TableauTail" deal="du"><rect x="680" y="310"></rect></g>
     <g class="TableauTail" deal="du"><rect x="747" y="310"></rect></g>
+
+    <defs>
+        <!-- set the filter effect area to be really big to guarantee we see it all... -->
+        <filter id="white-glow" x="-5000%" y="-5000%" width="10000%" height="10000%">
+          <feFlood result="flood" flood-color="#ffffff" flood-opacity="1"></feFlood>
+          <feComposite in="flood" result="mask" in2="SourceGraphic" operator="in"></feComposite>
+          <feMorphology in="mask" result="dilated" operator="dilate" radius="2"></feMorphology>
+          <feGaussianBlur in="dilated" result="blurred" stdDeviation="5"></feGaussianBlur>
+          <feMerge>
+              <feMergeNode in="blurred"></feMergeNode>
+              <feMergeNode in="SourceGraphic"></feMergeNode>
+          </feMerge>
+        </filter>
+        <filter id="dropshadow" width="130%" height="130%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="0"/> 
+            <feOffset dx="4" dy="4" result="offsetblur"/>
+            <feComponentTransfer>
+                <feFuncA type="linear" slope="0.2"/>
+            </feComponentTransfer>
+            <feMerge> 
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/> 
+            </feMerge>
+        </filter>
+    </defs>

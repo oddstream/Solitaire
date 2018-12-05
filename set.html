@@ -63,10 +63,17 @@
         <div class="input-field col s3">
             <input id="dropboxAccessToken" type="text" placeholder="Dropbox Access Token">
         </div>
-        <p><a class="btn" onclick="dotodropbox()">save to Dropbox</a></p>
-        <p><a class="btn" onclick="dofromdropbox()">load from Dropbox</a></p>
+        <div class="input-field col s3">
+            <a class="btn" onclick="dotodropbox()"><i class="material-icons left">cloud_upload</i>save to Dropbox</a>
+        </div>
+        <div class="input-field col s3">
+            <a class="btn" onclick="dofromdropbox()"><i class="material-icons left">cloud_download</i>load from Dropbox</a>
+        </div>
     </div>
 </div>
+
+<a class="btn-floating btn-large waves-effect waves-light red" href="index.html"><i class="material-icons">apps</i></a>
+<a class="btn-floating btn-large waves-effect waves-light red" onclick="dosave()"><i class="material-icons">save</i></a>
 
 <script type="text/javascript" src="js/materialize.min.js"></script>
 <!--
@@ -88,6 +95,7 @@ function dosave() {
     if ( isNaN(settings.forceSeed) || (settings.forceSeed < 0 || settings.forceSeed > 999999) ) {
         settings.forceSeed = 0;
     }
+    settings.dropboxAccessToken = document.getElementById("dropboxAccessToken").value;
     try {
         localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
         M.toast({html:'saved'});
@@ -122,6 +130,16 @@ function dodeletesaved() {
 }
 
 function dotodropbox() {
+    const txt = settings.dropboxAccessToken = document.getElementById("dropboxAccessToken").value;
+    if ( txt.length ) {
+        settings.dropboxAccessToken = txt;
+    }
+    
+    if ( !settings.dropboxAccessToken ) {
+        M.toast({html:'no access token'});
+        return;
+    }
+        
     let dbx = new Dropbox.Dropbox({ accessToken: settings.dropboxAccessToken });
     dbx.usersGetCurrentAccount()
     .then(function(response) {
@@ -129,16 +147,39 @@ function dotodropbox() {
     })
     .catch(function(error) {
         console.error(error);
-    });    
+    });
+    // dbx.filesUpload({contents:JSON.stringify(settings), path:'/settings.json', mode:'overwrite'});
 }
 
 function dofromdropbox() {
-    M.toast({html:'not implemented'});
+    const txt = settings.dropboxAccessToken = document.getElementById("dropboxAccessToken").value;
+    if ( txt.length ) {
+        settings.dropboxAccessToken = txt;
+    }
+    
+    if ( !settings.dropboxAccessToken ) {
+        M.toast({html:'no access token'});
+        return;
+    }
+        
+    let dbx = new Dropbox.Dropbox({ accessToken: settings.dropboxAccessToken });
+    dbx.filesDownload({path: '/settings.json'})
+    .then(function(response) {     
+        var blob = response.fileBlob;
+        var reader = new FileReader();
+        reader.addEventListener("loadend", function() {
+            console.log(reader.result);
+        });
+        reader.readAsText(blob);
+    })
+    .catch(function(error) {
+        console.error(error);
+    }); 
 }
 
 document.getElementById("dealWinnable").checked = settings.dealWinnable;
 document.getElementById("forceSeed").value = settings.forceSeed ? String(settings.forceSeed) : "";
-document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken ? settings.dropboxAccessToken : "";
+document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken ? settings.dropboxAccessToken : 'OvVYXrtX708AAAAAAAAEtXjEIxeM5ky_MBJrttJTirgTNl2kltLoatCOhPz19Zvj';
 
 </script>
 

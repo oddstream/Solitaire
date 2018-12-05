@@ -35,7 +35,8 @@ svg {
 }
 
 .grabbed {
-  stroke-width: 2 !important;
+  /* stroke-width: 2 !important; */
+  filter: url("#dropshadow");
 }
 
 .unmoveable {

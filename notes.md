@@ -32,3 +32,5 @@ https://www.dropbox.com/oauth2/authorize?client_id=gpmr1d1u1j4h2d4&response_type
 
 responds with "Enter this code into Oddstream Solitaire to finish the process."
 OvVYXrtX708AAAAAAAAEsP5hyk0TJGtaKj2OzESBzH0
+
+https://dropbox.github.io/dropbox-sdk-js/Dropbox.html#filesUpload__anchor
