@@ -1,3 +1,6 @@
+06/12/2018
+Implemented keyboard interface: phase one, move focussed card and action=onclick()
+
 05/12/2018
 Finally got dropshadow working on grabbed cards, replaces 2px silver border
 
