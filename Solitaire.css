@@ -39,6 +39,11 @@ svg {
   filter: url("#dropshadow");
 }
 
+.focus {
+  stroke-width: 2 !important;
+  stroke: black !important;
+}
+
 .unmoveable {
   fill:rgb(233,240,233) !important;
 }

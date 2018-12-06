@@ -5,7 +5,7 @@
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
   GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.12.5.0',
+  GAME_VERSION: '0.12.6.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -312,7 +312,9 @@ class Baize {
 }
 
 const /** Array<CardContainer> */cardContainers = [];
-
+let /** @type {Card} */cFocus = null;
+let /** @type {CardContainer} */ccFocus = null;
+let /** @type {Card} */cSource = null;
 const baize = new Baize;
 
 class Mover {
@@ -573,7 +575,7 @@ class Card {
    */
   onpointerdown(event) {
     Util.absorbEvent(event);
-
+    killFocus();
     /*
         https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Supporting_both_TouchEvent_and_MouseEvent#Event_order
 
@@ -3480,37 +3482,37 @@ function availableMoves() {
 }
 
 function gameOver(won) {
-  const gs = gameState[rules.Name];
+  const GSRN = gameState[rules.Name];
 
   if ( won ) {
-    console.log('recording stats for won game', gs);
+    console.log('recording stats for won game', GSRN);
 
-    gs.totalGames += 1;
-    gs.totalMoves += tallyMan.count;
+    GSRN.totalGames += 1;
+    GSRN.totalMoves += tallyMan.count;
 
-    gs.gamesWon += 1;
+    GSRN.gamesWon += 1;
 
-    if ( gs.currStreak < 0 )
-      gs.currStreak = 1;
+    if ( GSRN.currStreak < 0 )
+      GSRN.currStreak = 1;
     else
-      gs.currStreak += 1;
-    if ( gs.currStreak > gs.bestStreak )
-      gs.bestStreak = gs.currStreak;
+      GSRN.currStreak += 1;
+    if ( GSRN.currStreak > GSRN.bestStreak )
+      GSRN.bestStreak = GSRN.currStreak;
   } else if ( tallyMan.count > 0 && !isComplete() ) {
-    console.log('recording stats for lost game', gs);
+    console.log('recording stats for lost game', GSRN);
 
-    gs.totalGames += 1;
+    GSRN.totalGames += 1;
 
-    if ( gs.currStreak > 0 )
-      gs.currStreak = 0;
+    if ( GSRN.currStreak > 0 )
+      GSRN.currStreak = 0;
     else
-      gs.currStreak -= 1;
-    if ( gs.currStreak < gs.worstStreak )
-      gs.worstStreak = gs.currStreak;
+      GSRN.currStreak -= 1;
+    if ( GSRN.currStreak < GSRN.worstStreak )
+      GSRN.worstStreak = GSRN.currStreak;
   }
 
-  if ( gs.saved )
-    delete gs.saved; // either way, start with a new deal
+  if ( GSRN.saved )
+    delete GSRN.saved; // either way, start with a new deal
 }
 
 function restart(seed) {
@@ -3626,8 +3628,9 @@ modalSettings.options.onCloseEnd = function() {
 
 const modalStatistics = M.Modal.getInstance(document.getElementById('modalStatistics'));
 modalStatistics.options.onOpenStart = function() {
+  const GSRN = gameState[rules.Name];
   {
-    let s = `In this game of ${rules.Name} (number ${gameState[rules.Name].seed}) you've made `;
+    let s = `In this game of ${rules.Name} (number ${GSRN.seed}) you've made `;
     s += Util.plural(tallyMan.count, 'move');
     s += ', there are ';
     s += Util.plural(availableMoves(), 'available move');
@@ -3646,12 +3649,12 @@ modalStatistics.options.onOpenStart = function() {
     document.getElementById('thisGameStats').innerHTML = s;
   }
 
-  document.getElementById('gamesPlayedStats').innerHTML = gameState[rules.Name].totalGames === 0
+  document.getElementById('gamesPlayedStats').innerHTML = GSRN.totalGames === 0
     ? `You've not played ${rules.Name} before`
-    : `You've played ${rules.Name} ${gameState[rules.Name].totalGames} times, and won ${gameState[rules.Name].gamesWon} (${Math.round(gameState[rules.Name].gamesWon/gameState[rules.Name].totalGames*100)}%)`;
+    : `You've played ${rules.Name} ${GSRN.totalGames} times, and won ${GSRN.gamesWon} (${Math.round(GSRN.gamesWon/GSRN.totalGames*100)}%)`;
 
-  if ( gameState[rules.Name].totalGames > 0 )
-    document.getElementById('gamesStreakStats').innerHTML = `Your current streak is ${gameState[rules.Name].currStreak}, your best winning streak is ${gameState[rules.Name].bestStreak}, your worst is ${gameState[rules.Name].worstStreak}`;
+  if ( GSRN.totalGames > 0 )
+    document.getElementById('gamesStreakStats').innerHTML = `Your current streak is ${GSRN.currStreak}, your best winning streak is ${GSRN.bestStreak}, your worst is ${GSRN.worstStreak}`;
   else
     document.getElementById('gamesStreakStats').innerHTML = '';
 
@@ -3715,13 +3718,14 @@ function doshowrules() {
 }
 
 function dostatsreset() {
-  gameState[rules.Name].totalMoves = 0;
-  gameState[rules.Name].totalGames = 0;
-  gameState[rules.Name].gamesWon = 0;
+  const GSRN = gameState[rules.Name];
+  GSRN.totalMoves = 0;
+  GSRN.totalGames = 0;
+  GSRN.gamesWon = 0;
 
-  gameState[rules.Name].currStreak = 0;
-  gameState[rules.Name].bestStreak = 0;
-  gameState[rules.Name].worstStreak = 0;
+  GSRN.currStreak = 0;
+  GSRN.bestStreak = 0;
+  GSRN.worstStreak = 0;
 }
 
 const modalKeyboard = M.Modal.getInstance(document.getElementById('modalKeyboard'));
@@ -3794,12 +3798,15 @@ if ( !rules.Stock.hasOwnProperty('target') )        rules.Stock.target = null;
 if ( !rules.Waste.hasOwnProperty('maxcards') )      rules.Waste.maxcards = null;    // allow any number of cards
 if ( !rules.Waste.hasOwnProperty('target') )        rules.Waste.target = null;
 if ( !rules.Waste.hasOwnProperty('fan') )           rules.Waste.fan = 'Right';      // TODO not implemented
+if ( !rules.Waste.hasOwnProperty('hidden') )        rules.Waste.hidden = false;
 
 if ( !rules.Cell.hasOwnProperty('target') )         rules.Cell.target = null;
+if ( !rules.Cell.hasOwnProperty('hidden') )         rules.Cell.hidden = false;
 
 if ( !rules.Reserve.hasOwnProperty('fan') )         rules.Reserve.fan = 'Down';
 if ( !rules.Reserve.hasOwnProperty('maxfan') )      rules.Reserve.maxfan = 0;       // use baize dimensions
 if ( !rules.Reserve.hasOwnProperty('target') )      rules.Reserve.target = null;
+if ( !rules.Reserve.hasOwnProperty('hidden') )      rules.Reserve.hidden = false;
 
 if ( !rules.Foundation.hasOwnProperty('fan') )      rules.Foundation.fan = 'None';
 if ( !rules.Foundation.hasOwnProperty('maxfan') )   rules.Foundation.maxfan = 0;
@@ -3813,6 +3820,7 @@ if ( !rules.Tableau.hasOwnProperty('maxfan') )      rules.Tableau.maxfan = 0;   
 if ( !rules.Tableau.hasOwnProperty('build') )       rules.Tableau.build = {suit:2, rank:4};
 if ( !rules.Tableau.hasOwnProperty('move') )        rules.Tableau.move = {suit:4, rank:2};
 if ( !rules.Tableau.hasOwnProperty('target') )      rules.Tableau.target = null;
+if ( !rules.Tableau.hasOwnProperty('hidden') )      rules.Tableau.hidden = false;
 
 let stats = null; // legacy
 let settings = null;
@@ -4052,7 +4060,6 @@ function robot() {
  */
 document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) {
   // console.log(kev,kev.key,kev.keyCode,kev.ctrlKey);
-  // console.log(kev.key,kev.keyCode);
   switch ( kev.key.toLowerCase() ) {
     case 'a':
       const a = availableMoves();
@@ -4085,9 +4092,167 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
   }
 });
 
+function markFocus() {
+  const cl = (cFocus ? cFocus : ccFocus).g.firstChild.classList;
+  cl.add('focus');
+}
+
+function unmarkFocus() {
+  const cl = (cFocus ? cFocus : ccFocus).g.firstChild.classList;
+  cl.remove('focus');
+}
+
+function startFocus() {
+  if ( !ccFocus ) {
+    ccFocus = tableaux[0];
+    cFocus = ccFocus.peek();
+    markFocus();
+    return true;
+  }
+  return false;
+}
+
+function killFocus() {
+  if ( ccFocus || cFocus )
+    unmarkFocus();
+  ccFocus = null;
+  cFocus = null;
+}
+
+function moveFocusLeft() {
+  if ( startFocus() )
+    return;
+  unmarkFocus();
+  const nCard = cFocus ? cFocus.owner.cards.findIndex( e => e === cFocus ) : -1;
+  let i = cardContainers.findIndex(e => e == ccFocus);
+  for (;;) {
+    if ( 0 === i ) {
+      i = cardContainers.length - 1;
+    } else {
+      i -= 1;
+    }
+    if ( !cardContainers[i].rules.hidden )
+      break;
+  }
+  ccFocus = cardContainers[i];
+  if ( nCard >= 0 && nCard < ccFocus.cards.length )
+    cFocus = ccFocus.cards[nCard];
+  else
+    cFocus = ccFocus.peek();
+  markFocus();
+}
+
+function moveFocusRight() {
+  if ( startFocus() )
+    return;
+  unmarkFocus();
+  const nCard = cFocus ? cFocus.owner.cards.findIndex( e => e === cFocus ) : -1;
+  let i = cardContainers.findIndex(e => e == ccFocus);
+  for (;;) {
+    if ( cardContainers.length - 1 === i ) {
+      i = 0;
+    } else {
+      i += 1;
+    }
+    if ( !cardContainers[i].rules.hidden )
+      break;
+  }
+  ccFocus = cardContainers[i];
+  if ( nCard >= 0 && nCard < ccFocus.cards.length )
+    cFocus = ccFocus.cards[nCard];
+  else
+    cFocus = ccFocus.peek();
+  markFocus();
+}
+
+function moveFocusUp() {
+  const findContainerAbove = () => {
+    let ccAbove = cardContainers.find( (cc) => { return ( !cc.rules.hidden && cc.pt.x === ccFocus.pt.x && cc.pt.y < ccFocus.pt.y ) });
+    if ( ccAbove )
+      ccFocus = ccAbove;
+    return !!ccAbove;
+  };
+
+  if ( startFocus() )
+    return;
+  unmarkFocus();
+  if ( cFocus ) {
+    let nCard = cFocus.owner.cards.findIndex( e => e === cFocus );
+    if ( nCard > 0 ) {
+      cFocus = cFocus.owner.cards[nCard-1];
+    } else if ( findContainerAbove() ) {
+      cFocus = ccFocus.peek();
+    }
+  } else if ( findContainerAbove() ) {
+    cFocus = ccFocus.peek();
+  }
+  markFocus();
+}
+
+function moveFocusDown() {
+  const findContainerBelow = () => {
+    let ccBelow = cardContainers.find( (cc) => { return ( !cc.rules.hidden && cc.pt.x === ccFocus.pt.x && cc.pt.y > ccFocus.pt.y ) });
+    if ( ccBelow )
+      ccFocus = ccBelow;
+    return !!ccBelow;
+  }
+
+  if ( startFocus() )
+    return;
+  unmarkFocus();
+  if ( cFocus ) {
+    let nCard = cFocus.owner.cards.findIndex( e => e === cFocus );
+    if ( nCard < cFocus.owner.cards.length - 1 ) {
+      cFocus = cFocus.owner.cards[nCard+1];
+    } else if ( findContainerBelow() ) {
+      cFocus = ccFocus.cards[0];
+    }
+  } else if ( findContainerBelow() ) {
+    cFocus = ccFocus.cards[0];
+  }
+  markFocus();
+}
+
+function actionFocus() {
+  if ( startFocus() )
+    return;
+  if ( cFocus ) {
+    unmarkFocus();
+    ccFocus.onclick(cFocus);
+    ccFocus = cFocus.owner;
+    markFocus();
+  }
+}
+
+document.addEventListener('keydown', function(/** @type {KeyboardEvent} */kev) {
+  switch( kev.key ) {
+    case 'ArrowLeft':
+      moveFocusLeft();
+      kev.preventDefault();
+      break;
+    case 'ArrowRight':
+      moveFocusRight();
+      kev.preventDefault();
+      break;
+    case 'ArrowUp':
+      moveFocusUp();
+      kev.preventDefault();
+      break;
+    case 'ArrowDown':
+      moveFocusDown();
+      kev.preventDefault();
+      break;
+    case 'Enter':
+    case ' ':
+      actionFocus();
+      kev.preventDefault();
+      break;
+  }
+});
+
 if ( gameState[rules.Name].saved ) {
   doload();
-  delete gameState[rules.Name].saved
+  delete gameState[rules.Name].saved;
 } else {
   // there will be stock.createPacks_()
   window.onload = dealCards;
