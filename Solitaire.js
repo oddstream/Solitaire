@@ -5,7 +5,7 @@
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
   GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.12.6.0',
+  GAME_VERSION: '0.12.9.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -2178,11 +2178,9 @@ class StockCruel extends Stock
    * @private
    * @returns {Array}
    */
-  part1_()
-  {
+  part1_() {
     const tmpCards = [];
-    for ( let i=tableaux.length-1; i>=0; i-- )
-    {
+    for ( let i=tableaux.length-1; i>=0; i-- ) {
       const src = tableaux[i].cards;
       const tmp = [];
       while ( src.length )
@@ -2191,8 +2189,7 @@ class StockCruel extends Stock
         tmpCards.push(tmp.pop());
     }
     /*
-    for ( let i=1; i<tableaux.length; i++ )
-    {
+    for ( let i=1; i<tableaux.length; i++ ) {
         const src = tableaux[i].cards;
         console.assert(src.length===0);
     }
@@ -2875,8 +2872,8 @@ class Tableau extends CardContainer {
     super(pt, g);
     this.rules = rules.Tableau;
     this.resetStackFactor_(this.rules);
-    if ( 0 === this.a_accept && this.rules.accept )
-    {   // accept not specified in guts, so we use rules
+    if ( 0 === this.a_accept && this.rules.accept ) {
+      // accept not specified in guts, so we use rules
       this.a_accept = this.rules.accept;
       this.createAcceptSVG_();
     }
@@ -3142,8 +3139,7 @@ class TableauSpider extends TableauTail {
    * @override
    * @param {Card} c
    */
-  onclick(c)
-  {
+  onclick(c) {
     if ( c.faceDown )
       return;
 
@@ -3770,7 +3766,7 @@ function dohelp() {
 
 function dealCards() {
   cardContainers.forEach( cc => {
-    window.setTimeout( () => cc.deal(), 1 );
+    window.setTimeout( () => cc.deal(), 100 );
   });
   waitForCards().then( () => {
     undo.length = 0;
@@ -4093,12 +4089,14 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
 });
 
 function markFocus() {
-  const cl = (cFocus ? cFocus : ccFocus).g.firstChild.classList;
+  // const cl = (cFocus ? cFocus : ccFocus).g.firstChild.classList;
+  const cl = (cFocus ? cFocus : ccFocus).g.querySelector('rect').classList;
   cl.add('focus');
 }
 
 function unmarkFocus() {
-  const cl = (cFocus ? cFocus : ccFocus).g.firstChild.classList;
+  // const cl = (cFocus ? cFocus : ccFocus).g.firstChild.classList;
+  const cl = (cFocus ? cFocus : ccFocus).g.querySelector('rect').classList;
   cl.remove('focus');
 }
 
@@ -4117,6 +4115,17 @@ function killFocus() {
     unmarkFocus();
   ccFocus = null;
   cFocus = null;
+}
+
+function focusOnGrab() {
+  if ( cFocus && ccFocus.cards.length ) {
+    while ( !ccFocus.canGrab(cFocus) ) {
+      const nCard = cFocus.owner.cards.findIndex( e => e === cFocus );
+      if ( nCard === ccFocus.cards.length - 1 )
+        break;
+      cFocus = ccFocus.cards[nCard+1];
+    }
+  }
 }
 
 function moveFocusLeft() {
@@ -4139,6 +4148,7 @@ function moveFocusLeft() {
     cFocus = ccFocus.cards[nCard];
   else
     cFocus = ccFocus.peek();
+  focusOnGrab();
   markFocus();
 }
 
@@ -4162,6 +4172,7 @@ function moveFocusRight() {
     cFocus = ccFocus.cards[nCard];
   else
     cFocus = ccFocus.peek();
+  focusOnGrab();
   markFocus();
 }
 
@@ -4186,6 +4197,7 @@ function moveFocusUp() {
   } else if ( findContainerAbove() ) {
     cFocus = ccFocus.peek();
   }
+  focusOnGrab();
   markFocus();
 }
 
@@ -4210,6 +4222,7 @@ function moveFocusDown() {
   } else if ( findContainerBelow() ) {
     cFocus = ccFocus.cards[0];
   }
+  focusOnGrab();
   markFocus();
 }
 
@@ -4221,6 +4234,8 @@ function actionFocus() {
     ccFocus.onclick(cFocus);
     ccFocus = cFocus.owner;
     markFocus();
+  } else if ( ccFocus instanceof Stock ) {
+    ccFocus.clickOnEmpty();
   }
 }
 
