@@ -5,7 +5,7 @@
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
   GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.12.9.0',
+  GAME_VERSION: '0.12.10.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -312,9 +312,7 @@ class Baize {
 }
 
 const /** Array<CardContainer> */cardContainers = [];
-let /** @type {Card} */cFocus = null;
-let /** @type {CardContainer} */ccFocus = null;
-let /** @type {Card} */cSource = null;
+let /** @type {KeyFocus} */keyFocus = null;
 const baize = new Baize;
 
 class Mover {
@@ -575,7 +573,10 @@ class Card {
    */
   onpointerdown(event) {
     Util.absorbEvent(event);
-    killFocus();
+    if ( keyFocus ) {
+      keyFocus.mark(false);
+      keyFocus = null;
+    }
     /*
         https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Supporting_both_TouchEvent_and_MouseEvent#Event_order
 
@@ -3869,7 +3870,7 @@ if ( !settings ) {
   settings = {
     aniSpeed:3,
     autoCollect:Constants.AUTOCOLLECT_SOLVEABLE,
-    sensoryCues:false,
+    sensoryCues:true,
     autoPlay:true,
     dealWinnable:false,
     forceSeed:0
@@ -3882,6 +3883,11 @@ if ( settings.aniSpeed < 1 || settings.aniSpeed > 5 )
   settings.aniSpeed = 3;
 if ( settings.autoCollect === Constants.AUTOCOLLECT_ACES )
   settings.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
+
+if ( !gameState ) {
+  console.warn('game state not found in local storage');
+  gameState = {};
+}
 
 if ( gameState.hasOwnProperty('Options') )
   delete gameState.Options;
@@ -4088,178 +4094,181 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
   }
 });
 
-function markFocus() {
-  // const cl = (cFocus ? cFocus : ccFocus).g.firstChild.classList;
-  const cl = (cFocus ? cFocus : ccFocus).g.querySelector('rect').classList;
-  cl.add('focus');
-}
-
-function unmarkFocus() {
-  // const cl = (cFocus ? cFocus : ccFocus).g.firstChild.classList;
-  const cl = (cFocus ? cFocus : ccFocus).g.querySelector('rect').classList;
-  cl.remove('focus');
-}
-
-function startFocus() {
-  if ( !ccFocus ) {
-    ccFocus = tableaux[0];
-    cFocus = ccFocus.peek();
-    markFocus();
-    return true;
+class KeyFocus {
+  constructor() {
+    this.cc = tableaux[0];
+    this.c = this.cc.peek();
+    this.mark(true);
   }
-  return false;
-}
 
-function killFocus() {
-  if ( ccFocus || cFocus )
-    unmarkFocus();
-  ccFocus = null;
-  cFocus = null;
-}
+  /**
+   * Add/remove outline around card with focus
+   * @param {!boolean} add 
+   */
+  mark(add) {
+    const cl = (this.c ? this.c : this.cc).g.querySelector('rect').classList;
+    if ( add )
+      cl.add('focus');
+    else
+      cl.remove('focus');
+  }
 
-function focusOnGrab() {
-  if ( cFocus && ccFocus.cards.length ) {
-    while ( !ccFocus.canGrab(cFocus) ) {
-      const nCard = cFocus.owner.cards.findIndex( e => e === cFocus );
-      if ( nCard === ccFocus.cards.length - 1 )
+  /**
+   * Move the focus down the stack of cards until we find one that can be grabbed
+   */
+  findGrab_() {
+    if ( this.c && this.cc.cards.length ) {
+      while ( !this.cc.canGrab(this.c) ) {
+        const nCard = this.c.owner.cards.findIndex( e => e === this.c );
+        if ( nCard === this.cc.cards.length - 1 )
+          break;
+        this.c = this.cc.cards[nCard+1];
+      }
+    }
+  }
+
+  moveLeft() {
+    this.mark(false);
+
+    const nCard = this.c ? this.c.owner.cards.findIndex( e => e === this.c ) : -1;
+    let i = cardContainers.findIndex(e => e == this.cc);
+    for (;;) {
+      if ( 0 === i ) {
+        i = cardContainers.length - 1;
+      } else {
+        i -= 1;
+      }
+      if ( !cardContainers[i].rules.hidden )
         break;
-      cFocus = ccFocus.cards[nCard+1];
     }
+    this.cc = cardContainers[i];
+    if ( nCard >= 0 && nCard < this.cc.cards.length )
+      this.c = this.cc.cards[nCard];
+    else
+      this.c = this.cc.peek();
+  
+    this.findGrab_();
+    this.mark(true);
   }
-}
 
-function moveFocusLeft() {
-  if ( startFocus() )
-    return;
-  unmarkFocus();
-  const nCard = cFocus ? cFocus.owner.cards.findIndex( e => e === cFocus ) : -1;
-  let i = cardContainers.findIndex(e => e == ccFocus);
-  for (;;) {
-    if ( 0 === i ) {
-      i = cardContainers.length - 1;
-    } else {
-      i -= 1;
+  moveRight() {
+    this.mark(false);
+
+    const nCard = this.c ? this.c.owner.cards.findIndex( e => e === this.c ) : -1;
+    let i = cardContainers.findIndex(e => e == this.cc);
+    for (;;) {
+      if ( cardContainers.length - 1 === i ) {
+        i = 0;
+      } else {
+        i += 1;
+      }
+      if ( !cardContainers[i].rules.hidden )
+        break;
     }
-    if ( !cardContainers[i].rules.hidden )
-      break;
+    this.cc = cardContainers[i];
+    if ( nCard >= 0 && nCard < this.cc.cards.length )
+      this.c = this.cc.cards[nCard];
+    else
+      this.c = this.cc.peek();
+  
+    this.findGrab_();
+    this.mark(true);
   }
-  ccFocus = cardContainers[i];
-  if ( nCard >= 0 && nCard < ccFocus.cards.length )
-    cFocus = ccFocus.cards[nCard];
-  else
-    cFocus = ccFocus.peek();
-  focusOnGrab();
-  markFocus();
-}
 
-function moveFocusRight() {
-  if ( startFocus() )
-    return;
-  unmarkFocus();
-  const nCard = cFocus ? cFocus.owner.cards.findIndex( e => e === cFocus ) : -1;
-  let i = cardContainers.findIndex(e => e == ccFocus);
-  for (;;) {
-    if ( cardContainers.length - 1 === i ) {
-      i = 0;
-    } else {
-      i += 1;
-    }
-    if ( !cardContainers[i].rules.hidden )
-      break;
-  }
-  ccFocus = cardContainers[i];
-  if ( nCard >= 0 && nCard < ccFocus.cards.length )
-    cFocus = ccFocus.cards[nCard];
-  else
-    cFocus = ccFocus.peek();
-  focusOnGrab();
-  markFocus();
-}
+  moveUp() {
+    const findContainerAbove = () => {
+      let ccAbove = cardContainers.find( (cc) => { return ( !cc.rules.hidden && cc.pt.x === this.cc.pt.x && cc.pt.y < this.cc.pt.y ) });
+      if ( ccAbove )
+        this.cc = ccAbove;
+      return !!ccAbove;
+    };
+  
+    this.mark(false);
 
-function moveFocusUp() {
-  const findContainerAbove = () => {
-    let ccAbove = cardContainers.find( (cc) => { return ( !cc.rules.hidden && cc.pt.x === ccFocus.pt.x && cc.pt.y < ccFocus.pt.y ) });
-    if ( ccAbove )
-      ccFocus = ccAbove;
-    return !!ccAbove;
-  };
-
-  if ( startFocus() )
-    return;
-  unmarkFocus();
-  if ( cFocus ) {
-    let nCard = cFocus.owner.cards.findIndex( e => e === cFocus );
-    if ( nCard > 0 ) {
-      cFocus = cFocus.owner.cards[nCard-1];
+    if ( this.c ) {
+      let nCard = this.c.owner.cards.findIndex( e => e === this.c );
+      if ( nCard > 0 ) {
+        this.c = this.c.owner.cards[nCard-1];
+      } else if ( findContainerAbove() ) {
+        this.c = this.cc.peek();
+      }
     } else if ( findContainerAbove() ) {
-      cFocus = ccFocus.peek();
+      this.c = this.cc.peek();
     }
-  } else if ( findContainerAbove() ) {
-    cFocus = ccFocus.peek();
-  }
-  focusOnGrab();
-  markFocus();
-}
-
-function moveFocusDown() {
-  const findContainerBelow = () => {
-    let ccBelow = cardContainers.find( (cc) => { return ( !cc.rules.hidden && cc.pt.x === ccFocus.pt.x && cc.pt.y > ccFocus.pt.y ) });
-    if ( ccBelow )
-      ccFocus = ccBelow;
-    return !!ccBelow;
+  
+    this.findGrab_();
+    this.mark(true);
   }
 
-  if ( startFocus() )
-    return;
-  unmarkFocus();
-  if ( cFocus ) {
-    let nCard = cFocus.owner.cards.findIndex( e => e === cFocus );
-    if ( nCard < cFocus.owner.cards.length - 1 ) {
-      cFocus = cFocus.owner.cards[nCard+1];
+  moveDown() {
+    const findContainerBelow = () => {
+      let ccBelow = cardContainers.find( (cc) => { return ( !cc.rules.hidden && cc.pt.x === this.cc.pt.x && cc.pt.y > this.cc.pt.y ) });
+      if ( ccBelow )
+        this.cc = ccBelow;
+      return !!ccBelow;
+    }
+  
+    this.mark(false);
+    if ( this.c ) {
+      let nCard = this.c.owner.cards.findIndex( e => e === this.c );
+      if ( nCard < this.c.owner.cards.length - 1 ) {
+        this.c = this.c.owner.cards[nCard+1];
+      } else if ( findContainerBelow() ) {
+        this.c = this.cc.cards[0];
+      }
     } else if ( findContainerBelow() ) {
-      cFocus = ccFocus.cards[0];
+      this.c = this.cc.cards[0];
     }
-  } else if ( findContainerBelow() ) {
-    cFocus = ccFocus.cards[0];
+    this.findGrab_();
+    this.mark(true);
   }
-  focusOnGrab();
-  markFocus();
-}
 
-function actionFocus() {
-  if ( startFocus() )
-    return;
-  if ( cFocus ) {
-    unmarkFocus();
-    ccFocus.onclick(cFocus);
-    ccFocus = cFocus.owner;
-    markFocus();
-  } else if ( ccFocus instanceof Stock ) {
-    ccFocus.clickOnEmpty();
+  action() {
+    if ( this.c ) {
+      this.mark(false);
+      this.cc.onclick(this.c);
+      this.cc = this.c.owner;
+      this.mark(true);
+    } else if ( this.cc instanceof Stock ) {
+      this.cc.clickOnEmpty();
+    }
   }
 }
 
 document.addEventListener('keydown', function(/** @type {KeyboardEvent} */kev) {
   switch( kev.key ) {
     case 'ArrowLeft':
-      moveFocusLeft();
+      if ( keyFocus )
+        keyFocus.moveLeft();
+      else
+        keyFocus = new KeyFocus();
       kev.preventDefault();
       break;
     case 'ArrowRight':
-      moveFocusRight();
+      if ( keyFocus )
+        keyFocus.moveRight();
+      else
+        keyFocus = new KeyFocus();
       kev.preventDefault();
       break;
     case 'ArrowUp':
-      moveFocusUp();
+      if ( keyFocus )
+        keyFocus.moveUp();
+      else
+        keyFocus = new KeyFocus();
       kev.preventDefault();
       break;
     case 'ArrowDown':
-      moveFocusDown();
+      if ( keyFocus )
+        keyFocus.moveDown();
+      else
+        keyFocus = new KeyFocus();
       kev.preventDefault();
       break;
     case 'Enter':
     case ' ':
-      actionFocus();
+      if ( keyFocus )
+        keyFocus.action();
       kev.preventDefault();
       break;
   }
