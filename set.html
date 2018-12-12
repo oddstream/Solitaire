@@ -54,6 +54,7 @@
         </div>
     </div>
     <div id="tabDebug" class="col s12">
+        <p><a class="btn" onclick="doloadgamestate()">load saved games</a></p>
         <p><a class="btn" onclick="dodeletesaved()">delete saved games</a></p>
     </div>
     <div id="tabDropbox" class="col s12">
@@ -105,16 +106,13 @@ function dosave() {
 }
 
 function dodeletesaved() {
-    let gameState = null;
+    let gameState = {};
     try {
-        const s = localStorage.getItem(LOCALSTORAGE_GAMES);
-        if ( s ) {
-            gameState = JSON.parse(s);
-        }
+        gameState = JSON.parse(localStorage.getItem(LOCALSTORAGE_GAMES)) || {};
     } catch(e) {
         console.log(e);
     }
-    if ( gameState ) {
+    if ( Object.keys(gameState).length ) {
         for ( const g in gameState) {
             if ( gameState[g].saved ) {
                 delete gameState[g].saved;
@@ -127,6 +125,14 @@ function dodeletesaved() {
         }
         M.toast({html:'saved games deleted'});
     }
+}
+
+function doloadgamestate() {
+    const fileReader = new FileReader();
+    fileReader.onload = function() {
+        console.log(this.result);
+    }
+    // https://jsfiddle.net/0GiS0/nDVYd/
 }
 
 function dotodropbox() {

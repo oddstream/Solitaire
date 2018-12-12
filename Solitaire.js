@@ -5,7 +5,7 @@
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
   GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.12.10.0',
+  GAME_VERSION: '0.12.11.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -3586,7 +3586,7 @@ function doload() {
     scrunchContainers();
     // delete gss.saved;
   } else {
-    displayToast('no saved game');
+    displayToast('no saved position');
   }
 }
 
@@ -3725,11 +3725,6 @@ function dostatsreset() {
   GSRN.worstStreak = 0;
 }
 
-const modalKeyboard = M.Modal.getInstance(document.getElementById('modalKeyboard'));
-function doshowkeyboard() {
-  modalKeyboard.open();
-}
-
 function displayToast(msg) {
   // M.Toast.dismissAll();
   // console.log(M.Toast._toasts);
@@ -3775,7 +3770,7 @@ function dealCards() {
   });
 }
 
-const rules = JSON.parse(document.getElementById('rules').innerHTML);
+const rules = JSON.parse(document.getElementById('rules').innerHTML) || {};
 document.title = Constants.GAME_NAME + ' ' + Constants.GAME_VERSION + ' ' + rules.Name;
 document.getElementById('nav-title').innerHTML = rules.Name;
 document.getElementById('sidenav-title').innerHTML = rules.Name;
@@ -3819,54 +3814,18 @@ if ( !rules.Tableau.hasOwnProperty('move') )        rules.Tableau.move = {suit:4
 if ( !rules.Tableau.hasOwnProperty('target') )      rules.Tableau.target = null;
 if ( !rules.Tableau.hasOwnProperty('hidden') )      rules.Tableau.hidden = false;
 
-let stats = null; // legacy
-let settings = null;
-let gameState = null;
-
+let settings = {};
 try {
-  let s = localStorage.getItem(Constants.GAME_NAME_OLD);
-  if ( s ) {
-    console.log('removing very old localStorageItem');
-    localStorage.removeItem(Constants.GAME_NAME_OLD);
-    stats = JSON.parse(s) || {};
-    if ( stats.Options ) {
-      settings = stats.Options;
-    }
-    gameState = stats;
-  } else {
-    s  = localStorage.getItem(Constants.GAME_NAME);
-    if ( s ) {
-      console.log('removing old localStorageItem');
-      localStorage.removeItem(Constants.GAME_NAME);
-      stats = JSON.parse(s) || {};
-      if ( stats.Options ) {
-        settings = stats.Options;
-      }
-      gameState = stats;
-    } else {
-      s = localStorage.getItem(Constants.LOCALSTORAGE_SETTINGS);
-      if ( s ) {
-        settings = JSON.parse(s) || {};
-      }
-      s = localStorage.getItem(Constants.LOCALSTORAGE_GAMES);
-      if ( s ) {
-        gameState = JSON.parse(s) || {};
-      }
-    }
-  }
+  // localStorage.getItem() can return null if key does not exist
+  // JSON.parse(null) returns null
+  settings = JSON.parse(localStorage.getItem(Constants.LOCALSTORAGE_SETTINGS)) || {};
 } catch(e) {
-  settings = null;
-  gameState = {};
+  settings = {};
   console.error(e);
 }
 
-/*
-  5.3.3 Do not mix quoted and unquoted keys
-  settings
-  gameState[rules.Name]
-*/
-
-if ( !settings ) {
+if ( Object.keys(settings).length === 0 ) {
+  console.warn('settings not found in local storage');
   settings = {
     aniSpeed:3,
     autoCollect:Constants.AUTOCOLLECT_SOLVEABLE,
@@ -3884,9 +3843,18 @@ if ( settings.aniSpeed < 1 || settings.aniSpeed > 5 )
 if ( settings.autoCollect === Constants.AUTOCOLLECT_ACES )
   settings.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
 
-if ( !gameState ) {
-  console.warn('game state not found in local storage');
+let gameState = {};
+try {
+  // localStorage.getItem() can return null if key does not exist
+  // JSON.parse(null) returns null
+  gameState = JSON.parse(localStorage.getItem(Constants.LOCALSTORAGE_GAMES)) || {};
+} catch(e) {
   gameState = {};
+  console.error(e);
+}
+
+if ( Object.keys(gameState).length === 0 ) {
+  console.warn('game state not found in local storage');
 }
 
 if ( gameState.hasOwnProperty('Options') )
@@ -4224,14 +4192,15 @@ class KeyFocus {
   }
 
   action() {
+    this.mark(false);
     if ( this.c ) {
-      this.mark(false);
       this.cc.onclick(this.c);
       this.cc = this.c.owner;
-      this.mark(true);
-    } else if ( this.cc instanceof Stock ) {
+    } else if ( this.cc.clickOnEmpty ) {
       this.cc.clickOnEmpty();
+      this.c = this.cc.peek();
     }
+    this.mark(true);
   }
 }
 

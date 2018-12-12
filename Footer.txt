@@ -72,24 +72,6 @@
     </div>
 </div>
 
-<div id="modalKeyboard" class="modal">
-    <div class="modal-content">
-        <h4>Keyboard shortcuts<a class="modal-close right noselect hide-on-small-only"><i class="material-icons">close</i></a></h4>
-        <div><span>
-        U to undo the last move<br/>
-    <br/>
-        A to show the number of available moves<br/>
-        R to show the rules for the current game<br/>
-    <br/>
-        E is the same as clicking on the waste (if there is one)<br/>
-        W is the same as clicking on the stock<br/>
-    <br/>
-        S to save the current game position<br/>
-        L to load a saved game position
-      </span></div>
-    </div>
-</div>
-  
 <script type="text/javascript" src="js/materialize.min.js"></script>
 <script>
 M.Sidenav.init(document.querySelectorAll('.sidenav'));

@@ -1,3 +1,8 @@
+10/12/2018
+refactored keyboard interface into a class
+noticed latest Chrome update has wiped localStorage (and logged out of reddit, but
+not other sites)
+
 06/12/2018
 Implemented keyboard interface: phase one, move focussed card and action=onclick()
 
