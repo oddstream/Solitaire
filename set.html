@@ -37,12 +37,12 @@
  <div class="row">
     <div class="col s12">
       <ul class="tabs">
-        <li class="tab col s3"><a href="#tabDeal">Deal</a></li>
-        <li class="tab col s3"><a href="#tabDebug">Debug</a></li>
+        <li class="tab col s3"><a href="#tabSettings">Settings</a></li>
+        <li class="tab col s3"><a href="#tabGameState">Game State</a></li>
         <li class="tab col s3"><a href="#tabDropbox">Dropbox</a></li>
       </ul>
     </div>
-    <div id="tabDeal" class="col s12">
+    <div id="tabSettings" class="col s12">
         <div class="input-field col s3">
             <label for="dealWinnable"><input type="checkbox" id="dealWinnable" class="filled-in steelblue"/><span>Use winnable deals when available</span></label>
         </div>
@@ -50,12 +50,15 @@
             <input id="forceSeed" type="number" min="0" max="999999" placeholder="Deal number (1-999999)">
         </div>
         <div class="input-field col s3">
-            <a class="btn" onclick="dosave()">save</a>
+            <a class="btn" onclick="doSaveSettings()">save to browser</a>
         </div>
     </div>
-    <div id="tabDebug" class="col s12">
-        <p><a class="btn" onclick="doloadgamestate()">load saved games</a></p>
-        <p><a class="btn" onclick="dodeletesaved()">delete saved games</a></p>
+    <div id="tabGameState" class="col s12">
+        <div class="input-field col s3">
+            <input id="selectFile" type="file" accept="application/json"></input>
+        </div>
+        <p><a class="btn" onclick="doLoadGameState()">load saved games from file</a></p>
+        <p><a class="btn" onclick="doDeleteGameState()">delete saved games from browser</a></p>
     </div>
     <div id="tabDropbox" class="col s12">
         <div class="input-field col s3">
@@ -72,9 +75,8 @@
         </div>
     </div>
 </div>
-
+<hr/>
 <a class="btn-floating btn-large waves-effect waves-light red" href="index.html"><i class="material-icons">apps</i></a>
-<a class="btn-floating btn-large waves-effect waves-light red" onclick="dosave()"><i class="material-icons">save</i></a>
 
 <script type="text/javascript" src="js/materialize.min.js"></script>
 <!--
@@ -89,23 +91,33 @@ const LOCALSTORAGE_SETTINGS = 'Oddstream Solitaire Settings';
 const LOCALSTORAGE_GAMES = 'Oddstream Solitaire Games';
 
 const settings = JSON.parse(localStorage.getItem(LOCALSTORAGE_SETTINGS)) || {};
-    
-function dosave() {
-    settings.dealWinnable = document.getElementById("dealWinnable").checked;
-    settings.forceSeed = parseInt(document.getElementById("forceSeed").value);
-    if ( isNaN(settings.forceSeed) || (settings.forceSeed < 0 || settings.forceSeed > 999999) ) {
-        settings.forceSeed = 0;
-    }
-    settings.dropboxAccessToken = document.getElementById("dropboxAccessToken").value;
-    try {
-        localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
-        M.toast({html:'saved'});
-    } catch(err) {
-        console.error(err);
-    }
+const gameState = JSON.parse(localStorage.getItem(LOCALSTORAGE_GAMES)) || {};
+
+function doSaveSettings() {
+  settings.dealWinnable = document.getElementById("dealWinnable").checked;
+  settings.forceSeed = parseInt(document.getElementById("forceSeed").value);
+  if ( isNaN(settings.forceSeed) || (settings.forceSeed < 0 || settings.forceSeed > 999999) ) {
+    settings.forceSeed = 0;
+  }
+  settings.dropboxAccessToken = document.getElementById("dropboxAccessToken").value;
+  try {
+    localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
+    M.toast({html:'settings saved'});
+  } catch(err) {
+    console.error(err);
+  }
 }
 
-function dodeletesaved() {
+function doSaveGameState() {
+  try {
+    localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(gameState));
+    M.toast({html:'game state saved'});
+  } catch(err) {
+    console.error(err);
+  }
+}
+
+function doDeleteGameState() {
     let gameState = {};
     try {
         gameState = JSON.parse(localStorage.getItem(LOCALSTORAGE_GAMES)) || {};
@@ -127,12 +139,16 @@ function dodeletesaved() {
     }
 }
 
-function doloadgamestate() {
+function doLoadGameState() {
+  const file = document.getElementById('selectFile').files[0];
+  console.log(file);
+  if ( file ) {
     const fileReader = new FileReader();
     fileReader.onload = function() {
-        console.log(this.result);
+      console.log(this.result);
     }
-    // https://jsfiddle.net/0GiS0/nDVYd/
+    fileReader.readAsText(file);
+  }
 }
 
 function dotodropbox() {

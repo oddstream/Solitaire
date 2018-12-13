@@ -4,8 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_NAME_OLD: 'Solitaire',
-  GAME_VERSION: '0.12.11.1',
+  GAME_VERSION: '0.12.12.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -1102,7 +1101,7 @@ class CardContainer {
   constructor(pt, g) {
     this.pt = pt;
     this.g = g;
-    this.cards = [];
+    this.cards = /** @type {Card[]} */([]);
     this.a_deal = this.g.getAttribute('deal');
     this.stackFactor = NaN;
 
@@ -1166,7 +1165,7 @@ class CardContainer {
    */
   load(arr) {
     this.cards.forEach( c => c.destructor() );
-    this.cards = [];
+    this.cards = /** @type {Card[]} */([]);
     arr.forEach( a => {
       const c = new Card(a.pack, a.suit, a.ordinal, a.faceDown, this.pt);
       this.push(c);
@@ -1371,13 +1370,29 @@ class CardContainer {
   bury_() {
     const b = this.cards.filter( c => c.ordinal === rules.Tableau.bury );
     if ( b ) {
-      console.log('burying', rules.Tableau.bury);
       const tmp = b.concat(
         this.cards.filter( c => c.ordinal !== rules.Tableau.bury )
       );
-      // console.log(this.cards, ':=', tmp);
-      this.cards = [];
+      this.cards = /** @type {Card[]} */([]);
       for ( const c of tmp ) {
+        this.push(c);
+      }
+    }
+  }
+
+  /**
+   * Disinter a card (e.g. an Ace in Freecell Easy)
+   * @private
+   */
+  disinter_() {
+    const d = this.cards.filter( c => c.ordinal === rules.Tableau.disinter );
+    if ( d ) {
+      const cards = this.cards.filter( c => c.ordinal !== rules.Tableau.disinter );
+      this.cards = /** @type {Card[]} */([]);
+      for ( const c of cards ) {
+        this.push(c);
+      }
+      for ( const c of d ) {
         this.push(c);
       }
     }
@@ -1441,6 +1456,10 @@ class CardContainer {
     if ( rules.Tableau.bury ) {
       // pause so user can see what's happening
       window.setTimeout(this.bury_.bind(this), 1000);
+    }
+    if ( rules.Tableau.disinter ) {
+      // pause so user can see what's happening
+      window.setTimeout(this.disinter_.bind(this), 1000);
     }
   }
 
@@ -1845,15 +1864,17 @@ class Stock extends CardContainer {
     // this.updateRedealsSVG_();
 
     g.onclick = this.clickOnEmpty.bind(this);
-
-    if ( !gameState[rules.Name].saved ) // TODO attempt at optimization is a kludge
-      this.createPacks_();
   }
 
   /**
-   * @private
+   * @return {Number}
    */
-  createPacks_() {
+  expectedNumberOfCards() {
+    return this.rules.packs * 13 * this.rules.suitfilter.length;
+  }
+
+  createPacks() {
+    this.cards = /** @type {Card[]} */([]);
     for ( let o=1; o<Constants.cardValues.length; o++ ) {
       for ( let p=0; p<this.rules.packs; p++ ) {
         for ( let s of this.rules.suitfilter ) { // defaults to '♠♥♦♣'
@@ -1863,7 +1884,9 @@ class Stock extends CardContainer {
         }
       }
     }
-    if ( this.cards.length !== (this.rules.packs*52) ) { console.warn(this.cards.length, ' cards in pack'); }
+    if ( this.cards.length !== this.expectedNumberOfCards() ) { 
+      displayToast(`created ${this.canAcceptCard.length} cards, expected ${stock.expectedNumberOfCards()}`);
+    }
     this.sort();
     this.cards.forEach( c => baize.ele.appendChild(c.g) );
   }
@@ -3000,6 +3023,8 @@ class Tableau extends CardContainer {
 
     if ( this.rules.bury )
       r += ` At the start, ${Constants.cardValuesEnglish[this.rules.bury]}s are moved to the bottom of the tableau.`;
+    if ( this.rules.disinter )
+      r += ` At the start, ${Constants.cardValuesEnglish[this.rules.disinter]}s are moved to the top of the tableau.`;
 
     if ( tableaux[0].a_accept === Constants.ACCEPT_NOTHING_SYMBOL )
       r += ' Cards may not be placed in an empty tableau.';
@@ -3567,10 +3592,22 @@ function dosave() {
   displayToast('this position saved');
 }
 
+/**
+ * @return {Boolean}
+ */
 function doload() {
   const gss = gameState[rules.Name].saved;
   if ( gss ) {
-    // console.log('loading', gss);
+    // check that saved contains the expected number of cards
+    let nCards = 0;
+    for ( let i=0; i<gss.containers.length; i++ ) {
+      nCards += gss.containers[i].length;
+    }
+    if ( nCards !== stock.expectedNumberOfCards() ) {
+      displayToast(`found ${nCards} in saved, expected ${stock.expectedNumberOfCards()}`);
+      return false;
+    }
+
     for ( let i=0; i<cardContainers.length; i++ ) {
       cardContainers[i].load(gss.containers[i]);
     }
@@ -3585,8 +3622,10 @@ function doload() {
     undo = JSON.parse(JSON.stringify(gss.undo));
     scrunchContainers();
     // delete gss.saved;
+    return true;
   } else {
     displayToast('no saved position');
+    return false;
   }
 }
 
@@ -4244,10 +4283,13 @@ document.addEventListener('keydown', function(/** @type {KeyboardEvent} */kev) {
 });
 
 if ( gameState[rules.Name].saved ) {
-  doload();
+  if ( !doload() ) {
+    stock.createPacks();
+    window.onload = dealCards;
+  }
   delete gameState[rules.Name].saved;
 } else {
-  // there will be stock.createPacks_()
+  stock.createPacks();
   window.onload = dealCards;
 }
 
