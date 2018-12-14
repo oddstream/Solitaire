@@ -64,8 +64,8 @@
     <li><a class="waves-effect sidenav-close" onclick="dosave()"><i class="material-icons">save</i>Save this position</a></li>
     <li><a class="waves-effect sidenav-close" onclick="doload()"><i class="material-icons">restore</i>Load last saved position</a></li>
     <li><div class="divider"></div></li>
-    <li><a class="waves-effect modal-trigger sidenav-close" href="#modalStatistics"><i class="material-icons">assessment</i>Statistics</a></li>
-    <li><a class="waves-effect modal-trigger sidenav-close" href="#modalSettings"><i class="material-icons">settings</i>Settings</a></li>
+    <li><a class="waves-effect modal-trigger sidenav-close" href="#modalStatistics"><i class="material-icons">assessment</i>Statistics...</a></li>
+    <li><a class="waves-effect modal-trigger sidenav-close" href="#modalSettings"><i class="material-icons">settings</i>Settings...</a></li>
     <li><a class="waves-effect modal-trigger sidenav-close" href="faq.html"><i class="material-icons">help</i>Help</a></li>
     </ul>
     

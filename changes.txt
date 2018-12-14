@@ -1,9 +1,13 @@
 14/12/2018
-Bubdled undo stuff into a class,
+Bundled undo stuff into a class,
 played with extended character variable names,
 added move counter to title bar (as much for debugging as anything else)
 Undo now decrements move counter
 Added a modal to select redeal seed
+
+Remove forceSeed
+
+Implemented Fortress
 
 function displayLocalStorageMemory() {
   let total = 0;

@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.12.14.0',
+  GAME_VERSION: '0.12.14.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -1246,10 +1246,6 @@ class CardContainer {
     // seed may be a number, undefined or 0
     if ( seed ) {
       console.log('reusing seed', seed);
-    } else if ( settings.forceSeed ) {
-      seed = settings.forceSeed;
-      settings.forceSeed = 0;
-      console.log('force seed', seed);
     } else if ( settings.dealWinnable && rules.Winnable.length ) {
       seed = rules.Winnable[Math.floor(Math.random()*rules.Winnable.length)];
       console.log('winnable seed', seed);
@@ -3934,8 +3930,7 @@ if ( Object.keys(settings).length === 0 ) {
     autoCollect:Constants.AUTOCOLLECT_SOLVEABLE,
     sensoryCues:true,
     autoPlay:true,
-    dealWinnable:false,
-    forceSeed:0
+    dealWinnable:false
   };
 }
 

@@ -47,9 +47,6 @@
             <label for="dealWinnable"><input type="checkbox" id="dealWinnable" class="filled-in steelblue"/><span>Use winnable deals when available</span></label>
         </div>
         <div class="input-field col s3">
-            <input id="forceSeed" type="number" min="0" max="999999" placeholder="Deal number (1-999999)">
-        </div>
-        <div class="input-field col s3">
             <a class="btn" onclick="doSaveSettings()">save to browser</a>
         </div>
     </div>
@@ -95,10 +92,6 @@ const gameState = JSON.parse(localStorage.getItem(LOCALSTORAGE_GAMES)) || {};
 
 function doSaveSettings() {
   settings.dealWinnable = document.getElementById("dealWinnable").checked;
-  settings.forceSeed = parseInt(document.getElementById("forceSeed").value);
-  if ( isNaN(settings.forceSeed) || (settings.forceSeed < 0 || settings.forceSeed > 999999) ) {
-    settings.forceSeed = 0;
-  }
   settings.dropboxAccessToken = document.getElementById("dropboxAccessToken").value;
   try {
     localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
@@ -200,7 +193,6 @@ function dofromdropbox() {
 }
 
 document.getElementById("dealWinnable").checked = settings.dealWinnable;
-document.getElementById("forceSeed").value = settings.forceSeed ? String(settings.forceSeed) : "";
 document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken ? settings.dropboxAccessToken : 'OvVYXrtX708AAAAAAAAEtXjEIxeM5ky_MBJrttJTirgTNl2kltLoatCOhPz19Zvj';
 
 </script>

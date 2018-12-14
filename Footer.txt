@@ -33,7 +33,7 @@
 <div id="modalStarSeed" class="modal">
     <div class="modal-content">
         <p>
-            <input id="starSeed" type="number" min="0" max="999999" placeholder="Deal number (1-999999)">
+            <input id="starSeed" type="number" autofocus="true" min="0" max="999999" placeholder="Deal number (1-999999)">
         </p>
     </div>
     <div class="modal-footer">
