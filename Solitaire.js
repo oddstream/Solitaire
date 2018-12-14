@@ -4,15 +4,15 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.12.12.0',
+  GAME_VERSION: '0.12.14.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
 
   MOBILE:     /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
-  CHROME:     navigator.userAgent.indexOf('Chrome/') != -1,   // also Brave, Opera
-  EDGE:       navigator.userAgent.indexOf('Edge/') != -1,
-  FIREFOX:    navigator.userAgent.indexOf('Firefox/') != -1,
+  CHROME:     navigator.userAgent.indexOf('Chrome/') !== -1,   // also Brave, Opera
+  EDGE:       navigator.userAgent.indexOf('Edge/') !== -1,
+  FIREFOX:    navigator.userAgent.indexOf('Firefox/') !== -1,
 
   SPADE: '\u2660',     // ♠ Alt 6
   CLUB: '\u2663',      // ♣ Alt 5
@@ -320,8 +320,20 @@ class Mover {
     this.count = 0;
   }
 
+  /**
+   * 
+   * @param {number} newCount 
+   */
+  set(newCount) {
+    this.count = newCount;
+    const ele = document.getElementById('moveCounter');
+    if ( ele ) {
+      ele.innerHTML = String(this.count);
+    }
+  }
+
   reset() {
-    this.count = 0;
+    this.set(0);
   }
 
   sleep(f) {
@@ -333,19 +345,97 @@ class Mover {
 
   increment() {
     if ( !this.zzzz_ ) {
-      this.count++;
+      this.set(this.count + 1);
       window.setTimeout(robot, 0);
     }
   }
 
   decrement() {
     if ( !this.zzzz_ ) {
-      this.count--;
+      this.set(this.count - 1);
     }
   }
 }
 
 const tallyMan = new Mover;
+
+class Ündo {  // alt + 0220
+  constructor() {
+    this.moves = [];
+    this.undoing = false;
+  }
+
+  reset() {
+    this.moves.length = 0;
+  }
+
+  makeCopy() {
+    return JSON.parse(JSON.stringify(this.moves));
+  }
+
+  load(obj) {
+    this.moves = JSON.parse(JSON.stringify(obj));
+  }
+
+  /**
+   * @param {!CardContainer} f
+   * @param {!CardContainer} t
+   * @param {!Number} c
+   */
+  push(f, t, c) {
+    if ( !this.undoing ) {
+      this.moves.push({move:tallyMan.count,
+        from:cardContainers.findIndex(e => e === f),
+        to:cardContainers.findIndex(e => e === t),
+        count:c});
+    }
+  }
+
+  undo() {
+    if ( 0 === this.moves.length ) {
+      displayToast('nothing to undo');
+      return;
+    }
+  
+    this.undoing = true;
+  
+    const moveToUndo = this.moves[this.moves.length-1].move;
+    const moveArray = this.moves.filter( e => e.move === moveToUndo );  // not .reverse()
+  
+    while ( moveArray.length ) {
+      const u = moveArray.pop();
+  
+      if ( u.hasOwnProperty('from') && u.hasOwnProperty('to') ) {
+        const src = cardContainers[u.from];
+        const dst = cardContainers[u.to];
+  
+        let n = 1;
+        if ( u.count ) {
+          n = u.count;
+        }
+        let tmp = [];
+        while ( n-- ) {
+          tmp.push(dst.pop());
+        }
+        while ( tmp.length ) {
+          const c = tmp.pop();
+          // console.log(c, 'going from', dst, 'to', src);
+          src.push(c);
+        }
+      } else {
+        console.error('unknown undo', u);
+      }
+    }
+    this.moves = this.moves.filter( e => e.move !== moveToUndo );
+    this.undoing = false;
+    tallyMan.set(moveToUndo);
+    // calling robot() here will cause an autoMove/autoCollect loop
+    scrunchContainers();
+    availableMoves(); // repaint moveable cards
+  }
+}
+
+const ü = new Ündo(); // alt + 0252
 
 // https://stackoverflow.com/questions/20368071/touch-through-an-element-in-a-browser-like-pointer-events-none/20387287#20387287
 function dummyTouchStartHandler(e) {e.preventDefault();}
@@ -769,6 +859,7 @@ class Card {
   /**
    * @param {number} x 
    * @returns {!number}
+   * @private
    */
   smootherstep_(x) {
     return ((x) * (x) * (x) * ((x) * ((x) * 6 - 15) + 10));
@@ -869,7 +960,7 @@ class Card {
    */
   moveTop(to) {
     const from = this.owner;
-    undoPushMove(from, to, 1);  // record undo before pop
+    ü.push(from, to, 1);  // record undo before pop
     tallyMan.increment();
     from.pop();
     to.push(this);
@@ -891,7 +982,7 @@ class Card {
     while ( tmp.length ) {
       to.push(tmp.pop());
     }
-    undoPushMove(from, to, nCardsMoved);
+    ü.push(from, to, nCardsMoved);
     tallyMan.increment();
   }
 
@@ -908,6 +999,7 @@ class Card {
    * Calculate the overlap area (intersection) of this card and a card at pt2
    * @param {!SVGPoint} pt2 
    * @returns {number}
+   * @private
    */
   overlapArea_(pt2) {
     const rect1 = {left:this.pt.x, top:this.pt.y, right:this.pt.x + Constants.CARD_WIDTH, bottom:this.pt.y + Constants.CARD_HEIGHT};
@@ -1031,66 +1123,6 @@ class Card {
     this.removeListeners_();
     baize.ele.removeChild(this.g);
   }
-}
-
-let undo = [];
-let undoing = false;
-
-/**
- * @param {!CardContainer} f
- * @param {!CardContainer} t
- * @param {!number} c
- */
-function undoPushMove(f, t, c) {
-  if ( !undoing ) {
-    undo.push({move:tallyMan.count,
-      from:cardContainers.findIndex(e => e === f),
-      to:cardContainers.findIndex(e => e === t),
-      count:c});
-  }
-}
-
-function doundo() {
-  if ( 0 === undo.length ) {
-    displayToast('nothing to undo');
-    return;
-  }
-
-  undoing = true;
-
-  const m = undo[undo.length-1].move;
-  const ua = undo.filter( e => e.move === m );  // not .reverse()
-
-  while ( ua.length ) {
-    const u = ua.pop();
-
-    if ( u.hasOwnProperty('from') && u.hasOwnProperty('to') ) {
-      const src = cardContainers[u.from];
-      const dst = cardContainers[u.to];
-
-      let n = 1;
-      if ( u.count ) {
-        n = u.count;
-      }
-      let tmp = [];
-      while ( n-- ) {
-        tmp.push(dst.pop());
-      }
-      while ( tmp.length ) {
-        const c = tmp.pop();
-        // console.log(c, 'going from', dst, 'to', src);
-        src.push(c);
-      }
-    } else {
-      console.error('unknown undo', u);
-    }
-  }
-  undo = undo.filter( e => e.move !== m );
-  undoing = false;
-
-  // calling robot() here will cause an autoMove/autoCollect loop
-  scrunchContainers();
-  availableMoves(); // repaint moveable cards
 }
 
 class CardContainer {
@@ -1954,7 +1986,7 @@ class Stock extends CardContainer {
     if ( Number.isInteger(this.redeals) ) {
       this.redeals -= 1;
       this.updateRedealsSVG_();
-      undo.length = 0;
+      ü.reset();
     }
   }
 
@@ -1964,7 +1996,7 @@ class Stock extends CardContainer {
         while ( waste.cards.length ) {
           const c = waste.cards.pop(); // low level pop to bypass 3-card shuffle
           stock.push(c);
-          undoPushMove(waste,stock,1);
+          ü.push(waste,stock,1);
         }
         this.decreaseRedeals();
       });
@@ -2263,7 +2295,7 @@ class StockCruel extends Stock
       this.part2_(tmp);
       this.part3_();
 
-      undo.length = 0;
+      ü.reset();
 
       if ( 1 === availableMoves() )   // repaint moveable cards
         displayToastNoAvailableMoves();
@@ -2297,7 +2329,6 @@ class StockCruel extends Stock
 
 class StockFan extends Stock {
   /**
-   * 
    * @param {SVGPoint} pt 
    * @param {SVGGElement} g 
    */
@@ -2325,7 +2356,7 @@ class StockFan extends Stock {
       const oldSeed = gameState[rules.Name].seed;
       stock.sort(123456);         // just some made up, reproduceable seed
       gameState[rules.Name].seed = oldSeed;   // sort(n) over-writes this
-      undo.length = 0;            // can't undo a jumble
+      ü.reset();                  // can't undo a jumble
 
       tableaux.forEach( t => {
         window.setTimeout( () => t.deal(), 0 );
@@ -3307,33 +3338,34 @@ class TableauGolf extends Tableau {
 }
 
 /**
- * @param {Array} src 
+ * @param {Array} ccClasses 
  * @returns {Array<CardContainer>}
  */
-function linkClasses(src) {
+function linkClasses(ccClasses) {
   const /** Array<CardContainer> */dst = [];
-  src.forEach ( e => {
+  ccClasses.forEach ( ccClass => {
     // window[e] = e; // export for --compilation_level ADVANCED_OPTIMIZATIONS 
-    document.querySelectorAll('g.' + e.name).forEach( g => {
+    // <g class="StockKlondike"><rect x="10" y="10"></rect></g>
+    document.querySelectorAll('g.' + ccClass.name).forEach( g => {
       // g contains a rect, the rect contains x,y attributes in SVG coords
       const r = g.querySelector('rect');
-      const x = Number.parseInt(r.getAttribute('x'), 10);
-      const y = Number.parseInt(r.getAttribute('y'), 10);
+      const x = Number.parseInt(r.getAttribute('x'), 10) || 0;
+      const y = Number.parseInt(r.getAttribute('y'), 10) || 0;
       const pt = Util.newPoint(x, y);
-      dst.push(new e(pt, g));
+      dst.push(new ccClass(pt, g));
     });
   });
   return dst;
 }
 
 /**
- * @param {any} typ TODO
+ * @param {Function} ccType
  * @returns {string}
  */
-function countInstances(typ) {
+function countInstances(ccType) {
   let count = 0;
   cardContainers.forEach( cc => {
-    if ( cc instanceof typ )
+    if ( cc instanceof ccType )
       count++;
   });
   return `(${Util.plural(count, 'stack')})`;
@@ -3503,6 +3535,9 @@ function availableMoves() {
   }, 0);
 }
 
+/**
+ * @param {boolean} won 
+ */
 function gameOver(won) {
   const GSRN = gameState[rules.Name];
 
@@ -3537,7 +3572,10 @@ function gameOver(won) {
     delete GSRN.saved; // either way, start with a new deal
 }
 
-function restart(seed) {
+/**
+ * @param {?Number} seed
+*/
+function restart(seed=undefined) {
   gameOver(false);
 
   // move all cards back to stock, can't use pop and push
@@ -3558,7 +3596,7 @@ function restart(seed) {
   stock.sort(seed);
   stock.cards.forEach( c => baize.elevateCard(c) );
   stock.redeals = rules.Stock.redeals; // could be null
-  undo.length = 0;
+  ü.reset();
   tallyMan.reset();
   foundations.forEach( f => f.scattered = false );
   if ( gameState[rules.Name].saved )
@@ -3570,6 +3608,19 @@ function dostar() {
   restart();
 }
 
+function dostarseed() {
+  modalStarSeed.open();
+}
+
+function dostarseeddeal() {
+  let seed = parseInt(document.getElementById('starSeed').value);
+  if ( isNaN(seed) || (seed < 0 || seed > 999999) ) {
+    displayToast('deal number must be 1 ... 999999');
+  } else {
+    restart(seed);
+  }
+}
+
 function doreplay() {
   restart(gameState[rules.Name].seed);
 }
@@ -3579,7 +3630,7 @@ class Saved {
     this.seed = gameState[rules.Name].seed;
     this.redeals = stock.redeals;
     this.moves = tallyMan.count;
-    this.undo = JSON.parse(JSON.stringify(undo));
+    this.undo = ü.makeCopy();
     this.containers = [];
     for ( let i=0; i<cardContainers.length; i++ ) {
       this.containers[i] = cardContainers[i].getSaveableCards();
@@ -3618,8 +3669,8 @@ function doload() {
       stock.redeals = null;
     }
     stock.updateRedealsSVG_();
-    tallyMan.count = gss.moves;
-    undo = JSON.parse(JSON.stringify(gss.undo));
+    tallyMan.set(gss.moves);
+    ü.load(gss.undo);
     scrunchContainers();
     // delete gss.saved;
     return true;
@@ -3628,6 +3679,19 @@ function doload() {
     return false;
   }
 }
+
+
+const modalStarSeed = M.Modal.getInstance(document.getElementById('modalStarSeed'));
+modalStarSeed.options.onOpenStart = function() {
+  const ele = document.getElementById('starSeed');
+  if ( ele ) {
+    ele.value = String(gameState[rules.Name].seed);
+    ele.focus();
+  }
+};
+
+modalStarSeed.options.onCloseEnd = function() {
+};
 
 const modalSettings = M.Modal.getInstance(document.getElementById('modalSettings'));
 modalSettings.options.onOpenStart = function() {
@@ -3804,7 +3868,7 @@ function dealCards() {
     window.setTimeout( () => cc.deal(), 100 );
   });
   waitForCards().then( () => {
-    undo.length = 0;
+    ü.reset();
     tallyMan.reset();
   });
 }
@@ -4049,7 +4113,7 @@ function robot() {
         foundations.forEach( f => f.scatter() );
         waitForCards()
         .then( () => {
-          undo.length = 0;
+          ü.reset();
           gameOver(true);
           modalGameOver.open();
         });
@@ -4092,7 +4156,7 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
       dosave();
       break;
     case 'u':
-      doundo();
+      ü.undo();
       break;
     case 'w':
       if ( stock.peek() )
@@ -4122,6 +4186,7 @@ class KeyFocus {
 
   /**
    * Move the focus down the stack of cards until we find one that can be grabbed
+   * @private
    */
   findGrab_() {
     if ( this.c && this.cc.cards.length ) {

@@ -30,6 +30,18 @@
     -->
 </div>
 
+<div id="modalStarSeed" class="modal">
+    <div class="modal-content">
+        <p>
+            <input id="starSeed" type="number" min="0" max="999999" placeholder="Deal number (1-999999)">
+        </p>
+    </div>
+    <div class="modal-footer">
+      <a class="modal-close btn-small steelblue noselect" onclick="dostarseeddeal()">Deal</a>
+      <a class="modal-close btn-small steelblue noselect" ">Cancel</a>
+    </div>
+</div>
+
 <div id="modalStatistics" class="modal">
     <div class="modal-content">
       <h4 class="noselect">Statistics<a class="modal-close right noselect hide-on-small-only"><i class="material-icons">close</i></a></h4>

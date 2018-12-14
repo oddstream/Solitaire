@@ -41,7 +41,8 @@
     </ul>
     <a id="nav-title" class="brand-logo hide-on-small-only"></a>
     <ul class="right">
-        <li><a onclick="doundo()"><i class="material-icons tooltipped noselect" data-position="left" data-tooltip="Undo">undo</i></a></li>
+        <li><a onclick="ü.undo()"><i class="material-icons tooltipped noselect" data-position="left" data-tooltip="Undo">undo</i></a></li>
+        <li><span id="moveCounter"></span></li>
         <li><a onclick="doshowrules()"><i class="material-icons tooltipped noselect" data-position="left" data-tooltip="Show rules">assignment</i></a></li>
         <li><a href="faq.html" class="tooltipped" data-position="bottom" data-tooltip="FAQ"><i class="material-icons">info</i></a></li>
     </ul>
@@ -56,6 +57,7 @@
       <p id="sidenav-info">&nbsp;</p>
     </div></li>
     <li><a class="waves-effect sidenav-close" onclick="areYouSure('dostar')"><i class="material-icons">star</i>New deal</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="dostarseed()"><i class="material-icons">star_border</i>Specify deal...</a></li>
     <li><a class="waves-effect sidenav-close" onclick="areYouSure('doreplay')"><i class="material-icons">replay</i>Replay this deal</a></li>
     <li><a class="waves-effect sidenav-close" href="index.html"><i class="material-icons">apps</i>Find new game</a></li>
     <li><div class="divider"></div></li>
