@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.12.14.1',
+  GAME_VERSION: '0.12.15.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -779,7 +779,7 @@ class Card {
       ptNew.x - this.ptOffset.x,
       ptNew.y - this.ptOffset.y
     );
-    if ( Util.nearlySamePoint(ptNewCard, this.ptOriginal, 4) ) {
+    if ( Util.nearlySamePoint(ptNewCard, this.ptOriginal, 8) ) {
       // console.log('nearly same point', ptNewCard, this.ptOriginal);
       this.grabbedTail.forEach( c => {
         c.position0(c.ptOriginal.x, c.ptOriginal.y);
@@ -3406,34 +3406,39 @@ function isConformant0(rules, cPrev, cThis) {   // TODO clean up this horrible l
       if ( rules.rankwrap ) {
         if ( cPrev.ordinal === 13 && cThis.ordinal === 1 ) {
           // An Ace on a King
-        } else if ( cThis.ordinal !== cPrev.ordinal + 1 )
+        } else if ( cThis.ordinal !== cPrev.ordinal + 1 ) {
           return false;
+        }
       } else {
-        if ( cThis.ordinal !== cPrev.ordinal + 1 )
+        if ( cThis.ordinal !== cPrev.ordinal + 1 ) {
           return false;
+        }
       }
       break;
     case 2: // down, e.g. a 9 goes on a 10
       if ( rules.rankwrap ) {
         if ( cPrev.ordinal === 1 && cThis.ordinal === 13 ) {
           // a King on an Ace
-        } else if ( cThis.ordinal !== cPrev.ordinal - 1 )
+        } else if ( cThis.ordinal !== cPrev.ordinal - 1 ) {
           return false;
+        }
       } else {
-        if ( cThis.ordinal !== cPrev.ordinal - 1 )
+        if ( cThis.ordinal !== cPrev.ordinal - 1 ) {
           return false;
+        }
       }
       break;
     case 4: // either up or down
-      //if ( !(cThis.ordinal === cPrev.ordinal + 1 || cThis.ordinal === cPrev.ordinal - 1) )
       if ( rules.rankwrap ) {
         if ( cPrev.ordinal === 13 && cThis.ordinal === 1 ) {
         } else if ( cPrev.ordinal === 1 && cThis.ordinal === 13 ) {
-        } else if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) )
+        } else if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) ) {
           return false;
+        }
       } else {
-        if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) )
+        if ( !(Math.abs(cPrev.ordinal - cThis.ordinal) === 1) ) {
           return false;
+        }
       }
       break;
     case 5: // regardless
@@ -3529,6 +3534,14 @@ function availableMoves() {
   return cardContainers.reduce( (acc,obj) => {
     return acc + obj.availableMoves();
   }, 0);
+}
+
+function doshowavailablemoves() {
+  const a = availableMoves();
+  if ( 0 === a )
+    displayToastNoAvailableMoves();
+  else
+    displayToast(`<span>${Util.plural(a, 'move')} available</span>`);
 }
 
 /**
@@ -3675,7 +3688,6 @@ function doload() {
     return false;
   }
 }
-
 
 const modalStarSeed = M.Modal.getInstance(document.getElementById('modalStarSeed'));
 modalStarSeed.options.onOpenStart = function() {
@@ -4130,11 +4142,7 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
   // console.log(kev,kev.key,kev.keyCode,kev.ctrlKey);
   switch ( kev.key.toLowerCase() ) {
     case 'a':
-      const a = availableMoves();
-      if ( 0 === a )
-        displayToastNoAvailableMoves();
-      else
-        displayToast(`<span>${Util.plural(a, 'move')} available</span>`);
+      doshowavailablemoves();
       break;
     case 'e':
       if ( waste && waste.peek() ) {

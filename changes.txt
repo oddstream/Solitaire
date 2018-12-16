@@ -1,3 +1,6 @@
+15/12/2018
+Minor UI tweaks to header and modalStarSeed
+
 14/12/2018
 Bundled undo stuff into a class,
 played with extended character variable names,

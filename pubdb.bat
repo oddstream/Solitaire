@@ -1,9 +1,11 @@
 @echo off
 
 SET DESTINATION=c:\Users\oddst\Dropbox\Apps\My.DropPages\oddstream.droppages.com\Public
+SET CONTENT_DESTINATION=c:\Users\oddst\Dropbox\Apps\My.DropPages\oddstream.droppages.com\Content
 SET IMG_DESTINATION=c:\Users\oddst\Dropbox\Apps\My.DropPages\oddstream.droppages.com\Public\img
 
 xcopy *.html %DESTINATION% /d
+xcopy index.html %CONTENT_DESTINATION% /d
 xcopy *.css %DESTINATION% /d
 xcopy manifest.json %DESTINATION% /d
 xcopy img\*.png %IMG_DESTINATION% /d
