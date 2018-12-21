@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.12.15.0',
+  GAME_VERSION: '0.12.19.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -3860,7 +3860,7 @@ function displayToast(msg) {
 }
 
 function displayToastNoAvailableMoves() {
-  displayToast('<span>no available moves</span><button class="btn-flat toast-action" onclick="doundo()">Undo</button><button class="btn-flat toast-action" onclick="dostar()">New</button>');
+  displayToast('<span>no available moves</span><button class="btn-flat toast-action" onclick="ü.undo()">Undo</button><button class="btn-flat toast-action" onclick="dostar()">New</button>');
 }
 
 function dosettings() {
@@ -4002,8 +4002,9 @@ window.onbeforeunload = function(e) {
     gameState[rules.Name].saved = new Saved();
   }
   try {
-    localStorage.setItem(Constants.LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
     localStorage.setItem(Constants.LOCALSTORAGE_GAMES, JSON.stringify(gameState));
+    settings.gameStateModified = new Date().toISOString();
+    localStorage.setItem(Constants.LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
   } catch(err) {
     console.error(err);
   }

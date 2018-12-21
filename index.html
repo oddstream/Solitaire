@@ -35,9 +35,9 @@
 </head>
 <body>
     <p style="display:none">Collection of authentic solitaire games,
-    implemented for modern web browsers, 
-    following Material Design guidelines. 
-    Includes 
+    implemented for modern web browsers,
+    following Material Design guidelines.
+    Includes
     Agnes Bernauer,
     Agnes Sorel,
     Alaska,
@@ -112,13 +112,13 @@
         <a class="tooltipped" data-position="bottom" data-tooltip="Search for a game"><i class="material-icons">search</i></a>
         </li>
     </ul>
--->    
+-->
     <ul class="left">
         <li><i class="material-icons">apps</i></li>
     </ul>
     <ul class="right">
         <li><a id="lastgame" class="tooltipped" data-position="bottom" data-tooltip="Go to last game"><i class="material-icons">redo</i></a></li>
-        <li><a onclick="modalCloud.open()" class="tooltipped" data-position="bottom" data-tooltip="Connect to cloud"><i class="material-icons">cloud</i></a></li>
+        <li><a onclick="modalCloudFn.open()" class="tooltipped" data-position="bottom" data-tooltip="Connect to cloud"><i class="material-icons">cloud</i></a></li>
         <li><a href="faq.html" class="tooltipped" data-position="bottom" data-tooltip="FAQ"><i class="material-icons">info</i></a></li>
     </ul>
     </div>
@@ -128,20 +128,42 @@
 
     <div id="content" class="grey lighten-3">
     </div>
-    
+
     <div id="modalCloud" class="modal">
         <div class="modal-content">
-            <a class="btn" href="https://www.dropbox.com/oauth2/authorize?client_id=gpmr1d1u1j4h2d4&response_type=code" target="_blank" rel="noopener">connect to Dropbox</a>
-            <input id="dropboxAccessToken" type="text" placeholder="Dropbox Access Token">
-            <a class="btn" onclick="doSaveToDropbox()"><i class="material-icons left">cloud_upload</i>save to Dropbox</a>
-            <a class="btn" onclick="doLoadFromDropbox()"><i class="material-icons left">cloud_download</i>load from Dropbox</a>
+          <input id="dropboxAccessToken" type="text" placeholder="Dropbox Access Token">
+          
+          <div id="modalCloudConnected" style="display:none">
+            <p>You are connected to Dropbox</p>
+            <p id="modalCloudDates"></p>
+            
+            <div class="input-field col s3" id="modalCloudSave" style="display:none">
+              <a class="modal-close btn-small steelblue" onclick="doSaveToDropbox()"><i class="material-icons left">cloud_upload</i>save games to Dropbox</a>
+            </div>
+            <div class="input-field col s3" id="modalCloudLoad" style="display:none">
+              <a class="modal-close btn-small steelblue" onclick="doLoadFromDropbox()"><i class="material-icons left">cloud_download</i>load games from Dropbox</a>
+            </div>
+          </div>
+          
+          <div id="modalCloudNotConnected" style="display:none">
+            <p>You are not connected to Dropbox</p>
+            <div class="input-field col s3">
+              <a class="modal-close btn-small steelblue" id="btnAuthenticate"><i class="material-icons left">cloud</i>connect</a>
+            </div>
+           </div>
+          
+        <!--
+            <a class="btn" href="https://www.dropbox.com/oauth2/authorize?client_id=gpmr1d1u1j4h2d4&response_type=code" target="_blank" rel="noopener">Get Dropbox authorization code</a>
+            <input id="dropboxAuthCode" type="text" placeholder="Dropbox Authorization Code">
+        -->
         </div>
         <div class="modal-footer">
+          <a class="modal-close btn-small steelblue">Close</a>
         </div>
     </div>
 
     <script type="text/javascript" src="js/materialize.min.js"></script>
-    
+
     <script type="application/json" id="variants">
     { "Variants":[
         {
@@ -285,7 +307,7 @@
             "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)"
         },
         {
-        
+
             "Name":"Alaska",
             "Type":"All,Yukon,Hard,Small Screen",
             "Desc":"a version of Yukon, but the tableau is built up or down by suit",
@@ -592,7 +614,7 @@
             "Desc":"made famous by Microsoft, though it dates back at least to 1949",
             "File":"Spider4",
             "Wikipedia":"https://en.wikipedia.org/wiki/Spider_(solitaire)"
-        },        
+        },
         {
             "Name":"Spiderette One Suit",
             "Type":"All,Spider,Easy,Small Screen",
@@ -613,21 +635,21 @@
             "Desc":"",
             "File":"Spiderette4",
             "Wikipedia":"https://en.wikipedia.org/wiki/Spider_(solitaire)"
-        },        
+        },
         {
             "Name":"Simple Simon",
             "Type":"All,Easy,Simple,Spider",
             "Desc":"like a one-deck Spider where all cards start face up in a triangular tableau",
             "File":"SimpleSimon",
             "Wikipedia":"https://en.wikipedia.org/wiki/Simple_Simon_(solitaire)"
-        },        
+        },
         {
             "Name":"Fortress",
             "Type":"All,Hard,Simple,Castle",
             "Desc":"one of the oldest open solitaires and at one time one of the most popular",
             "File":"Fortress",
             "Wikipedia":"https://en.wikipedia.org/wiki/Fortress_(card_game)"
-        },        
+        },
         {
             "Name":"Cruel",
             "Type":"All,Tableau Redeal",
@@ -925,7 +947,7 @@
 let isIE = false || !!document.documentMode;
 if ( isIE )
     window.alert('Internet Explorer is not supported.\n\nPlease try again with a modern browser.');
-        
+
 if (!Array.prototype.forEach) {
 
   Array.prototype.forEach = function(callback/*, thisArg*/) {
@@ -945,7 +967,7 @@ if (!Array.prototype.forEach) {
     // 3. Let len be toUint32(lenValue).
     var len = O.length >>> 0;
 
-    // 4. If isCallable(callback) is false, throw a TypeError exception. 
+    // 4. If isCallable(callback) is false, throw a TypeError exception.
     // See: http://es5.github.com/#x9.11
     if (typeof callback !== 'function') {
       throw new TypeError(callback + ' is not a function');
@@ -1029,7 +1051,7 @@ if (!Array.prototype.includes) {
         if (sameValueZero(o[k], searchElement)) {
           return true;
         }
-        // c. Increase k by 1. 
+        // c. Increase k by 1.
         k++;
       }
 
@@ -1038,22 +1060,22 @@ if (!Array.prototype.includes) {
     }
   });
 }
-        
+
 function crel(nm, cl) {
-    const ele = document.createElement(nm);
-    if ( cl ) ele.setAttribute('class', cl);
-    return ele;
+  const ele = document.createElement(nm);
+  if ( cl ) ele.setAttribute('class', cl);
+  return ele;
 }
 
 const vs = JSON.parse(document.getElementById('variants').innerText);
 const cont = document.getElementById('content');
-    
+
 const types = [];
-vs.Variants.forEach( function(v) {  
-    v.Type.split(',').forEach( function(t) {
-        if ( !types.includes(t) )
-            types.push(t);
-    });
+vs.Variants.forEach( function(v) {
+  v.Type.split(',').forEach( function(t) {
+    if ( !types.includes(t) )
+      types.push(t);
+  });
 });
 types.sort();
 
@@ -1062,20 +1084,20 @@ cont.appendChild(ulOuter);
 for ( let i=0; i<types.length; i++ ) {
     const liOuter = crel('li', null);
         ulOuter.appendChild(liOuter);
-        
+
     const ch = crel('div', 'collapsible-header');
         ch.innerHTML = types[i];
         liOuter.appendChild(ch);
-        
+
     const cb = crel('div', 'collapsible-body');
-        liOuter.appendChild(cb);            
+        liOuter.appendChild(cb);
     let ulInner = crel('ul', null);
         cb.appendChild(ulInner);
 
     let ty = vs.Variants.filter( function(v) {
         return v.Type.split(',').includes(types[i]);
     });
-        
+
     ty.sort(function(a, b) { return a.Name.localeCompare(b.Name); });
     ty.forEach( function(t) {
         let listItem = crel('li', null);
@@ -1094,12 +1116,93 @@ for ( let i=0; i<types.length; i++ ) {
 
 M.AutoInit();
 
+function showDates(ele) {
+  if ( !settings.gameStateModified ) {
+    document.getElementById("modalCloudLoad").style = "display:block";
+    M.toast({html:'no local modified date'});
+    return;
+  }
+  if ( !getAccessTokenFromHTML() ) {
+    M.toast({html:'no access token'});
+    return;
+  }
+
+  let dbx = new Dropbox.Dropbox({ fetch: fetch, accessToken: settings.dropboxAccessToken });
+  dbx.filesDownload({path: DROPBOX_GAMES})
+  .then(function(response) {
+    let blob = response.fileBlob;
+    let reader = new FileReader();
+    reader.addEventListener('loadend', function() {
+      if ( reader.result === JSON.stringify(gameState) )
+        ele.innerHTML = 'Local games are identical to cloud games';
+      else {
+        console.log(`local games ${settings.gameStateModified}, cloud games ${response.client_modified}`);
+        let timeLocal = Date.parse(settings.gameStateModified);
+        let timeSaved = Date.parse(response.client_modified);
+        if ( timeSaved === timeLocal ) {
+          ele.innerHTML = 'Local games have the same date and time as cloud games';
+        } else if ( timeLocal > timeSaved ) {
+          ele.innerHTML = 'Local games are more up-to-date than cloud games';
+          document.getElementById("modalCloudSave").style = "display:block";
+        } else {
+          ele.innerHTML = 'Cloud games are more up-to-date than local games';
+          document.getElementById("modalCloudLoad").style = "display:block";
+        }
+      }
+    });
+    reader.readAsText(blob);
+   })
+  .catch(function(error) {
+    ele.innerHTML = 'Error when comparing local and cloud games';
+    console.error(error);
+  });
+}
+
+const modalCloudFn = M.Modal.getInstance(document.getElementById('modalCloud'));
+modalCloudFn.options.onOpenStart = function() {
+  if ( settings.dropboxAccessToken ) {
+    document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken;
+    document.getElementById("modalCloudConnected").style = "display:block";
+    showDates(document.getElementById("modalCloudDates"));
+  } else {
+    document.getElementById("modalCloudNotConnected").style = "display:block";
+    const btn = document.getElementById("btnAuthenticate");
+    const dbx = new Dropbox.Dropbox({fetch: window.fetch.bind(window), clientId: 'gpmr1d1u1j4h2d4'});
+    // window.location.origin = 'http://localhost'
+    // window.location.pathname = '/solitaire/index.html'
+    const redirect = window.location.href;
+    console.log(redirect);
+    btn.href = dbx.getAuthenticationUrl(redirect);
+  }
+};
+
+modalCloudFn.options.onCloseEnd = function() {
+  getAccessTokenFromHTML();
+  doSaveSettings();
+  //doSaveGameState();
+};
+
 const LOCALSTORAGE_SETTINGS = 'Oddstream Solitaire Settings';
 const LOCALSTORAGE_GAMES = 'Oddstream Solitaire Games';
 const DROPBOX_GAMES = '/gameState.json';
 
 let settings = JSON.parse(localStorage.getItem(LOCALSTORAGE_SETTINGS)) || {};
 let gameState = JSON.parse(localStorage.getItem(LOCALSTORAGE_GAMES)) || {};
+
+let params = null;
+if ( window.location.hash ) {
+  // a DOMString containing a '#' followed by the fragment identifier of the URL
+  // #access_token=OvVYXrtX708AAAAAAAAEy7SaxISnKu7zhwZOMWHLFEMjg-GgODz4Ez2vA9HJlLs8&token_type=bearer&uid=154172014&account_id=dbid%3AAADL4ma-7BXSPnEmldVqS9OSe2xHqlV7e1o
+  params = new URLSearchParams(window.location.hash.slice(1));
+} else if ( window.location.search ) {
+  // a DOMString containing a '?' followed by the parameters or "querystring" of the URL
+  params = new URLSearchParams(window.location.search.slice(1));
+}
+
+if ( params && params.has('access_token') ) {
+  settings.dropboxAccessToken = params.get('access_token');
+  modalCloudFn.open();
+}
 
 if ( settings.lastGame ) {
     document.getElementById('lastgame').setAttributeNS(null, 'href', settings.lastGame);
@@ -1111,17 +1214,16 @@ function getAccessTokenFromHTML() {
   const txt = settings.dropboxAccessToken = document.getElementById('dropboxAccessToken').value;
   if ( txt.length ) {
     settings.dropboxAccessToken = txt;
+  } else {
+    delete settings.dropboxAccessToken;
   }
-    
-  if ( !settings.dropboxAccessToken ) {
-    M.toast({html:'no access token'});
-  }
+  return settings.dropboxAccessToken && settings.dropboxAccessToken.length > 0;
 }
 
 function doSaveSettings() {
   try {
     localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
-    M.toast({html:'settings saved'});
+    // M.toast({html:'settings saved'});
   } catch(err) {
     M.toast({html:'error saving settings'});
     console.error(err);
@@ -1131,7 +1233,7 @@ function doSaveSettings() {
 function doSaveGameState() {
   try {
     localStorage.setItem(LOCALSTORAGE_GAMES, JSON.stringify(gameState));
-    M.toast({html:'game state saved'});
+    // M.toast({html:'game state saved'});
   } catch(err) {
     M.toast({html:'error saving games'});
     console.error(err);
@@ -1139,84 +1241,75 @@ function doSaveGameState() {
 }
 
 function doSaveToDropbox() {
-  getAccessTokenFromHTML();
-    
-  if ( !settings.dropboxAccessToken ) {
+  if ( !getAccessTokenFromHTML() ) {
     M.toast({html:'no access token'});
     return;
   }
-  // you can load our UMD package directly from unpkg. This will expose Dropbox as a global - window.Dropbox.Dropbox within browsers.    
+  // you can load our UMD package directly from unpkg. This will expose Dropbox as a global - window.Dropbox.Dropbox within browsers.
   let dbx = new Dropbox.Dropbox({ fetch: fetch, accessToken: settings.dropboxAccessToken });
   dbx.filesUpload({path: DROPBOX_GAMES, contents: JSON.stringify(gameState), mode: 'overwrite'})
   .then(function(response) {
-    console.log(response);
-    settings.dropboxModified = new Date().toISOString();
-    M.toast({html:'games saved'});    
+    // console.log(response);
+    M.toast({html:'games saved'});
   })
   .catch(function(error) {
     console.error(error);
-    M.toast({html:'error saving games'});    
+    M.toast({html:'Error saving games to cloud'});
   });
 }
 
 function doLoadFromDropbox() {
-  getAccessTokenFromHTML();
-    
-  if ( !settings.dropboxAccessToken ) {
+  if ( !getAccessTokenFromHTML() ) {
     M.toast({html:'no access token'});
     return;
   }
-        
-    // you can load our UMD package directly from unpkg. This will expose Dropbox as a global - window.Dropbox.Dropbox within browsers.    
-    let dbx = new Dropbox.Dropbox({ fetch: fetch, accessToken: settings.dropboxAccessToken });
-    dbx.filesDownload({path: DROPBOX_GAMES})
-    .then(function(response) {
-    /*
-        response looks like:
-            client_modified: "2018-12-16T14:16:01Z"
-            content_hash: "b4b241dc5df25837a6294782f5ac7c6013e9ab17ece41b2d4e9e2696e5beaa9a"
-            fileBlob: Blob(52969) {size: 52969, type: "application/octet-stream"}
-            id: "id:dS3043s2iUgAAAAAAAAJaQ"
-            name: "gameState.json"
-            path_display: "/gameState.json"
-            path_lower: "/gamestate.json"
-            rev: "0170000000107fb1eb0"
-            server_modified: "2018-12-16T14:16:02Z"
-            size: 52969
-        ECMAScript defines a string interchange format for date-times based upon a simplification of the ISO 8601 Extended Format.
-        The format is as follows: YYYY-MM-DDTHH:mm:ss.sssZ
-        
-        Date.parse("2018-12-16T14:16:01Z") > Date.now()
-    */
-        let blob = response.fileBlob;
-        let reader = new FileReader();
-        reader.addEventListener('loadend', function() {
-            try {
-                const newGameState = JSON.parse(reader.result);
-                gameState = newGameState;
-                M.toast({html:'games loaded'});
-            } catch (err) {
-                console.error(err);
-                M.toast({html:'error loading games'});
-            }
-        });
-        reader.readAsText(blob);
-    })
-    .catch(function(error) {
-        console.error(error);
-    }); 
+
+  // you can load our UMD package directly from unpkg. This will expose Dropbox as a global - window.Dropbox.Dropbox within browsers.
+  let dbx = new Dropbox.Dropbox({ fetch: fetch, accessToken: settings.dropboxAccessToken });
+  dbx.filesDownload({path: DROPBOX_GAMES})
+  .then(function(response) {
+  /*
+    response looks like:
+        client_modified: "2018-12-16T14:16:01Z"
+        content_hash: "b4b241dc5df25837a6294782f5ac7c6013e9ab17ece41b2d4e9e2696e5beaa9a"
+        fileBlob: Blob(52969) {size: 52969, type: "application/octet-stream"}
+        id: "id:dS3043s2iUgAAAAAAAAJaQ"
+        name: "gameState.json"
+        path_display: "/gameState.json"
+        path_lower: "/gamestate.json"
+        rev: "0170000000107fb1eb0"
+        server_modified: "2018-12-16T14:16:02Z"
+        size: 52969
+    ECMAScript defines a string interchange format for date-times based upon a simplification of the ISO 8601 Extended Format.
+    The format is as follows: YYYY-MM-DDTHH:mm:ss.sssZ
+
+    Date.parse("2018-12-16T14:16:01Z") > Date.now()
+  */
+    let blob = response.fileBlob;
+    let reader = new FileReader();
+    reader.addEventListener('loadend', function() {
+      if ( settings.gameStateModified ) {
+        if ( Date.parse(settings.gameStateModified) > Date.parse(response.client_modified) ) {
+          M.toast({html:'Warning: local games are more up-to-date than cloud games'});
+        }
+      }
+      try {
+        const newGameState = JSON.parse(reader.result);
+        gameState = newGameState;
+        settings.gameStateModified = response.client_modified.slice(); // create a copy
+        M.toast({html:'games loaded'});
+      } catch (err) {
+        console.error(err);
+        M.toast({html:'Error in format of cloud games'});
+      }
+    });
+    reader.readAsText(blob);
+  })
+  .catch(function(error) {
+    M.toast({html:'Error when loading cloud games'});
+    console.error(error);
+  });
 }
-
-const modalCloud = M.Modal.getInstance(document.getElementById('modalCloud'));
-modalCloud.options.onOpenStart = function() {
-    document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken;
-};
-
-modalCloud.options.onCloseEnd = function() {
-    getAccessTokenFromHTML();
-    doSaveSettings();
-    doSaveGameState();
-};
 
     </script>
 </body>

@@ -27,21 +27,32 @@
 <body>
  <h4><img src="img/Dropbox_Android.png" height="32" width="32"/>Connect to Dropbox</h4>
  
-    <div id="socialMedia"></div>
-    
     <div class="input-field col s3">
-        <!-- Oddstream Solitaire App key = gpmr1d1u1j4h2d4 -->
-        <a class="btn" href="https://www.dropbox.com/oauth2/authorize?client_id=gpmr1d1u1j4h2d4&response_type=code" target="_blank" rel="noopener">connect to Dropbox</a>
-        <!-- 
-            responds with 'Enter this code into Oddstream Solitaire to finish the process.' 
-            and a long authorization code (?)
-            'At this point your app will exchange the authorization code for an access token 
-            which can be used to make subsequent requests to the Dropbox API'
-        -->
+      <!-- Oddstream Solitaire App key = gpmr1d1u1j4h2d4 -->
+      <a class="btn" href="https://www.dropbox.com/oauth2/authorize?client_id=gpmr1d1u1j4h2d4&response_type=code" target="_blank" rel="noopener">Get Authorization Code</a>
+      <!-- 
+          responds with 'Enter this code into Oddstream Solitaire to finish the process.' 
+          and a long authorization code (?)
+          'At this point your app will exchange the authorization code for an access token 
+          which can be used to make subsequent requests to the Dropbox API'
+      -->
+    </div>
+    <div class="input-field col s3">
+        <input id="dropboxAuthorizationCode" type="text" placeholder="Dropbox Authorization Code">
+    </div>
+    <div class="input-field col s3">
+        <a class="btn" onclick="doGetAccessToken()">Get Access Token</a>
     </div>
     <div class="input-field col s3">
         <input id="dropboxAccessToken" type="text" placeholder="Dropbox Access Token">
     </div>
+    <div class="input-field col s3">
+        <a class="btn" onclick="doGetAuthenticationUrl()">Get Auth URL</a>
+    </div>
+    <div class="input-field col s3">
+        <a class="btn" onclick="doSaveSettings()">Save settings to localStorage</a>
+    </div>
+<!--
     <div class="input-field col s3">
         <a class="btn" onclick="doSaveToDropbox()"><i class="material-icons left">cloud_upload</i>save to Dropbox</a>
     </div>
@@ -52,11 +63,10 @@
     <div class="input-field col s3">
         <a class="btn" onclick="doSaveGameState()"><i class="material-icons left">save</i>save to browser</a>
     </div>
-
+-->
     <div id="loadedGames"></div>
     
 <script type="text/javascript" src="js/materialize.min.js"></script>
-<script type="text/javascript" src="http://webkay.robinlinus.com/scripts/social-media.js"></script>
 
 <!--
     use the Dropbox UMD module, see
@@ -77,10 +87,42 @@ function getAccessTokenFromHTML() {
   if ( txt.length ) {
     settings.dropboxAccessToken = txt;
   }
-    
-  if ( !settings.dropboxAccessToken ) {
-    M.toast({html:'no access token'});
+}
+
+function getAuthorizationCodeFromHTML() {
+  const txt = settings.dropboxAuthorizationCode = document.getElementById('dropboxAuthorizationCode').value;
+  if ( txt.length ) {
+    settings.dropboxAuthorizationCode = txt;
   }
+}
+
+function doGetAccessToken() {
+  getAuthorizationCodeFromHTML();
+  if ( !settings.dropboxAuthorizationCode ) {
+    M.toast({html:'no authorization code'});
+    return;
+  }
+
+  let dbx = new Dropbox.Dropbox({fetch: window.fetch.bind(window), clientId: 'gpmr1d1u1j4h2d4'});
+  //dbx.setClientId('gpmr1d1u1j4h2d4');
+  dbx.setClientSecret('chgl82g2inr4r2j');
+  dbx.getAccessTokenFromCode('http://localhost/solitaire/index.html', settings.dropboxAuthorizationCode)
+  .then(function(token) {
+    console.log(token);
+  })
+  .catch(function(error) {
+    console.log(error);
+  });
+  // http://localhost/solitaire/index.html&client_id=gpmr1d1u1j4h2d4&client_secret=chgl82g2inr4r2j
+}
+
+function doGetAuthenticationUrl() {
+  let dbx = new Dropbox.Dropbox({fetch: window.fetch.bind(window), clientId: 'gpmr1d1u1j4h2d4'});
+  console.log(dbx.getAuthenticationUrl('http://localhost/solitaire/index.html'));
+  // token redirects to
+  // http://localhost/solitaire/index.html#access_token=OvVYXrtX708AAAAAAAAEy7SaxISnKu7zhwZOMWHLFEMjg-GgODz4Ez2vA9HJlLs8&token_type=bearer&uid=154172014&account_id=dbid%3AAADL4ma-7BXSPnEmldVqS9OSe2xHqlV7e1o
+  // code redirects to
+  // http://localhost/solitaire/index.html?code=OvVYXrtX708AAAAAAAAEyH260GJV-68DNZUeCXgGQsg
 }
 
 function displayLoadedGames() {
@@ -95,6 +137,8 @@ function displayLoadedGames() {
 }
 
 function doSaveSettings() {
+  getAuthorizationCodeFromHTML();
+  getAccessTokenFromHTML();
   try {
     localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
     M.toast({html:'settings saved'});
@@ -102,38 +146,6 @@ function doSaveSettings() {
     M.toast({html:'error saving settings'});
     console.error(err);
   }
-}
-
-function doSaveGameState() {
-  try {
-    localStorage.setItem(LOCALSTORAGE_GAMES, JSON.stringify(gameState));
-    M.toast({html:'game state saved'});
-  } catch(err) {
-    M.toast({html:'error saving games'});
-    console.error(err);
-  }
-}
-
-function doDeleteGameState() {
-    let gameState = {};
-    try {
-        gameState = JSON.parse(localStorage.getItem(LOCALSTORAGE_GAMES)) || {};
-    } catch(e) {
-        console.log(e);
-    }
-    if ( Object.keys(gameState).length ) {
-        for ( const g in gameState) {
-            if ( gameState[g].saved ) {
-                delete gameState[g].saved;
-            }
-        }
-        try {
-            localStorage.setItem(LOCALSTORAGE_GAMES, JSON.stringify(gameState));
-        } catch(e) {
-            console.log(e);
-        }
-        M.toast({html:'saved games deleted'});
-    }
 }
 
 function doSaveToDropbox() {
@@ -206,15 +218,16 @@ function doLoadFromDropbox() {
     }); 
 }
 
+document.getElementById("dropboxAuthorizationCode").value = settings.dropboxAuthorizationCode;
 document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken;
 
 window.onbeforeunload = function(e) {
-  getAccessTokenFromHTML();
+  //getAccessTokenFromHTML();
   // doSaveSettings();
   // doSaveGameState();
   // setting e.returnValue makes Chrome display a dialog
   // TODO set e.returnValue if unsaved changes
-  e.returnValue = LOCALSTORAGE_GAMES;
+  //e.returnValue = LOCALSTORAGE_GAMES;
 };
 
 </script>
