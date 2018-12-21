@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.12.19.0',
+  GAME_VERSION: '0.12.21.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -3935,16 +3935,11 @@ try {
   console.error(e);
 }
 
-if ( Object.keys(settings).length === 0 ) {
-  console.warn('settings not found in local storage');
-  settings = {
-    aniSpeed:3,
-    autoCollect:Constants.AUTOCOLLECT_SOLVEABLE,
-    sensoryCues:true,
-    autoPlay:true,
-    dealWinnable:false
-  };
-}
+if ( !settings.hasOwnProperty('aniSpeed') )       settings.aniSpeed = 3;
+if ( !settings.hasOwnProperty('autoCollect') )    settings.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
+if ( !settings.hasOwnProperty('sensoryCues') )    settings.sensoryCues = true;
+if ( !settings.hasOwnProperty('autoPlay') )       settings.autoPlay = true;
+if ( !settings.hasOwnProperty('dealWinnable') )   settings.dealWinnable = false;
 
 settings.lastGame = window.location.pathname.split('/').pop();
 settings.lastVersion = Constants.GAME_VERSION;

@@ -58,6 +58,7 @@
     Eight Off,
     Fan,
     Flower Garden,
+    Fortress,
     Forty and Eight,
     Forty Thieves,
     Forecell,
@@ -131,24 +132,23 @@
 
     <div id="modalCloud" class="modal">
         <div class="modal-content">
+          <img src="img/Dropbox.png" width="50%" height="50%"/>
           <input id="dropboxAccessToken" type="text" placeholder="Dropbox Access Token">
           
           <div id="modalCloudConnected" style="display:none">
-            <p>You are connected to Dropbox</p>
             <p id="modalCloudDates"></p>
             
-            <div class="input-field col s3" id="modalCloudSave" style="display:none">
-              <a class="modal-close btn-small steelblue" onclick="doSaveToDropbox()"><i class="material-icons left">cloud_upload</i>save games to Dropbox</a>
+            <div class="input-field col s3" id="modalCloudSave">
+              <a class="modal-close btn-small steelblue" onclick="doSaveToDropbox()"><i class="material-icons left">cloud_upload</i>save games</a>
             </div>
-            <div class="input-field col s3" id="modalCloudLoad" style="display:none">
-              <a class="modal-close btn-small steelblue" onclick="doLoadFromDropbox()"><i class="material-icons left">cloud_download</i>load games from Dropbox</a>
+            <div class="input-field col s3" id="modalCloudLoad">
+              <a class="modal-close btn-small steelblue" onclick="doLoadFromDropbox()"><i class="material-icons left">cloud_download</i>load games</a>
             </div>
           </div>
           
           <div id="modalCloudNotConnected" style="display:none">
-            <p>You are not connected to Dropbox</p>
             <div class="input-field col s3">
-              <a class="modal-close btn-small steelblue" id="btnAuthenticate"><i class="material-icons left">cloud</i>connect</a>
+              <a class="modal-close btn-small steelblue" id="btnAuthenticate"><i class="material-icons left">cloud</i>Get Access Token</a>
             </div>
            </div>
           
@@ -1117,8 +1117,8 @@ for ( let i=0; i<types.length; i++ ) {
 M.AutoInit();
 
 function showDates(ele) {
+
   if ( !settings.gameStateModified ) {
-    document.getElementById("modalCloudLoad").style = "display:block";
     M.toast({html:'no local modified date'});
     return;
   }
@@ -1143,10 +1143,8 @@ function showDates(ele) {
           ele.innerHTML = 'Local games have the same date and time as cloud games';
         } else if ( timeLocal > timeSaved ) {
           ele.innerHTML = 'Local games are more up-to-date than cloud games';
-          document.getElementById("modalCloudSave").style = "display:block";
         } else {
           ele.innerHTML = 'Cloud games are more up-to-date than local games';
-          document.getElementById("modalCloudLoad").style = "display:block";
         }
       }
     });
@@ -1163,14 +1161,16 @@ modalCloudFn.options.onOpenStart = function() {
   if ( settings.dropboxAccessToken ) {
     document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken;
     document.getElementById("modalCloudConnected").style = "display:block";
+    document.getElementById("modalCloudNotConnected").style = "display:none";
     showDates(document.getElementById("modalCloudDates"));
   } else {
+    document.getElementById("modalCloudConnected").style = "display:none";
     document.getElementById("modalCloudNotConnected").style = "display:block";
     const btn = document.getElementById("btnAuthenticate");
     const dbx = new Dropbox.Dropbox({fetch: window.fetch.bind(window), clientId: 'gpmr1d1u1j4h2d4'});
     // window.location.origin = 'http://localhost'
     // window.location.pathname = '/solitaire/index.html'
-    const redirect = window.location.href;
+    const redirect = window.location.origin + window.location.pathname;
     console.log(redirect);
     btn.href = dbx.getAuthenticationUrl(redirect);
   }
@@ -1179,7 +1179,6 @@ modalCloudFn.options.onOpenStart = function() {
 modalCloudFn.options.onCloseEnd = function() {
   getAccessTokenFromHTML();
   doSaveSettings();
-  //doSaveGameState();
 };
 
 const LOCALSTORAGE_SETTINGS = 'Oddstream Solitaire Settings';
@@ -1297,6 +1296,7 @@ function doLoadFromDropbox() {
         const newGameState = JSON.parse(reader.result);
         gameState = newGameState;
         settings.gameStateModified = response.client_modified.slice(); // create a copy
+        doSaveGameState();
         M.toast({html:'games loaded'});
       } catch (err) {
         console.error(err);

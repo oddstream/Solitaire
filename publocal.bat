@@ -7,5 +7,5 @@ xcopy *.css %DESTINATION% /d
 xcopy manifest.json %DESTINATION% /d
 xcopy img\*.png %IMG_DESTINATION% /d
 
-REM java -jar compiler.jar --version
-REM java -jar compiler.jar --js Solitaire.js --language_in ECMASCRIPT_2017 --language_out ECMASCRIPT_2015 --js_output_file %DESTINATION%\Solitaire.js
+java -jar compiler.jar --version
+java -jar compiler.jar --js Solitaire.js --language_in ECMASCRIPT_2017 --language_out ECMASCRIPT_2015 --js_output_file %DESTINATION%\Solitaire.js
