@@ -1,3 +1,9 @@
+23/12/2018
+Moved javascript from index.html and into index.js
+Added modalCloudSync
+Retired modalCloudLoad/Save
+Retired settings.gameStateModified
+
 19/12/2018
 Added settings.gameStateModified
 

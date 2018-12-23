@@ -837,13 +837,13 @@ M.AutoInit();
 
 const modalCloudFn = M.Modal.getInstance(document.getElementById('modalCloud'));
 modalCloudFn.options.onOpenStart = function() {
-  if ( settings.dropboxAccessToken ) {
+  if ( settings.dropboxAccessToken && settings.dropboxAccessToken.length ) {
     document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken;
-    document.getElementById("modalCloudConnected").style = "display:block";
-    document.getElementById("modalCloudNotConnected").style = "display:none";
+    document.getElementById("modalCloudConnected").style = 'display:block';
+    document.getElementById("modalCloudNotConnected").style = 'display:none';
   } else {
-    document.getElementById("modalCloudConnected").style = "display:none";
-    document.getElementById("modalCloudNotConnected").style = "display:block";
+    document.getElementById("modalCloudConnected").style = 'display:none';
+    document.getElementById("modalCloudNotConnected").style = 'display:block';
     const btn = document.getElementById("btnAuthenticate");
     const dbx = new Dropbox.Dropbox({fetch: window.fetch.bind(window), clientId: 'gpmr1d1u1j4h2d4'});
     // window.location.origin = 'http://localhost'
@@ -866,6 +866,12 @@ const DROPBOX_GAMES = '/gameState.json';
 let settings = JSON.parse(localStorage.getItem(LOCALSTORAGE_SETTINGS)) || {};
 //let gameState = JSON.parse(localStorage.getItem(LOCALSTORAGE_GAMES)) || {};
 
+if ( settings.lastGame ) {
+  document.getElementById('lastgame').setAttributeNS(null, 'href', settings.lastGame);
+} else {
+  document.getElementById('lastgame').hidden = true;
+}
+
 let params = null;
 if ( window.location.hash ) {
   // a DOMString containing a '#' followed by the fragment identifier of the URL
@@ -879,12 +885,6 @@ if ( window.location.hash ) {
 if ( params && params.has('access_token') ) {
   settings.dropboxAccessToken = params.get('access_token');
   modalCloudFn.open();
-}
-
-if ( settings.lastGame ) {
-    document.getElementById('lastgame').setAttributeNS(null, 'href', settings.lastGame);
-} else {
-    document.getElementById('lastgame').hidden = true;
 }
 
 function getAccessTokenFromHTML() {

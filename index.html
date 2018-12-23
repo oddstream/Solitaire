@@ -132,13 +132,14 @@
 
     <div id="modalCloud" class="modal">
         <div class="modal-content">
-          <img src="img/Dropbox.png" width="50%" height="50%"/>
+          <!-- <img src="img/Dropbox.png" width="50%" height="50%"/> -->
           <input id="dropboxAccessToken" type="text" placeholder="Dropbox Access Token">
           
-          <div id="modalCloudConnected" style="display:none">
+          <div id="modalCloudConnected">
             <div class="input-field col s3" id="modalCloudSync">
               <a class="modal-close btn-small steelblue" onclick="doSyncDropbox()"><i class="material-icons left">sync</i>sync games</a>
             </div>
+          </div>
 <!--
             <div class="input-field col s3" id="modalCloudSave">
               <a class="modal-close btn-small steelblue" onclick="doSaveToDropbox()"><i class="material-icons left">cloud_upload</i>save games</a>
@@ -146,14 +147,13 @@
             <div class="input-field col s3" id="modalCloudLoad">
               <a class="modal-close btn-small steelblue" onclick="doLoadFromDropbox()"><i class="material-icons left">cloud_download</i>load games</a>
             </div>
-          </div>
 -->
-          <div id="modalCloudNotConnected" style="display:none">
+          <div id="modalCloudNotConnected">
             <div class="input-field col s3">
               <a class="modal-close btn-small steelblue" id="btnAuthenticate"><i class="material-icons left">cloud</i>Get Access Token</a>
             </div>
-           </div>
-          
+          </div>
+
         <!--
             <a class="btn" href="https://www.dropbox.com/oauth2/authorize?client_id=gpmr1d1u1j4h2d4&response_type=code" target="_blank" rel="noopener">Get Dropbox authorization code</a>
             <input id="dropboxAuthCode" type="text" placeholder="Dropbox Authorization Code">
