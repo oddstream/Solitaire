@@ -1,6 +1,6 @@
 <script type="application/json" id="rules">
 {
-  "Name":"Klondike No Redeals",
+  "Name":"Klondike Hard",
   "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)",
   "Winnable":[980155],
   "Stock":{"packs":1, "redeals":0},

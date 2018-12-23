@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.12.21.0',
+  GAME_VERSION: '0.12.23.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -3998,7 +3998,6 @@ window.onbeforeunload = function(e) {
   }
   try {
     localStorage.setItem(Constants.LOCALSTORAGE_GAMES, JSON.stringify(gameState));
-    settings.gameStateModified = new Date().toISOString();
     localStorage.setItem(Constants.LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
   } catch(err) {
     console.error(err);

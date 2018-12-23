@@ -1,6 +1,6 @@
 <script type="application/json" id="rules">
 {
-  "Name":"Klondike Turn Three",
+  "Name":"Klondike Draw Three",
   "Wikipedia":"https://en.wikipedia.org/wiki/Klondike_(solitaire)",
   "Winnable":[62623,328369,834233],
   "Stock":{"packs":1, "cards":3},

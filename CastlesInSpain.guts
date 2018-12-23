@@ -1,6 +1,6 @@
 <script type="application/json" id="rules">
 {
-  "Name":"Castles In Spain",
+  "Name":"Castles in Spain",
   "Wikipedia":"https://en.wikipedia.org/wiki/Baker%27s_Dozen_(solitaire)",
   "Winnable":[136366,285793],
   "Stock":{"packs":1, "hidden":1},
