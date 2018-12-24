@@ -21,12 +21,12 @@
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="img/favicon-16x16.png">
-    <link rel="mask-icon" href="img/safari-pinned-tab.svg" color="dir#5bbad5">
+    <link rel="mask-icon" href="img/safari-pinned-tab.svg">
     <meta name="msapplication-TileColor" content="#da532c">
     <meta name="theme-color" content="#ffffff">
 
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/>
+    <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen"/>
     <style>
     .steelblue {
         background-color: #4682b4;
@@ -132,22 +132,24 @@
 
     <div id="modalCloud" class="modal">
         <div class="modal-content">
-          <!-- <img src="img/Dropbox.png" width="50%" height="50%"/> -->
-          <input id="dropboxAccessToken" type="text" placeholder="Dropbox Access Token">
+          <div class="row">
+            <div class="col s1">
+              <a href="https://www.dropbox.com" target="_blank" rel="noopener"><img alt="Dropbox" src="img/Dropbox_Android.png" width="32" height="32"/></a>
+            </div>
+            <div class="col s10">
+              <input id="dropboxAccessToken" type="text" placeholder="Dropbox Access Token">
+            </div>
+            <div class="col s1">
+              <a href="#" onclick="document.getElementById('dropboxAccessToken').value=''"><i class="material-icons">delete</i></a>
+            </div>
+          </div>
           
           <div id="modalCloudConnected">
             <div class="input-field col s3" id="modalCloudSync">
               <a class="modal-close btn-small steelblue" onclick="doSyncDropbox()"><i class="material-icons left">sync</i>sync games</a>
             </div>
           </div>
-<!--
-            <div class="input-field col s3" id="modalCloudSave">
-              <a class="modal-close btn-small steelblue" onclick="doSaveToDropbox()"><i class="material-icons left">cloud_upload</i>save games</a>
-            </div>
-            <div class="input-field col s3" id="modalCloudLoad">
-              <a class="modal-close btn-small steelblue" onclick="doLoadFromDropbox()"><i class="material-icons left">cloud_download</i>load games</a>
-            </div>
--->
+
           <div id="modalCloudNotConnected">
             <div class="input-field col s3">
               <a class="modal-close btn-small steelblue" id="btnAuthenticate"><i class="material-icons left">cloud</i>Get Access Token</a>

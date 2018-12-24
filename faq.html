@@ -41,7 +41,7 @@
     <li>
       <div class="collapsible-header"><i class="material-icons">photo</i>Why are the graphics so basic?</div>
       <div class="collapsible-body"><span> 
-      Anything that distracts from your interaction with the flow of the game, 
+      <p>Anything that distracts from your interaction with the flow of the game, 
       or the ability to scan a deck of cards,
       has either been tried and removed, or not included. 
       This includes: 
@@ -50,12 +50,12 @@
       animating card flips, 
       keeping an arbitrary score, 
       distracting graphics on the screen, 
-      and forcing you to drag the cards to move them. 
-      The user interface tries to stick to the Material Design guidelines, and so is minimal and tactile.
+      and forcing you to drag the cards to move them.</p>
+      <p>The user interface tries to stick to the Material Design guidelines, and so is minimal and tactile.
       I looked at a lot of the other solitaire websites out there, and think how distracting some of them are. 
       Features seem to have been added because the developers thought they were cool; 
       they never seem to have stopped to 
-      consider that just because they <em>could</em> implement a feature, that they <em>should</em>.
+      consider that just because they <em>could</em> implement a feature, that they <em>should</em>.</p>
       </span>
       </div>
     </li>
@@ -91,8 +91,28 @@
     <li>
       <div class="collapsible-header"><i class="material-icons">data_usage</i>Can I play offline?</div>
       <div class="collapsible-body"><span>Yes. There's no traffic between the game and the server once it's loaded.
-      Game scores are stored in your web browser, not on a server. 
-      There's no login, no cookies, and the software doesn't know who or where you are.
+      Game scores are stored in your web browser, and optionally in your personal cloud storage, not on the game's server. 
+      There's no login, no cookies apart from the Google Analytics stuff, and the software doesn't know who or where you are.
+      </span>
+      </div>
+    </li>
+    <li>
+      <div class="collapsible-header"><i class="material-icons">cloud</i>Saving game progress</div>
+      <div class="collapsible-body">
+      <span>
+      <p>Your scores and progress in the game is normally saved in the web browser.
+      You can optionally save your game progress to your personal cloud storage, so you can transfer your progress to several different devices and browsers.
+      Currently, saving to Dropbox is implemented (Google Drive support is being worked on).</p>
+      <p>If you don't already have a Dropbox account, you can create a free one at <a href="https://www.dropbox/com" target="_blank" rel="noopener">Dropbox</a>.</p>
+      <p>The software will create a folder called <code>Apps</code> in your Dropbox storage area, and a folder called <code>Oddstream Solitaire</code> within that.
+      <em>(This software only has access to that folder, and can't see or do anything with the rest of your stuff.)</em>
+      Within that folder, this software will create a file called <code>gameState.json</code> that contains your progress in the games you have played.
+      Start the process by clicking on the cloud icon in the index.html title bar.
+      Then click on the 'Get Access Token' button.
+      In the window that pops up, sign into Dropbox and then grant this software access.
+      An 'access token' will be returned.
+      Thereafter, click on the 'Sync' button to save/load your game state between Dropbox and the browser.
+      You can sever the connection to Dropbox by deleting the displayed access token.</p>
       </span>
       </div>
     </li>

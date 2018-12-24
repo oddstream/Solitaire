@@ -805,7 +805,7 @@ for ( let i=0; i<types.length; i++ ) {
     ulOuter.appendChild(liOuter);
 
   const ch = crel('div', 'collapsible-header');
-    ch.innerHTML = types[i];
+    ch.innerHTML = '<h5>'+types[i]+'</h5>';
     liOuter.appendChild(ch);
 
   const cb = crel('div', 'collapsible-body');
@@ -813,22 +813,25 @@ for ( let i=0; i<types.length; i++ ) {
     let ulInner = crel('ul', null);
       cb.appendChild(ulInner);
 
-  let ty = Variants.filter( function(v) {
+  const ty = Variants.filter( function(v) {
     return v.Type.split(',').includes(types[i]);
   });
 
   ty.sort(function(a, b) { return a.Name.localeCompare(b.Name); });
   ty.forEach( function(t) {
-    let listItem = crel('li', null);
-      let a = crel('a', null);
+    const listItem = crel('li', null);
+      const h6 = crel('h6', null);
+      const a = crel('a', null);
       a.setAttribute('href', t.File + '.html');
       a.innerHTML = t.Name;
-        listItem.appendChild(a);
-        if ( window.innerWidth > 640 ) {
-          let s = crel('span', 'right');
-          s.innerHTML = t.Desc;
-          listItem.appendChild(s);
-        }
+      h6.appendChild(a);
+
+      listItem.appendChild(h6);
+      if ( window.innerWidth > 640 ) {
+        const s = crel('span', 'right');
+        s.innerHTML = t.Desc;
+        listItem.appendChild(s);
+      }
       ulInner.appendChild(listItem);
   });
 }
@@ -839,18 +842,23 @@ const modalCloudFn = M.Modal.getInstance(document.getElementById('modalCloud'));
 modalCloudFn.options.onOpenStart = function() {
   if ( settings.dropboxAccessToken && settings.dropboxAccessToken.length ) {
     document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken;
-    document.getElementById("modalCloudConnected").style = 'display:block';
-    document.getElementById("modalCloudNotConnected").style = 'display:none';
+    document.getElementById("modalCloudConnected").style.display ='block';
+    document.getElementById("modalCloudNotConnected").style.display ='none';
   } else {
-    document.getElementById("modalCloudConnected").style = 'display:none';
-    document.getElementById("modalCloudNotConnected").style = 'display:block';
+    document.getElementById("modalCloudConnected").style.display ='none';
+    document.getElementById("modalCloudNotConnected").style.display ='block';
     const btn = document.getElementById("btnAuthenticate");
-    const dbx = new Dropbox.Dropbox({fetch: window.fetch.bind(window), clientId: 'gpmr1d1u1j4h2d4'});
-    // window.location.origin = 'http://localhost'
-    // window.location.pathname = '/solitaire/index.html'
-    const redirect = window.location.origin + window.location.pathname;
-    console.log(redirect);
-    btn.href = dbx.getAuthenticationUrl(redirect);
+    try {
+      const dbx = new Dropbox.Dropbox({fetch: window.fetch.bind(window), clientId: 'gpmr1d1u1j4h2d4'});
+      // window.location.origin = 'http://localhost'
+      // window.location.pathname = '/solitaire/index.html'
+      const redirect = window.location.origin + window.location.pathname;
+      // console.log(redirect);
+      btn.href = dbx.getAuthenticationUrl(redirect);
+    } catch(err) {
+      M.toast({html:'cannot connect to Dropbox'});
+      console.error(err);
+    }
   }
 };
 
@@ -916,58 +924,7 @@ function doSaveGameState(newGameState) {
     console.error(err);
   }
 }
-/*
-function doSaveToDropbox() {
-  if ( !getAccessTokenFromHTML() ) {
-    M.toast({html:'no access token'});
-    return;
-  }
-  // you can load our UMD package directly from unpkg. This will expose Dropbox as a global - window.Dropbox.Dropbox within browsers.
-  let dbx = new Dropbox.Dropbox({ fetch: fetch, accessToken: settings.dropboxAccessToken });
-  dbx.filesUpload({path: DROPBOX_GAMES, contents: JSON.stringify(gameState), mode: 'overwrite'})
-  .then(function(response) {
-    // console.log(response);
-    M.toast({html:'games saved'});
-  })
-  .catch(function(error) {
-    console.error(error);
-    M.toast({html:'error saving games to cloud'});
-  });
-}
-*/
-/*
-function doLoadFromDropbox() {
-  if ( !getAccessTokenFromHTML() ) {
-    M.toast({html:'no access token'});
-    return;
-  }
 
-  // you can load our UMD package directly from unpkg. This will expose Dropbox as a global - window.Dropbox.Dropbox within browsers.
-  let dbx = new Dropbox.Dropbox({ fetch: fetch, accessToken: settings.dropboxAccessToken });
-  dbx.filesDownload({path: DROPBOX_GAMES})
-  .then(function(response) {
-    let blob = response.fileBlob;
-    let reader = new FileReader();
-    reader.addEventListener('loadend', function() {
-      try {
-        const newGameState = JSON.parse(reader.result);
-        gameState = newGameState;
-        settings.gameStateModified = response.client_modified.slice(); // create a copy
-        doSaveGameState();
-        M.toast({html:'games loaded'});
-      } catch (err) {
-        console.error(err);
-        M.toast({html:'error in format of cloud games'});
-      }
-    });
-    reader.readAsText(blob);
-  })
-  .catch(function(error) {
-    M.toast({html:'error when loading cloud games'});
-    console.error(error);
-  });
-}
-*/
 function loadGameStateFromDropbox(fn) {
   if ( !getAccessTokenFromHTML() ) {
     M.toast({html:'no access token'});
@@ -1001,7 +958,7 @@ function loadGameStateFromDropbox(fn) {
     reader.addEventListener('loadend', function() {
       try {
         newGameState = JSON.parse(reader.result);
-        M.toast({html:'games loaded'});
+        // M.toast({html:'games loaded'});
         fn(newGameState);
       } catch (err) {
         console.error(err);
@@ -1026,7 +983,7 @@ function doSaveGameStateToDropbox(newGameState) {
   dbx.filesUpload({path: DROPBOX_GAMES, contents: JSON.stringify(newGameState), mode: 'overwrite'})
   .then(function(response) {
     // console.log(response);
-    M.toast({html:'games saved'});
+    M.toast({html:'games saved to cloud'});
   })
   .catch(function(error) {
     console.error(error);
@@ -1037,7 +994,8 @@ function doSaveGameStateToDropbox(newGameState) {
 function doSyncDropbox0(cloudGameState) {
   const localGameState = JSON.parse(localStorage.getItem(LOCALSTORAGE_GAMES)) || {};
   const newGameState = {};
-  let changed = false;
+  let saveCloud = false;
+  let saveLocal = false;
   const sortedVariants = Variants.sort(function(a, b) { return a.Name.localeCompare(b.Name); });
   sortedVariants.forEach( function(v) {
     const cloud = cloudGameState[v.Name];
@@ -1046,11 +1004,11 @@ function doSyncDropbox0(cloudGameState) {
       if ( local.totalGames > cloud.totalGames ) {
         console.log(v.Name, 'local > cloud');
         newGameState[v.Name] = local;
-        changed = true;
+        saveCloud = true;
       } else if ( cloud.totalGames > local.totalGames ) {
         console.log(v.Name, 'cloud > local');
         newGameState[v.Name] = cloud;
-        changed = true;
+        saveLocal = true;
       } else {
         // console.log(v.Name, 'cloud == local');
         newGameState[v.Name] = local;
@@ -1058,19 +1016,23 @@ function doSyncDropbox0(cloudGameState) {
     } else if ( local ) {
       console.log(v.Name, 'local but not cloud');
       newGameState[v.Name] = local;
-      changed = true;
+      saveCloud = true;
     } else if ( cloud ) {
       console.log(v.Name, 'cloud but not local');
       newGameState[v.Name] = cloud;
-      changed = true;
+      saveLocal = true;
     } else {
       console.log(v.Name, 'neither');
     }
   });
-  console.log(newGameState);
-  if ( changed ) {
+  if ( saveLocal ) {
     doSaveGameState(newGameState);
+  }
+  if ( saveCloud ) {
     doSaveGameStateToDropbox(newGameState);
+  }
+  if ( saveLocal || saveCloud ) {
+    M.toast({html:'sync completed'});
   } else {
     M.toast({html:'no changes to save'});
   }
