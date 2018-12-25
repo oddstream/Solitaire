@@ -838,14 +838,23 @@ for ( let i=0; i<types.length; i++ ) {
 
 M.AutoInit();
 
+const LOCALSTORAGE_SETTINGS = 'Oddstream Solitaire Settings';
+const LOCALSTORAGE_GAMES = 'Oddstream Solitaire Games';
+const DROPBOX_GAMES = '/gameState.json';
+
+const settings = JSON.parse(localStorage.getItem(LOCALSTORAGE_SETTINGS)) || {};
+
 const modalCloudFn = M.Modal.getInstance(document.getElementById('modalCloud'));
 modalCloudFn.options.onOpenStart = function() {
+  const HIDE_CLASS = 'hide';
   if ( settings.dropboxAccessToken && settings.dropboxAccessToken.length ) {
     document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken;
     document.getElementById("modalCloudAuto").checked = !!settings.autoCloudSync;
-    document.getElementById("modalCloudNotConnected").classList.add('hide');
+    document.getElementById("modalCloudConnected").classList.remove(HIDE_CLASS);
+    document.getElementById("modalCloudNotConnected").classList.add(HIDE_CLASS);
   } else {
-    document.getElementById("modalCloudConnected").classList.add('hide');
+    document.getElementById("modalCloudConnected").classList.add(HIDE_CLASS);
+    document.getElementById("modalCloudNotConnected").classList.remove(HIDE_CLASS);
     const btn = document.getElementById("btnAuthenticate");
     try {
       const dbx = new Dropbox.Dropbox({fetch: window.fetch.bind(window), clientId: 'gpmr1d1u1j4h2d4'});
@@ -867,17 +876,8 @@ modalCloudFn.options.onCloseEnd = function() {
   saveSettings();
 };
 
-const LOCALSTORAGE_SETTINGS = 'Oddstream Solitaire Settings';
-const LOCALSTORAGE_GAMES = 'Oddstream Solitaire Games';
-const DROPBOX_GAMES = '/gameState.json';
-
-let settings = JSON.parse(localStorage.getItem(LOCALSTORAGE_SETTINGS)) || {};
-
 window.onload = function () {
-  if ( !settings ) {
-    console.error('no settings yet');
-    return;
-  }
+  console.assert(settings);
   if ( settings.lastGame ) {
     document.getElementById('lastgame').setAttributeNS(null, 'href', settings.lastGame);
   } else {
