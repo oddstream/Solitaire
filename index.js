@@ -820,7 +820,7 @@ for ( let i=0; i<types.length; i++ ) {
   ty.sort(function(a, b) { return a.Name.localeCompare(b.Name); });
   ty.forEach( function(t) {
     const listItem = crel('li', null);
-      const h6 = crel('h6', null);
+      const h6 = crel('strong', null);
       const a = crel('a', null);
       a.setAttribute('href', t.File + '.html');
       a.innerHTML = t.Name;
@@ -842,11 +842,10 @@ const modalCloudFn = M.Modal.getInstance(document.getElementById('modalCloud'));
 modalCloudFn.options.onOpenStart = function() {
   if ( settings.dropboxAccessToken && settings.dropboxAccessToken.length ) {
     document.getElementById("dropboxAccessToken").value = settings.dropboxAccessToken;
-    document.getElementById("modalCloudConnected").style.display ='block';
-    document.getElementById("modalCloudNotConnected").style.display ='none';
+    document.getElementById("modalCloudAuto").checked = !!settings.autoCloudSync;
+    document.getElementById("modalCloudNotConnected").classList.add('hide');
   } else {
-    document.getElementById("modalCloudConnected").style.display ='none';
-    document.getElementById("modalCloudNotConnected").style.display ='block';
+    document.getElementById("modalCloudConnected").classList.add('hide');
     const btn = document.getElementById("btnAuthenticate");
     try {
       const dbx = new Dropbox.Dropbox({fetch: window.fetch.bind(window), clientId: 'gpmr1d1u1j4h2d4'});
@@ -863,8 +862,9 @@ modalCloudFn.options.onOpenStart = function() {
 };
 
 modalCloudFn.options.onCloseEnd = function() {
-  getAccessTokenFromHTML();
-  doSaveSettings();
+  getAccessTokenFromModal();
+  settings.autoCloudSync = document.getElementById('modalCloudAuto').checked;
+  saveSettings();
 };
 
 const LOCALSTORAGE_SETTINGS = 'Oddstream Solitaire Settings';
@@ -872,12 +872,26 @@ const LOCALSTORAGE_GAMES = 'Oddstream Solitaire Games';
 const DROPBOX_GAMES = '/gameState.json';
 
 let settings = JSON.parse(localStorage.getItem(LOCALSTORAGE_SETTINGS)) || {};
-//let gameState = JSON.parse(localStorage.getItem(LOCALSTORAGE_GAMES)) || {};
 
-if ( settings.lastGame ) {
-  document.getElementById('lastgame').setAttributeNS(null, 'href', settings.lastGame);
-} else {
-  document.getElementById('lastgame').hidden = true;
+window.onload = function () {
+  if ( !settings ) {
+    console.error('no settings yet');
+    return;
+  }
+  if ( settings.lastGame ) {
+    document.getElementById('lastgame').setAttributeNS(null, 'href', settings.lastGame);
+  } else {
+    document.getElementById('lastgame').hidden = true;
+  }
+  if ( settings.autoCloudSync && settings.dropboxAccessToken ) {
+    doSyncDropbox();
+  }
+}
+
+window.onbeforeunload = function() {
+  if ( settings.autoCloudSync && settings.dropboxAccessToken ) {
+    doSyncDropbox();
+  }
 }
 
 let params = null;
@@ -895,7 +909,7 @@ if ( params && params.has('access_token') ) {
   modalCloudFn.open();
 }
 
-function getAccessTokenFromHTML() {
+function getAccessTokenFromModal() {
   const txt = settings.dropboxAccessToken = document.getElementById('dropboxAccessToken').value;
   if ( txt.length ) {
     settings.dropboxAccessToken = txt;
@@ -905,7 +919,7 @@ function getAccessTokenFromHTML() {
   return settings.dropboxAccessToken && settings.dropboxAccessToken.length > 0;
 }
 
-function doSaveSettings() {
+function saveSettings() {
   try {
     localStorage.setItem(LOCALSTORAGE_SETTINGS, JSON.stringify(settings));
     // M.toast({html:'settings saved'});
@@ -915,7 +929,7 @@ function doSaveSettings() {
   }
 }
 
-function doSaveGameState(newGameState) {
+function saveGameStateToLocalStorage(newGameState) {
   try {
     localStorage.setItem(LOCALSTORAGE_GAMES, JSON.stringify(newGameState));
     // M.toast({html:'game state saved'});
@@ -926,8 +940,10 @@ function doSaveGameState(newGameState) {
 }
 
 function loadGameStateFromDropbox(fn) {
-  if ( !getAccessTokenFromHTML() ) {
-    M.toast({html:'no access token'});
+  if ( modalCloudFn.isOpen ) {
+    if ( !getAccessTokenFromModal() ) {
+      M.toast({html:'no access token'});
+    }
   }
 
   let newGameState = {};
@@ -973,10 +989,12 @@ function loadGameStateFromDropbox(fn) {
   });
 }
 
-function doSaveGameStateToDropbox(newGameState) {
-  if ( !getAccessTokenFromHTML() ) {
-    M.toast({html:'no access token'});
-    return;
+function saveGameStateToDropbox(newGameState) {
+  if ( modalCloudFn.isOpen ) {
+    if ( !getAccessTokenFromModal() ) {
+      M.toast({html:'no access token'});
+      return;
+    }
   }
   // you can load our UMD package directly from unpkg. This will expose Dropbox as a global - window.Dropbox.Dropbox within browsers.
   let dbx = new Dropbox.Dropbox({ fetch: fetch, accessToken: settings.dropboxAccessToken });
@@ -991,7 +1009,7 @@ function doSaveGameStateToDropbox(newGameState) {
   });
 }
 
-function doSyncDropbox0(cloudGameState) {
+function syncDropbox0(cloudGameState) {
   const localGameState = JSON.parse(localStorage.getItem(LOCALSTORAGE_GAMES)) || {};
   const newGameState = {};
   let saveCloud = false;
@@ -1001,17 +1019,31 @@ function doSyncDropbox0(cloudGameState) {
     const cloud = cloudGameState[v.Name];
     const local = localGameState[v.Name];
     if ( local && cloud ) {
-      if ( local.totalGames > cloud.totalGames ) {
-        console.log(v.Name, 'local > cloud');
-        newGameState[v.Name] = local;
-        saveCloud = true;
-      } else if ( cloud.totalGames > local.totalGames ) {
-        console.log(v.Name, 'cloud > local');
-        newGameState[v.Name] = cloud;
-        saveLocal = true;
+      if ( local.modified && cloud.modified ) {
+        // modified = Date.now(), introduced 25/12/18
+        if ( local.modified > cloud.modified ) {
+          console.log(v.Name, 'local newer than cloud');
+          newGameState[v.Name] = local;
+          saveCloud = true;
+        } else if ( cloud.modified > local.modified ) {
+          console.log(v.Name, 'cloud newer than local');
+          newGameState[v.Name] = cloud;
+          saveLocal = true;
+        } else {
+          newGameState[v.Name] = local; // whatever
+        }
       } else {
-        // console.log(v.Name, 'cloud == local');
-        newGameState[v.Name] = local;
+        if ( local.totalGames > cloud.totalGames ) {
+          console.log(v.Name, 'local > cloud');
+          newGameState[v.Name] = local;
+          saveCloud = true;
+        } else if ( cloud.totalGames > local.totalGames ) {
+          console.log(v.Name, 'cloud > local');
+          newGameState[v.Name] = cloud;
+          saveLocal = true;
+        } else {
+          newGameState[v.Name] = local; // whatever
+        }
       }
     } else if ( local ) {
       console.log(v.Name, 'local but not cloud');
@@ -1026,10 +1058,10 @@ function doSyncDropbox0(cloudGameState) {
     }
   });
   if ( saveLocal ) {
-    doSaveGameState(newGameState);
+    saveGameStateToLocalStorage(newGameState);
   }
   if ( saveCloud ) {
-    doSaveGameStateToDropbox(newGameState);
+    saveGameStateToDropbox(newGameState);
   }
   if ( saveLocal || saveCloud ) {
     M.toast({html:'sync completed'});
@@ -1039,5 +1071,5 @@ function doSyncDropbox0(cloudGameState) {
 }
 
 function doSyncDropbox() {
-  loadGameStateFromDropbox(doSyncDropbox0);
+  loadGameStateFromDropbox(syncDropbox0);
 }

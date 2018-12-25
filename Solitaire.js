@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.12.24.0',
+  GAME_VERSION: '0.12.25.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -3577,6 +3577,7 @@ function gameOver(won) {
       GSRN.worstStreak = GSRN.currStreak;
   }
 
+  GSRN.modified = Date.now();
   if ( GSRN.saved )
     delete GSRN.saved; // either way, start with a new deal
 }
@@ -3834,6 +3835,8 @@ function dostatsreset() {
   GSRN.currStreak = 0;
   GSRN.bestStreak = 0;
   GSRN.worstStreak = 0;
+
+  GSRN.modified = Date.now();
 }
 
 function displayToast(msg) {

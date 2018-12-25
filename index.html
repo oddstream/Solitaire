@@ -133,20 +133,26 @@
     <div id="modalCloud" class="modal">
         <div class="modal-content">
           <div class="row">
-            <div class="col s1">
+            <div class="col s1 valign-wrapper">
               <a href="https://www.dropbox.com" target="_blank" rel="noopener"><img alt="Dropbox" src="img/Dropbox_Android.png" width="32" height="32"/></a>
             </div>
-            <div class="col s10">
+            <div class="col s10 valign-wrapper">
               <input id="dropboxAccessToken" type="text" placeholder="Dropbox Access Token">
             </div>
-            <div class="col s1">
+            <div class="col s1 valign-wrapper">
               <a href="#" onclick="document.getElementById('dropboxAccessToken').value=''"><i class="material-icons">delete</i></a>
             </div>
           </div>
           
           <div id="modalCloudConnected">
-            <div class="input-field col s3" id="modalCloudSync">
+          <div class="row">
+            <div class="input-field col s6">
               <a class="modal-close btn-small steelblue" onclick="doSyncDropbox()"><i class="material-icons left">sync</i>sync games</a>
+            </div>
+            <div class="input-field col s6">
+              <div class="switch">
+                <label>Manual<input type="checkbox" id="modalCloudAuto"><span class="lever"></span>Auto</label>
+              </div>
             </div>
           </div>
 
