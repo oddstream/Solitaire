@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.12.25.0',
+  GAME_VERSION: '0.12.26.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -165,6 +165,17 @@ const Util = {
     e.cancelBubble = true;
     e.returnValue = false;
     return false;
+  },
+
+  /**
+   * 
+   * @param {Element} ele 
+   * @param {Object} attribs 
+   */
+  setAttributesNS(ele, attribs) {
+    for ( let a in attribs ) {
+      ele.setAttributeNS(null, a, attribs[a]);
+    }
   }
 };
 
@@ -224,11 +235,12 @@ class Baize {
     /** @type {number} */ this.width = 0;
     /** @type {number} */ this.height = 0;
     this.ele.querySelectorAll('g>rect').forEach( r => {
-      r.setAttributeNS(null, 'height', String(Constants.CARD_HEIGHT));
-      r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
-      r.setAttributeNS(null, 'rx', String(Constants.CARD_RADIUS));
-      r.setAttributeNS(null, 'ry', String(Constants.CARD_RADIUS));
-
+      Util.setAttributesNS(r, {
+        height: String(Constants.CARD_HEIGHT),
+        width: String(Constants.CARD_WIDTH),
+        rx: String(Constants.CARD_RADIUS),
+        ry: String(Constants.CARD_RADIUS)
+      });
       let x = Number.parseInt(r.getAttribute('x'), 10) || 0;
       if ( x > this.gutsWidth_ ) {
         this.gutsWidth_ = x;
@@ -276,10 +288,12 @@ class Baize {
       }
     }
     // set viewport (visible area of SVG)
-    this.ele.setAttributeNS(null, 'width', String(this.width));
-    this.ele.setAttributeNS(null, 'height', String(this.height));
-    this.ele.setAttributeNS(null, 'viewBox', `0 0 ${this.width} ${this.height}`);
-    this.ele.setAttributeNS(null, 'preserveAspectRatio', 'xMinYMin slice');
+    Util.setAttributesNS(this.ele, {
+      width: String(this.width),
+      height: String(this.height),
+      viewBox: `0 0 ${this.width} ${this.height}`,
+      preserveAspectRatio: 'xMinYMin slice'
+    });
   }
 
   onOrientationChange() {
@@ -509,10 +523,12 @@ class Card {
   createRect_(cl) {
     const r = document.createElementNS(Constants.SVG_NAMESPACE, 'rect');
     r.classList.add(cl);
-    r.setAttributeNS(null, 'width', String(Constants.CARD_WIDTH));
-    r.setAttributeNS(null, 'height', String(Constants.CARD_HEIGHT));
-    r.setAttributeNS(null, 'rx', String(Constants.CARD_RADIUS));
-    r.setAttributeNS(null, 'ry', String(Constants.CARD_RADIUS));
+    Util.setAttributesNS(r, {
+      width: String(Constants.CARD_WIDTH),
+      height: String(Constants.CARD_HEIGHT),
+      rx: String(Constants.CARD_RADIUS),
+      ry: String(Constants.CARD_RADIUS)
+    });
     return r;
   }
 
@@ -528,44 +544,53 @@ class Card {
 
       const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
       t.classList.add('spielkartevalue');
-      t.setAttributeNS(null, 'x', String(Constants.CARD_WIDTH/4));
-      t.setAttributeNS(null, 'y', String(Constants.CARD_HEIGHT/4));
-      t.setAttributeNS(null, 'text-anchor', 'middle');
-      t.setAttributeNS(null, 'dominant-baseline', 'middle');
-      t.setAttributeNS(null, 'fill', this.color);
+      Util.setAttributesNS(t, {
+        'x': String(Constants.CARD_WIDTH/4),
+        'y': String(Constants.CARD_HEIGHT/4),
+        'text-anchor': 'middle',
+        'dominant-baseline': 'middle',
+        'fill': this.color
+      });
       t.innerHTML = this.faceValue();
       this.g.appendChild(t);
 
       if ( Constants.MOBILE ) {   // TODO get rid of magic numbers
         const u = document.createElementNS(Constants.SVG_NAMESPACE, 'use');
-        u.setAttributeNS(null, 'href', `#${this.suit}`);
-        u.setAttributeNS(null, 'height', '22');
-        u.setAttributeNS(null, 'width', '24');
+        const u_attribs = {
+          href: `#${this.suit}`,
+          height: '22',
+          width: '24'
+        };
         if ( rules.Cards.suit === 'BottomLeft' ) {
-          u.setAttributeNS(null, 'x', '4');
-          u.setAttributeNS(null, 'y', String((Constants.CARD_HEIGHT/3)*2));
+          u_attribs.x = '4';
+          u_attribs.y = String((Constants.CARD_HEIGHT/3)*2);
         } else if ( rules.Cards.suit === 'TopRight' ) {
-          u.setAttributeNS(null, 'x', String(Constants.CARD_WIDTH/2));
-          u.setAttributeNS(null, 'y', '4');
+          u_attribs.x = String(Constants.CARD_WIDTH/2);
+          u_attribs.y = '4';
         } else {
           console.error('Unknown rules.Cards.suit', rules.Cards.suit);
         }
+        Util.setAttributesNS(u, u_attribs);
         this.g.appendChild(u);
       } else {
         const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
         t.classList.add('spielkartesuit');
+        const t_attribs = {
+          'text-anchor': 'middle',
+          'dominant-baseline': 'middle',
+          'fill': this.color
+        };
         if ( rules.Cards.suit === 'BottomLeft' ) {
-          t.setAttributeNS(null, 'x', String(Constants.CARD_WIDTH/4));
-          t.setAttributeNS(null, 'y', String((Constants.CARD_HEIGHT/10)*9)); // 90%
+          t_attribs['x'] = String(Constants.CARD_WIDTH/4);
+          t_attribs['y'] = String((Constants.CARD_HEIGHT/10)*9); // 90%
+          // t_attribs['transform'] = `rotate(180,${Constants.CARD_WIDTH/4},${(Constants.CARD_HEIGHT/10)*8})`;
         } else if ( rules.Cards.suit === 'TopRight' ) {
-          t.setAttributeNS(null, 'x', String((Constants.CARD_WIDTH/4)*3));  // 75%
-          t.setAttributeNS(null, 'y', String(Constants.CARD_HEIGHT/4));
+          t_attribs['x'] = String((Constants.CARD_WIDTH/4)*3);  // 75%
+          t_attribs['y'] = String(Constants.CARD_HEIGHT/4);
         } else {
           console.error('Unknown rules.Cards.suit', rules.Cards.suit);
         }
-        t.setAttributeNS(null, 'text-anchor', 'middle');
-        t.setAttributeNS(null, 'dominant-baseline', 'middle');
-        t.setAttributeNS(null, 'fill', this.color);
+        Util.setAttributesNS(t, t_attribs);
         t.innerHTML = this.suit;
         this.g.appendChild(t);
       }
@@ -3993,12 +4018,14 @@ document.documentElement.style.setProperty('--ffont', 'Acme');
 // document.addEventListener('contextmenu', event => event.preventDefault());
 
 window.onbeforeunload = function(e) {
+  const GSRN = gameState[rules.Name];
   // if scattered, force a new game, otherwise loaded game won't be scattered
   if ( foundations.some( f => f.scattered ) ) {
-    delete gameState[rules.Name].saved;
+    delete GSRN.saved;
   } else {
-    gameState[rules.Name].saved = new Saved();
+    GSRN.saved = new Saved();
   }
+  GSRN.modified = Date.now();
   try {
     localStorage.setItem(Constants.LOCALSTORAGE_GAMES, JSON.stringify(gameState));
     localStorage.setItem(Constants.LOCALSTORAGE_SETTINGS, JSON.stringify(settings));

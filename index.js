@@ -780,14 +780,26 @@ let isIE = false || !!document.documentMode;
 if ( isIE )
     window.alert('Internet Explorer is not supported.\n\nPlease try again with a modern browser.');
 
-function crel(nm, cl) {
-  const ele = document.createElement(nm);
-  if ( cl ) ele.setAttribute('class', cl);
+/**
+ * 
+ * @param {Element} p 
+ * @param {String} eleName 
+ * @param {Object=} attribs 
+ * @param {String} text
+ * @param {...Element=} ch 
+ * @returns {Element}
+ * or use https://github.com/KoryNunn/crel
+ */
+function peach(p, eleName, attribs, text, ...ch) {
+  const ele = document.createElement(eleName);
+  if ( attribs ) for ( let a in attribs ) {
+    ele.setAttribute(a, attribs[a]);
+  }
+  if ( text ) ele.innerHTML = text;
+  if ( ch ) ch.forEach( c => ele.appendChild(c) );
+  if ( p ) p.appendChild(ele);
   return ele;
 }
-
-//const vs = JSON.parse(document.getElementById('variants').innerText);
-const cont = document.getElementById('content');
 
 const types = [];
 Variants.forEach( function(v) {
@@ -798,41 +810,29 @@ Variants.forEach( function(v) {
 });
 types.sort();
 
-const ulOuter = crel('ul', 'collapsible');
-cont.appendChild(ulOuter);
+const ulOuter = peach(document.getElementById('content'), 'ul', {class:'collapsible'});
+
 for ( let i=0; i<types.length; i++ ) {
-  const liOuter = crel('li', null);
-    ulOuter.appendChild(liOuter);
+  const liOuter = peach(ulOuter, 'li', null);
+  const ch = peach(liOuter, 'div', {class:'collapsible-header', id:'ch'+i}, null,
+      peach(null, 'h6', null, types[i])
+  );
 
-  const ch = crel('div', 'collapsible-header');
-    ch.innerHTML = '<h5>'+types[i]+'</h5>';
-    liOuter.appendChild(ch);
-
-  const cb = crel('div', 'collapsible-body');
-    liOuter.appendChild(cb);
-    let ulInner = crel('ul', null);
-      cb.appendChild(ulInner);
+  const cb = peach(liOuter, 'div', {class:'collapsible-body', id:'cb'+i});
+  const ulInner = peach(cb, 'ul');
 
   const ty = Variants.filter( function(v) {
     return v.Type.split(',').includes(types[i]);
   });
-
   ty.sort(function(a, b) { return a.Name.localeCompare(b.Name); });
   ty.forEach( function(t) {
-    const listItem = crel('li', null);
-      const h6 = crel('strong', null);
-      const a = crel('a', null);
-      a.setAttribute('href', t.File + '.html');
-      a.innerHTML = t.Name;
-      h6.appendChild(a);
-
-      listItem.appendChild(h6);
+    const listItem = peach(ulInner, 'li');
+      const a = peach(listItem, 'a', {href:t.File + '.html'}, null,
+        peach(null, 'strong', null, t.Name)
+      );
       if ( window.innerWidth > 640 ) {
-        const s = crel('span', 'right');
-        s.innerHTML = t.Desc;
-        listItem.appendChild(s);
+        peach(listItem, 'span', {class:'right'}, t.Desc);
       }
-      ulInner.appendChild(listItem);
   });
 }
 
@@ -843,6 +843,16 @@ const LOCALSTORAGE_GAMES = 'Oddstream Solitaire Games';
 const DROPBOX_GAMES = '/gameState.json';
 
 const settings = JSON.parse(localStorage.getItem(LOCALSTORAGE_SETTINGS)) || {};
+
+const collapsibleFn = M.Collapsible.getInstance(ulOuter);
+collapsibleFn.options.onOpenEnd = function() {
+  const h6 = document.querySelector('li.active>div>h6');
+  if ( h6 ) {
+    settings.activeType = h6.innerHTML;
+  } else {
+    delete settings.activeType;
+  }
+}
 
 const modalCloudFn = M.Modal.getInstance(document.getElementById('modalCloud'));
 modalCloudFn.options.onOpenStart = function() {
@@ -873,7 +883,6 @@ modalCloudFn.options.onOpenStart = function() {
 modalCloudFn.options.onCloseEnd = function() {
   getAccessTokenFromModal();
   settings.autoCloudSync = document.getElementById('modalCloudAuto').checked;
-  saveSettings();
 };
 
 window.onload = function () {
@@ -883,15 +892,27 @@ window.onload = function () {
   } else {
     document.getElementById('lastgame').hidden = true;
   }
+  if ( settings.activeType ) {
+    const nodes = document.querySelectorAll('div.collapsible-header>h6');
+    for ( let i=0; i<nodes.length; i++ ) {
+      if ( nodes[i].innerHTML === settings.activeType ) {
+        collapsibleFn.open(i);
+
+        const cb = document.getElementById('cb'+i);
+        if ( cb ) {
+          cb.scrollIntoView(false);
+        }
+        break;
+      }
+    }
+  }
   if ( settings.autoCloudSync && settings.dropboxAccessToken ) {
     doSyncDropbox();
   }
 }
 
-window.onbeforeunload = function() {
-  if ( settings.autoCloudSync && settings.dropboxAccessToken ) {
-    doSyncDropbox();
-  }
+window.onbeforeunload = function(e) {
+  saveSettings(); // may have been changed by modalCloud or active collapsible
 }
 
 let params = null;

@@ -1,3 +1,7 @@
+26/12/2018
+Refactoring of index.html (peach)
+added settings.activeType
+
 25/12/2018
 Implemented auto/manual cloud sync switch
 
