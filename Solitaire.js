@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.12.26.0',
+  GAME_VERSION: '0.12.31.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -44,10 +44,10 @@ const Constants = {
   AUTOCOLLECT_ANY: 3
 };
 
-// if ( !(Constants.CHROME || Constants.EDGE || Constants.FIREFOX) )
-//     window.alert(`Browser (${navigator.userAgent}) not supported`);
-// else if ( !window.PointerEvent )
-//     window.alert('Pointer events not supported');
+if ( !(Constants.CHROME || Constants.EDGE || Constants.FIREFOX) )
+  window.alert(`Browser (${navigator.userAgent}) not supported`);
+else if ( !window.PointerEvent )
+  window.alert('Pointer events not supported');
 
 const Util = {
   /**
@@ -310,7 +310,7 @@ class Baize {
         c.putRectInG_();
       });
     });
-    availableMoves();   // repaint moveable cards
+    allAvailableMoves();   // repaint moveable cards
   }
 
   /**
@@ -445,7 +445,7 @@ class Ündo {  // alt + 0220
     tallyMan.set(moveToUndo);
     // calling robot() here will cause an autoMove/autoCollect loop
     scrunchContainers();
-    availableMoves(); // repaint moveable cards
+    allAvailableMoves(); // repaint moveable cards
   }
 }
 
@@ -483,7 +483,7 @@ class Card {
     this.pt = Util.newPoint(pt);
     this.ptOriginal = null;
     this.ptOffset = null;
-    this.grabbedTail = null;
+    this.grabbedTail = /** @type {Card[]} */(null);
     this.ptOriginalPointerDown = null;
     // https://stackoverflow.com/questions/33859113/javascript-removeeventlistener-not-working-inside-a-class
     this.downHandler = this.onpointerdown.bind(this);
@@ -493,9 +493,9 @@ class Card {
     this.cancelHandler = this.onpointercancel.bind(this);
     this.overHandler = this.onpointerover.bind(this);
 
-    this.animationIds = [];
+    this.animationIds = /** @type {Number[]} */([]);
 
-    this.g = /** @type {!SVGGElement} */(document.createElementNS(Constants.SVG_NAMESPACE, 'g'));
+    this.g = /** @type {SVGGElement} */(document.createElementNS(Constants.SVG_NAMESPACE, 'g'));
     this.putRectInG_();
     this.position0();
     this.addListeners_();
@@ -1075,19 +1075,6 @@ class Card {
   }
 
   /**
-   * @param {Array} ccListList array of container arrays
-   * @returns {CardContainer|null} 
-   */
-  findFullestAcceptingContainerList(ccListList) {
-    ccListList.forEach( ccList => {
-      const cc = this.findFullestAcceptingContainer(ccList);
-      if ( cc )
-        return cc;
-    });
-    return null;
-  }
-
-  /**
    * Get a shallow copy of tail from this card to end of stack
    * @returns {!Array<Card>} 
    */
@@ -1128,13 +1115,11 @@ class Card {
   }
 
   markGrabbed() {
-    const cl = this.g.firstChild.classList;
-    cl.add('grabbed');
+    this.g.firstChild.classList.add('grabbed');
   }
 
   unmarkGrabbed() {
-    const cl = this.g.firstChild.classList;
-    cl.remove('grabbed');
+    this.g.firstChild.classList.remove('grabbed');
   }
 
   /**
@@ -1329,6 +1314,10 @@ class CardContainer {
    * @private
    * @param {Card} c
    * @returns {number}
+   * 
+   * TODO is is as ugly as fuck, and only needs to check if this card can go to a class of container
+   * e.g. can tab card goto cell? can tab card goto another tab? can stock goto waste?
+   * TODO shouldn't this be a Card member?
    */
   availableMovesForThisCard_(c) {
     let count = 0;
@@ -1359,8 +1348,11 @@ class CardContainer {
     let count = 0;
     const c = this.peek();
     if ( c ) {
-      console.assert(!c.faceDown);
-      count += this.availableMovesForThisCard_(c);
+      if ( c.faceDown ) {
+        count++;  // stock, clicking will flip and move it to waste
+      } else {
+        count += this.availableMovesForThisCard_(c);
+      }
     }
     return count;
   }
@@ -1383,31 +1375,6 @@ class CardContainer {
   }
 
   /**
-   * @private
-   * @returns {number}
-   */
-  availableMovesStackAll_() {
-    // used by Stock, Waste
-    let count = 0;
-    this.cards.forEach( c => {
-      c.markMoveable();
-      cardContainers.forEach( dst => {
-        if ( dst !== this ) {
-          const oldFaceDown = c.faceDown;
-          c.faceDown = false;
-          if ( c.owner.canTarget(dst) && dst.canAcceptCard(c) ) {
-            if ( !(dst instanceof Cell) )
-              c.markMoveable(dst);
-            count++;
-          }
-          c.faceDown = oldFaceDown;
-        }
-      });
-    });
-    return count;
-  }
-
-  /**
    * @returns {number}
    */
   availableMoves() {
@@ -1417,7 +1384,7 @@ class CardContainer {
   }
 
   /**
-   * Bury a card (the King) in Baker's Dozen
+   * Bury a card (e.g. the King in Baker's Dozen)
    * @private
    */
   bury_() {
@@ -1691,7 +1658,6 @@ class Cell extends CardContainer {
     cc = c.findFullestAcceptingContainer(foundations);
     if ( !cc )
       cc = c.findFullestAcceptingContainer(tableaux);
-    // const cc = c.findFullestAcceptingContainerList([foundations,tableaux]);
     if ( cc )
       c.moveTop(cc);
     else
@@ -1823,7 +1789,6 @@ class Reserve extends CardContainer {
     cc = c.findFullestAcceptingContainer(foundations);
     if ( !cc )
       cc = c.findFullestAcceptingContainer(tableaux);
-    // const cc = c.findFullestAcceptingContainerList([foundations,tableaux]);
     if ( cc )
       c.moveTop(cc);
     else
@@ -2058,7 +2023,15 @@ class Stock extends CardContainer {
    * @returns {number}
    */
   availableMoves() {
-    return this.availableMovesStackAll_();
+    let count = 0;
+    if ( 0 === this.cards.length ) {
+      if ( this.redealsAvailable() ) {
+        count = 1;
+      }
+    } else {
+      count = super.availableMoves();
+    }
+    return count;
   }
 
   /**
@@ -2158,7 +2131,7 @@ class StockScorpion extends Stock {
    * @returns {number}
    */
   availableMoves() {
-    return this.cards.length;
+    return this.cards.length ? 1 : 0;
   }
 
   /**
@@ -2200,7 +2173,7 @@ class StockSpider extends Stock {
    * @returns {number}
    */
   availableMoves() {
-    return this.cards.length;
+    return this.cards.length ? 1 : 0;
   }
 
   /**
@@ -2226,7 +2199,7 @@ class StockGolf extends Stock {
    * @returns {number}
    */
   availableMoves() {
-    return this.cards.length;
+    return this.cards.length ? 1 : 0;
   }
 
   /**
@@ -2318,7 +2291,7 @@ class StockCruel extends Stock
 
       ü.reset();
 
-      if ( 1 === availableMoves() )   // repaint moveable cards
+      if ( 1 === allAvailableMoves() )   // repaint moveable cards
         displayToastNoAvailableMoves();
       else
         tallyMan.increment();
@@ -2332,10 +2305,7 @@ class StockCruel extends Stock
    * @returns {number}
    */
   availableMoves() {
-    if ( this.redealsAvailable() )
-      return 1;
-    else
-      return 0;
+    return this.redealsAvailable() ? 1 : 0;
   }
 
   /**
@@ -2384,7 +2354,7 @@ class StockFan extends Stock {
       });
 
       waitForCards().then ( () => {
-        if ( 1 === availableMoves() )   // repaint moveable cards
+        if ( 1 === allAvailableMoves() )   // repaint moveable cards
           displayToastNoAvailableMoves();
         else
           tallyMan.increment();
@@ -2399,10 +2369,7 @@ class StockFan extends Stock {
    * @returns {number}
    */
   availableMoves() {
-    if ( this.redealsAvailable() )
-      return 1;
-    else
-      return 0;
+    return this.redealsAvailable() ? 1 : 0;
   }
 
   /**
@@ -2511,7 +2478,6 @@ class Waste extends CardContainer {
       cc = c.findFullestAcceptingContainer(tableaux);
     if ( !cc )
       cc = c.findFullestAcceptingContainer(cells);      // Carpet
-    // const cc = c.findFullestAcceptingContainerList([foundations,tableaux,cells]);
     if ( cc )
       c.moveTop(cc);
     else
@@ -2548,16 +2514,7 @@ class Waste extends CardContainer {
     return 0 === this.cards.length;
   }
 
-  /**
-   * @override
-   * @returns {number}
-   */
-  availableMoves() {
-    if ( stock.redeals === null || stock.redeals > 0 )
-      return this.availableMovesStackAll_();
-    else
-      return super.availableMoves();   // just the top card
-  }
+  // uses default availableMoves() - just top card
 
   /**
    * @override
@@ -3230,7 +3187,6 @@ class TableauSpider extends TableauTail {
     let cc = c.findFullestAcceptingContainer(foundations);
     if ( !cc )
       cc = c.findFullestAcceptingContainer(tableaux);
-    // const cc = c.findFullestAcceptingContainerList([foundations,tableaux]);
     if ( cc )
       c.moveTail(cc);
     else
@@ -3555,14 +3511,14 @@ function pullCardsToFoundations() {
   return cardMoved;
 }
 
-function availableMoves() {
+function allAvailableMoves() {
   return cardContainers.reduce( (acc,obj) => {
     return acc + obj.availableMoves();
   }, 0);
 }
 
 function doshowavailablemoves() {
-  const a = availableMoves();
+  const a = allAvailableMoves();
   if ( 0 === a )
     displayToastNoAvailableMoves();
   else
@@ -3644,7 +3600,7 @@ function dostar() {
 }
 
 function dostarseed() {
-  modalStarSeed.open();
+  modalStarSeedFn.open();
 }
 
 function dostarseeddeal() {
@@ -3715,8 +3671,8 @@ function doload() {
   }
 }
 
-const modalStarSeed = M.Modal.getInstance(document.getElementById('modalStarSeed'));
-modalStarSeed.options.onOpenStart = function() {
+const modalStarSeedFn = M.Modal.getInstance(document.getElementById('modalStarSeed'));
+modalStarSeedFn.options.onOpenStart = function() {
   const ele = document.getElementById('starSeed');
   if ( ele ) {
     ele.value = String(gameState[rules.Name].seed);
@@ -3724,11 +3680,11 @@ modalStarSeed.options.onOpenStart = function() {
   }
 };
 
-modalStarSeed.options.onCloseEnd = function() {
+modalStarSeedFn.options.onCloseEnd = function() {
 };
 
-const modalSettings = M.Modal.getInstance(document.getElementById('modalSettings'));
-modalSettings.options.onOpenStart = function() {
+const modalSettingsFn = M.Modal.getInstance(document.getElementById('modalSettings'));
+modalSettingsFn.options.onOpenStart = function() {
   document.getElementById('aniSpeed').value = settings.aniSpeed;
   document.getElementById('sensoryCues').checked = settings.sensoryCues;
   document.getElementById('autoPlay').checked = settings.autoPlay;
@@ -3741,7 +3697,7 @@ modalSettings.options.onOpenStart = function() {
   document.getElementById('autoAny').checked = settings.autoCollect === Constants.AUTOCOLLECT_ANY;
 };
 
-modalSettings.options.onCloseEnd = function() {
+modalSettingsFn.options.onCloseEnd = function() {
   settings.aniSpeed = document.getElementById('aniSpeed').value;
   settings.sensoryCues = document.getElementById('sensoryCues').checked;
   settings.autoPlay = document.getElementById('autoPlay').checked;
@@ -3757,17 +3713,17 @@ modalSettings.options.onCloseEnd = function() {
   else if ( document.getElementById('autoAny').checked )
     settings.autoCollect = Constants.AUTOCOLLECT_ANY;
 
-  availableMoves();   // mark moveable cards
+  allAvailableMoves();   // mark moveable cards
 };
 
-const modalStatistics = M.Modal.getInstance(document.getElementById('modalStatistics'));
-modalStatistics.options.onOpenStart = function() {
+const modalStatisticsFn = M.Modal.getInstance(document.getElementById('modalStatistics'));
+modalStatisticsFn.options.onOpenStart = function() {
   const GSRN = gameState[rules.Name];
   {
     let s = `In this game of ${rules.Name} (number ${GSRN.seed}) you've made `;
     s += Util.plural(tallyMan.count, 'move');
     s += ', there are ';
-    s += Util.plural(availableMoves(), 'available move');
+    s += Util.plural(allAvailableMoves(), 'available move');
     if ( !rules.Stock.hidden ) {
       s += ', ';
       s += Util.plural(stock.cards.length, 'stock card');
@@ -3806,31 +3762,31 @@ modalStatistics.options.onOpenStart = function() {
     document.getElementById('gamesTotalStats').innerHTML = `In total, you have played ${Util.plural(totalPlayed, 'game')} and won ${totalWon} of them (${Math.round(totalWon/totalPlayed*100)}%)`;
 };
 
-modalStatistics.options.onCloseEnd = function() {
+modalStatisticsFn.options.onCloseEnd = function() {
 };
 
-const modalGameOver = M.Modal.getInstance(document.getElementById('modalGameOver'));
-modalGameOver.options.onOpenStart = function() {
+const modalGameOverFn = M.Modal.getInstance(document.getElementById('modalGameOver'));
+modalGameOverFn.options.onOpenStart = function() {
   const GSRN = gameState[rules.Name];
   document.getElementById('movesMade').innerHTML = `Game ${GSRN.seed} of ${rules.Name} solved in ${tallyMan.count} moves; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
   document.getElementById('gamesPlayed').innerHTML = `You've played ${rules.Name} ${GSRN.totalGames} times, and won ${GSRN.gamesWon} (${Math.round(GSRN.gamesWon/GSRN.totalGames*100)}%)`;
   document.getElementById('gamesStreak').innerHTML = `Your current winning streak is ${GSRN.currStreak}, your best winning streak is ${GSRN.bestStreak}, your worst is ${GSRN.worstStreak}`;
 };
 
-modalGameOver.options.onCloseEnd = function() {
+modalGameOverFn.options.onCloseEnd = function() {
 };
 
-const modalAreYouSure = M.Modal.getInstance(document.getElementById('modalAreYouSure'));
+const modalAreYouSureFn = M.Modal.getInstance(document.getElementById('modalAreYouSure'));
 
 function areYouSure(f) {
   console.assert(typeof f === 'string');
   const ele = document.getElementById('modalAreYouSureYes');
   ele.setAttribute('onclick', `${f}()`);
-  modalAreYouSure.open();
+  modalAreYouSureFn.open();
 }
 
-const modalShowRules = M.Modal.getInstance(document.getElementById('modalShowRules'));
-modalShowRules.options.onOpenStart = function() {
+const modalShowRulesFn = M.Modal.getInstance(document.getElementById('modalShowRules'));
+modalShowRulesFn.options.onOpenStart = function() {
   let r = '<p>' + stock.english() + '</p>';
   [waste,foundations[0],tableaux[0],cells[0],reserves[0]].forEach( cc => {
     if ( cc )
@@ -3848,7 +3804,7 @@ modalShowRules.options.onOpenStart = function() {
 };
 
 function doshowrules() {
-  modalShowRules.open();
+  modalShowRulesFn.open();
 }
 
 function dostatsreset() {
@@ -3892,7 +3848,7 @@ function displayToastNoAvailableMoves() {
 }
 
 function dosettings() {
-  modalSettings.open();
+  modalSettingsFn.open();
 }
 
 function dohelp() {
@@ -4147,10 +4103,10 @@ function robot() {
         .then( () => {
           ü.reset();
           gameOver(true);
-          modalGameOver.open();
+          modalGameOverFn.open();
         });
       }
-    } else if ( !availableMoves() ) {
+    } else if ( !allAvailableMoves() ) {
       displayToastNoAvailableMoves();
     }
   })
@@ -4178,7 +4134,7 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
       doload();
       break;
     case 'r':
-      modalShowRules.open();
+      modalShowRulesFn.open();
       break;
     case 's':
       dosave();
@@ -4201,15 +4157,11 @@ class KeyFocus {
   }
 
   /**
-   * Add/remove outline around card with focus
+   * Add/remove outline around card/container with focus
    * @param {!boolean} add 
    */
   mark(add) {
-    const cl = (this.c ? this.c : this.cc).g.querySelector('rect').classList;
-    if ( add )
-      cl.add('focus');
-    else
-      cl.remove('focus');
+    (this.c ? this.c : this.cc).g.querySelector('rect').classList.toggle('focus', add);
   }
 
   /**

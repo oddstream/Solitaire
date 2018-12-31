@@ -135,12 +135,16 @@
 
     <div id="modalCloud" class="modal">
         <div class="modal-content">
+          <h4 class="noselect">&nbsp;<a class="modal-close right noselect hide-on-small-only"><i class="material-icons">close</i></a></h4>
           <div class="row">
             <div class="col s1">
               <a href="https://www.dropbox.com/home/Apps/Oddstream%20Solitaire" target="_blank" rel="noopener"><img alt="Dropbox" src="img/Dropbox_Android.png" width="32" height="32"/></a>
             </div>
             <div class="col s10">
-              <input id="dropboxAccessToken" type="text" class="steelblue-text" placeholder="Dropbox Access Token">
+              <label for="dropboxAccessToken">
+                <input id="dropboxAccessToken" type="text" class="steelblue-text" placeholder="Dropbox Access Token"/>
+                <span>Dropbox Access Token</span>
+              </label>
             </div>
             <div class="col s1">
               <a onclick="document.getElementById('dropboxAccessToken').value=''"><i class="material-icons">delete</i></a>
@@ -171,9 +175,11 @@
             <input id="dropboxAuthCode" type="text" placeholder="Dropbox Authorization Code">
         -->
         </div>
+<!--
         <div class="modal-footer">
           <a class="modal-close btn-small steelblue">Close</a>
         </div>
+-->
     </div>
 
     <script type="text/javascript" src="js/materialize.min.js"></script>
