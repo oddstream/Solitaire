@@ -20,5 +20,6 @@ make.exe
 compiler.jar
 compiler-help.txt
 notes.txt
+notes.md
 package*.json
 desktop.ini
