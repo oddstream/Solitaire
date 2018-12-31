@@ -12,6 +12,7 @@ node_modules/*
 js/*
 css/*
 
+*.code-workspace
 test/*
 img/*
 .vscode/*
