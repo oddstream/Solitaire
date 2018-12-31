@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.12.31.0',
+  GAME_VERSION: '0.12.31.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -1063,6 +1063,8 @@ class Card {
   findFullestAcceptingContainer(ccList) {
     let cc = null;
     for ( const dst of ccList ) {
+      if ( dst === this.owner )
+        continue;
       if ( this.owner.canTarget(dst) && dst.canAcceptCard(this) ) {
         if ( !cc ) {
           cc = dst;
@@ -1072,6 +1074,25 @@ class Card {
       }
     }
     return cc;
+  }
+
+  /**
+   * Take Freecell for example, with four empty cells; if a tab card can
+   * be moved to one cell, it's the same as moving it to any other cell, so this would
+   * count as one potential move, not four.
+   * 
+   * @returns {Number}
+   */
+  potentialMovesToContainers() {
+    let count = 0;
+    [foundations,tableaux,cells].forEach( ccList => {
+      const dst = this.findFullestAcceptingContainer(ccList);
+      if ( dst ) {
+        count++;
+        this.markMoveable(dst);
+      }
+    });
+    return count;
   }
 
   /**
@@ -1103,8 +1124,7 @@ class Card {
     const cl = this.g.firstChild.classList;
     const UN = 'unmoveable';
     if ( settings.sensoryCues ) {
-      if ( ccDst ) {
-        console.assert(!(ccDst instanceof Cell));
+      if ( ccDst && !(ccDst instanceof Cell) ) {
         cl.remove(UN);
       } else {
         cl.add(UN); // ignored if class already there
@@ -1312,35 +1332,6 @@ class CardContainer {
 
   /**
    * @private
-   * @param {Card} c
-   * @returns {number}
-   * 
-   * TODO is is as ugly as fuck, and only needs to check if this card can go to a class of container
-   * e.g. can tab card goto cell? can tab card goto another tab? can stock goto waste?
-   * TODO shouldn't this be a Card member?
-   */
-  availableMovesForThisCard_(c) {
-    let count = 0;
-    for ( const dst of cardContainers ) {
-      if ( dst === this )
-        continue;
-      if ( c.owner.canTarget(dst) && dst.canAcceptCard(c) ) {
-        if ( ((dst instanceof Tableau && c.owner instanceof Tableau) || (dst instanceof Cell && c.owner instanceof Cell))
-          && 0 === dst.cards.length
-          && c === c.owner.cards[0] ) {
-          // moving empty cell/tab to empty cell/tab - legal but not useful
-        } else {
-          count += 1;
-          if ( !(dst instanceof Cell) )
-            c.markMoveable(dst);
-        }
-      }
-    }
-    return count;
-  }
-
-  /**
-   * @private
    * @returns {number}
    */
   availableMovesTopCard_() {
@@ -1351,7 +1342,7 @@ class CardContainer {
       if ( c.faceDown ) {
         count++;  // stock, clicking will flip and move it to waste
       } else {
-        count += this.availableMovesForThisCard_(c);
+        count += c.potentialMovesToContainers();
       }
     }
     return count;
@@ -1365,10 +1356,9 @@ class CardContainer {
     // used by TableauTail, TableauFreecell
     let count = 0;
     this.cards.forEach( c => {
-      // console.assert(!c.faceDown);
       c.markMoveable();
       if ( !c.faceDown && this.canGrab(c) ) {
-        count += this.availableMovesForThisCard_(c);
+        count += c.potentialMovesToContainers();
       }
     });
     return count;
