@@ -1,11 +1,11 @@
 <script type="application/json" id="rules">
 {
-  "Name":"Yukon",
-  "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)",
-  "Winnable":[261998,475085,531778,866106,911060],
+  "Name":"Russian",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Russian_(solitaire)",
+  "Winnable":[],
   "Stock":{"packs":1, "hidden":1},
   "Foundation":{"suit":2, "rank":1, "accept":1, "scatter":"Left"},
-  "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":1, "rank":5}, "accept":13}
+  "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":1, "rank":5}, "accept":13}
 }
 </script>
 

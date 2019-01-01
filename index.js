@@ -121,6 +121,13 @@ const Variants = [
     'Wikipedia':'https://en.wikipedia.org/wiki/Yukon_(solitaire)'
 },
 {
+  'Name':'Russian',
+  'Type':'All,Yukon,Small Screen',
+  'Desc':'build the tableau down in suit',
+  'File':'Russian',
+  'Wikipedia':'https://en.wikipedia.org/wiki/Russian_(solitaire)'
+},
+{
     'Name':'Yukon One Suit',
     'Type':'All,Easy,Yukon,Small Screen',
     'Desc':'easy version of Yukon',

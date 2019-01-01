@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.12.31.1',
+  GAME_VERSION: '0.13.1.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -1088,8 +1088,12 @@ class Card {
     [foundations,tableaux,cells].forEach( ccList => {
       const dst = this.findFullestAcceptingContainer(ccList);
       if ( dst ) {
-        count++;
-        this.markMoveable(dst);
+        if ( 0 === dst.cards.length && this.owner.cards[0] === this ) {
+        } else {
+          count++;
+          if ( !(dst instanceof Cell) ) // kludge for Freecell
+            this.markMoveable(dst);
+        }
       }
     });
     return count;
@@ -1124,7 +1128,7 @@ class Card {
     const cl = this.g.firstChild.classList;
     const UN = 'unmoveable';
     if ( settings.sensoryCues ) {
-      if ( ccDst && !(ccDst instanceof Cell) ) {
+      if ( ccDst ) {
         cl.remove(UN);
       } else {
         cl.add(UN); // ignored if class already there
@@ -1340,6 +1344,7 @@ class CardContainer {
     const c = this.peek();
     if ( c ) {
       if ( c.faceDown ) {
+        console.assert(this instanceof Stock);
         count++;  // stock, clicking will flip and move it to waste
       } else {
         count += c.potentialMovesToContainers();
@@ -2014,12 +2019,14 @@ class Stock extends CardContainer {
    */
   availableMoves() {
     let count = 0;
-    if ( 0 === this.cards.length ) {
-      if ( this.redealsAvailable() ) {
-        count = 1;
+    if ( !this.rules.hidden ) {
+      if ( 0 === this.cards.length ) {
+        if ( this.redealsAvailable() ) {
+          count = 1;
+        }
+      } else {
+        count = super.availableMoves();
       }
-    } else {
-      count = super.availableMoves();
     }
     return count;
   }
@@ -3240,7 +3247,7 @@ class TableauFreecell extends Tableau {
     let accept = super.canAcceptCard(c);
     // if c comes from Stock, Waste, Cell or Reserve it's only going to be one card,
     // so allow it
-    if ( accept && c.owner instanceof Tableau ) {
+    if ( accept && (c.owner instanceof Tableau) ) {
       const tail = c.getTail();
       if ( tail && tail.length > 0 ) {
         const pm = this.powerMoves_(0 === this.cards.length);

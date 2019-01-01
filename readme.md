@@ -22,21 +22,18 @@ At run time, the layout information in the html is linked to the Javascript card
 
 The graphics are implemented in SVG, so they scale smoothly.
 
+Time has been spent making it compatible with both mobile and desktop versions of Chrome, Firefox and Edge.
+I think it runs *The Best* on a touchscreen Chromebook.
+
 # Philosophy
 
 Keep it simple and facilitate the player's flow. 
-So: no distracting graphics or animations, make the cards easy to scan visually,
-and no unnecessary features.
+So: no distracting graphics or animations, make the cards easy to scan visually, and no unnecessary features.
 
 Also, make the games authentic, by taking the rules from reputable sources
 and implementing them exactly.
 
-# What's being worked on next
-
-- Refactoring;
-- Simplify 'available moves' logic (stop trying to be clever and predictive).
-
-# Freecell solver
+# Freecell or Yukon solver
 
 # Forth
 

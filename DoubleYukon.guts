@@ -3,16 +3,14 @@
   "Name":"Double Yukon",
   "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)",
   "Winnable":[439020],
-  "Stock":{"packs":2},      
+  "Stock":{"packs":2, "hidden":1},
   "Foundation":{"suit":2, "rank":1, "accept":1},
   "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":1, "rank":5}, "accept":13}
 }
 </script>
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-    <g class="Stock">
-      <rect x="10" y="10"></rect>
-    </g>
+    <g class="Stock"><rect x="10" y="-100"></rect></g>
 
     <g class="Foundation"><rect x="77"  y="10"></rect></g>
     <g class="Foundation"><rect x="144" y="10"></rect></g>
