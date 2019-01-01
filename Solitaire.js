@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.1.0',
+  GAME_VERSION: '0.13.1.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -1084,11 +1084,20 @@ class Card {
    * @returns {Number}
    */
   potentialMovesToContainers() {
+    /**
+     * @param {CardContainer} a 
+     * @param {CardContainer} b 
+     */
+    const sameContainer = (a,b) => (a.constructor.name === b.constructor.name);
+
+    console.assert(!(this.owner instanceof Foundation));
     let count = 0;
     [foundations,tableaux,cells].forEach( ccList => {
       const dst = this.findFullestAcceptingContainer(ccList);
       if ( dst ) {
-        if ( 0 === dst.cards.length && this.owner.cards[0] === this ) {
+        // moving a bottom card to an empty container of the same type is futile
+        if ( 0 === dst.cards.length && this.owner.cards[0] === this && sameContainer(dst, this.owner) ) {
+            ;
         } else {
           count++;
           if ( !(dst instanceof Cell) ) // kludge for Freecell

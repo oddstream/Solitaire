@@ -821,11 +821,11 @@ const ulOuter = peach(document.getElementById('content'), 'ul', {class:'collapsi
 
 for ( let i=0; i<types.length; i++ ) {
   const liOuter = peach(ulOuter, 'li', null);
-  const ch = peach(liOuter, 'div', {class:'collapsible-header', id:'ch'+i}, null,
+  const ch = peach(liOuter, 'div', {class:'collapsible-header', id:`ch${i}`}, null,
       peach(null, 'h6', null, types[i])
   );
 
-  const cb = peach(liOuter, 'div', {class:'collapsible-body', id:'cb'+i});
+  const cb = peach(liOuter, 'div', {class:'collapsible-body', id:`cb${i}`});
   const ulInner = peach(cb, 'ul');
 
   const ty = Variants.filter( function(v) {
@@ -853,7 +853,7 @@ const settings = JSON.parse(localStorage.getItem(LOCALSTORAGE_SETTINGS)) || {};
 
 const collapsibleFn = M.Collapsible.getInstance(ulOuter);
 collapsibleFn.options.onOpenEnd = function() {
-  const h6 = document.querySelector('li.active>div>h6');
+  const h6 = document.querySelector('body>div#content>ul.collapsible>li.active>div>h6');
   if ( h6 ) {
     settings.activeType = h6.innerHTML;
   } else {
@@ -904,11 +904,7 @@ window.onload = function () {
     for ( let i=0; i<nodes.length; i++ ) {
       if ( nodes[i].innerHTML === settings.activeType ) {
         collapsibleFn.open(i);
-
-        const cb = document.getElementById('cb'+i);
-        if ( cb ) {
-          cb.scrollIntoView(false);
-        }
+        document.getElementById(`cb${i}`).scrollIntoView();
         break;
       }
     }
