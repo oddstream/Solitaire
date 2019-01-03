@@ -2,7 +2,7 @@
 {
   "Name":"Yukon Cells",
   "Wikipedia":"https://en.wikipedia.org/wiki/Yukon_(solitaire)",
-  "Winnable":[587957,933100,987029],
+  "Winnable":[587957,615318,933100,987029],
   "Stock":{"hidden":1},
   "Foundation":{"suit":2, "rank":1, "accept":1, "scatter":"Left"},
   "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":1, "rank":5}, "accept":13}

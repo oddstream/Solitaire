@@ -732,7 +732,7 @@ const Variants = [
 },
 {
     'Name':'Fortune\'s Favor',
-    'Type':'All,Simple',
+    'Type':'All,Easy,Simple',
     'Desc':'like Busy Aces, but empty tableau spaces are automatically filled',
     'File':'FortunesFavor',
     'Wikipedia':'https://en.wikipedia.org/wiki/Fortune%27s_Favor'

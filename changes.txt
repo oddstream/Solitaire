@@ -1,3 +1,6 @@
+02/01/2018
+Started moving from makefile + bat to Tcl build script
+
 01/01/2019
 Implemented Russian
 
