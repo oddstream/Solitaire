@@ -1,5 +1,10 @@
 'use strict';
 
+const Constants = {
+  GAME_NAME: 'Oddstream Solitaire',
+  GAME_VERSION: '0.13.1.0'
+};
+
 const Variants = [
 {
     'Name':'Klondike',

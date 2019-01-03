@@ -25,6 +25,7 @@ proc xcopy {fname dst} {
   # fname is a file name e.g. "Usk.html"
   # dst is a directory name with a trailing path separator e.g. "c:\\inetpub\\wwwroot\\solitaire"
   # fname is only copied to dst if src is newer than $dst$fname, or $dst$fname does not exist
+  # puts "xcopy $fname $dst$fname"
   if { ![file exists $fname] } then {
     puts "$fname does not exist, cannot copy to $dst"
     return 1
@@ -47,15 +48,41 @@ proc xcopy {fname dst} {
   return 0
 }
 
+proc getVersion {fname} {
+  set v "0.0.0.0"
+  set f [open $fname]
+  while { [gets $f line] != -1 } {
+    if { [regexp {\d+\.\d+\.\d+\.\d+} $line value] } then {
+        set v $value
+        break
+    }
+  }
+  close $f
+  puts "$v $fname"
+  return $v
+}
+
+proc xcompile {fname dst} {
+  if { [getVersion $fname] ne [getVersion $dst$fname] } then {
+    puts [exec java -jar compiler.jar --version]
+    puts [exec java -jar compiler.jar --js $fname --language_in ECMASCRIPT_2017 --language_out ECMASCRIPT_2015 --js_output_file $dst$fname]
+  }
+}
+
 proc publish {dst} {
   foreach htmlFile [glob *.html] {
     xcopy $htmlFile $dst
   }
 
+  foreach pngFile [glob -directory img *.png] {
+    xcopy $pngFile $dst
+  }
+
   xcopy Solitaire.css $dst
   xcopy manifest.json $dst
 
-  puts [exec java -jar compiler.jar --version]
+  xcompile Solitaire.js $dst
+  xcompile index.js $dst
 }
 
 foreach gutsFile [glob -directory build *.guts] {
