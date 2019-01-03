@@ -12,14 +12,12 @@ node_modules/*
 js/*
 css/*
 
-*.code-workspace
-test/*
+junk/*
 img/*
 .vscode/*
+*.code-workspace
 make.exe
 compiler.jar
 compiler-help.txt
-notes.txt
-notes.md
 package*.json
 desktop.ini
