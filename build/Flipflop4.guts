@@ -1,0 +1,26 @@
+<script type="application/json" id="rules">
+{
+    "Name":"Flipflop Four Suits",
+    "Wikipedia":"",
+    "Winnable":[],
+    "Stock":{"packs":1},
+    "Foundation":{"suit":2, "rank":1, "accept":1},
+    "Tableau":{"build":{"suit":1, "rank":4}, "move":{"suit":2, "rank":4}}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="StockScorpion"><rect x="10" y="10"></rect></g>
+    <g class="Reserve" deal="u"><rect x="77" y="10"></rect></g>
+    <g class="Reserve" deal="u"><rect x="144" y="10"></rect></g>
+
+    <g class="Foundation"><rect x="278" y="10"></rect></g>
+    <g class="Foundation"><rect x="345" y="10"></rect></g>
+    <g class="Foundation"><rect x="412" y="10"></rect></g>
+    <g class="Foundation"><rect x="479" y="10"></rect></g>
+
+    <g class="TableauTail" deal="ddddu"><rect x="77"  y="110"></rect></g>
+    <g class="TableauTail" deal="ddddu"><rect x="144" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddu"><rect x="211" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddu"><rect x="278" y="110"></rect></g>
+    <g class="TableauTail" deal="ddddu"><rect x="345" y="110"></rect></g>

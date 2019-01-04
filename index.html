@@ -111,27 +111,38 @@
     <div class="nav-wrapper grey darken-3">
     <div class="row">
     <div class="col s12">
-<!--
+
     <ul class="left">
-        <li>
-        <a class="tooltipped" data-position="bottom" data-tooltip="Search for a game"><i class="material-icons">search</i></a>
-        </li>
+      <li><a onclick="modalSearchFn.open()" class="tooltipped" data-position="bottom" data-tooltip="Search for a game"><i class="material-icons">search</i></a></li>
     </ul>
--->
+<!--
     <ul class="left">
         <li><i class="material-icons">apps</i></li>
     </ul>
+-->
     <ul class="right">
-        <li><a id="lastgame" class="tooltipped" data-position="bottom" data-tooltip="Go to last game"><i class="material-icons">redo</i></a></li>
-        <li><a onclick="modalCloudFn.open()" class="tooltipped" data-position="bottom" data-tooltip="Connect to cloud"><i class="material-icons">cloud</i></a></li>
-        <li><a href="faq.html" class="tooltipped" data-position="bottom" data-tooltip="FAQ"><i class="material-icons">info</i></a></li>
+      <li><a id="lastgame" class="tooltipped" data-position="bottom" data-tooltip="Go to last game"><i class="material-icons">redo</i></a></li>
+      <li><a onclick="modalCloudFn.open()" class="tooltipped" data-position="bottom" data-tooltip="Connect to cloud"><i class="material-icons">cloud</i></a></li>
+      <li><a href="faq.html" class="tooltipped" data-position="bottom" data-tooltip="FAQ"><i class="material-icons">info</i></a></li>
     </ul>
+  
     </div>
     </div>
     </div>
     </nav>
 
     <div id="content" class="grey lighten-3">
+    </div>
+
+    <div id="modalSearch" class="modal">
+      <div class="modal-content">
+          <div class="input-field">
+              <i class="material-icons prefix">search</i>
+              <input id="searchText" type="text" autofocus/>
+          </div>
+          <div id="searchResults">
+          </div>
+      </div>
     </div>
 
     <div id="modalCloud" class="modal">

@@ -1,9 +1,7 @@
+//@ts-check
 'use strict';
 
-const Constants = {
-  GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.1.0'
-};
+const VERSION = '0.13.4.1'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -771,6 +769,34 @@ const Variants = [
     'Wikipedia':''
 },
 {
+  'Name':'Flipflop One Suit',
+  'Type':'All,Other,Small Screen',
+  'Desc':'easiest version of Flipflop by Zach Gage',
+  'File':'Flipflop1',
+  'Wikipedia':''
+},
+{
+  'Name':'Flipflop Two Suits',
+  'Type':'All,Other,Small Screen',
+  'Desc':'',
+  'File':'Flipflop2',
+  'Wikipedia':''
+},
+{
+  'Name':'Flipflop Three Suits',
+  'Type':'All,Other,Small Screen',
+  'Desc':'',
+  'File':'Flipflop3',
+  'Wikipedia':''
+},
+{
+  'Name':'Flipflop Four Suits',
+  'Type':'All,Other,Small Screen',
+  'Desc':'hardest version of Flipflop',
+  'File':'Flipflop4',
+  'Wikipedia':''
+},
+{
     'Name':'Quick Fail',
     'Type':'Debug',
     'Desc':'',
@@ -789,16 +815,63 @@ const Variants = [
 // polyfills for Array.prototypefor.Each and Array.prototype.includes
 
 let isIE = false || !!document.documentMode;
-if ( isIE )
+if ( isIE ) {
     window.alert('Internet Explorer is not supported.\n\nPlease try again with a modern browser.');
+}
+
+/**
+ * @param {string} str 
+ */
+function search(str) {
+
+  str = str.toLowerCase();
+  const hits = new Set();
+
+  if ( str.length ) {
+    Variants.forEach( v => {
+      if ( -1 != v.Name.toLowerCase().indexOf(str) ) {
+        hits.add(v);
+      }
+    });
+
+    if ( 0 === hits.size ) {
+      Variants.forEach( v => {
+        if ( -1 != v.Desc.toLowerCase().indexOf(str) ) {
+          hits.add(v);
+        }
+      });
+    }
+  }
+
+  const res = document.getElementById('searchResults');
+  while ( res.firstChild ) {
+    res.removeChild(res.firstChild);
+  }
+
+  if ( hits.size ) {
+    const ul = peach(res, 'ul');
+    hits.forEach( v => {
+      peach(ul, 'li', null, null, 
+        peach(res, 'a', {href:v.File + '.html'}, v.Name)
+      )
+    });
+  }
+}
+
+/**
+ * @param {Event} e
+ */
+function searchEvent(e) {
+  search(e.target.value);
+}
 
 /**
  * 
  * @param {Element} p 
  * @param {String} eleName 
  * @param {Object=} attribs 
- * @param {String} text
- * @param {...Element=} ch 
+ * @param {String=} text
+ * @param {...Element[]=} ch 
  * @returns {Element}
  * or use https://github.com/KoryNunn/crel
  */
@@ -825,10 +898,10 @@ types.sort();
 const ulOuter = peach(document.getElementById('content'), 'ul', {class:'collapsible'});
 
 for ( let i=0; i<types.length; i++ ) {
-  const liOuter = peach(ulOuter, 'li', null);
-  const ch = peach(liOuter, 'div', {class:'collapsible-header', id:`ch${i}`}, null,
+  const liOuter = peach(ulOuter, 'li', null, null, 
+    peach(null, 'div', {class:'collapsible-header', id:`ch${i}`}, null,
       peach(null, 'h6', null, types[i])
-  );
+    ));
 
   const cb = peach(liOuter, 'div', {class:'collapsible-body', id:`cb${i}`});
   const ulInner = peach(cb, 'ul');
@@ -848,7 +921,14 @@ for ( let i=0; i<types.length; i++ ) {
   });
 }
 
-M.AutoInit();
+// could use M.AutoInit(document.body)
+// (which uses document.body if no context is given)
+// instead just init the bits we are using
+M.Collapsible.init(document.querySelectorAll('.collapsible'));
+M.Modal.init(document.querySelectorAll('.modal'));
+M.Tooltip.init(document.querySelectorAll('.tooltipped'));
+
+document.getElementById('searchText').oninput = searchEvent;
 
 const LOCALSTORAGE_SETTINGS = 'Oddstream Solitaire Settings';
 const LOCALSTORAGE_GAMES = 'Oddstream Solitaire Games';
@@ -865,6 +945,8 @@ collapsibleFn.options.onOpenEnd = function() {
     delete settings.activeType;
   }
 }
+
+const modalSearchFn = M.Modal.getInstance(document.getElementById('modalSearch'));
 
 const modalCloudFn = M.Modal.getInstance(document.getElementById('modalCloud'));
 modalCloudFn.options.onOpenStart = function() {
@@ -898,7 +980,6 @@ modalCloudFn.options.onCloseEnd = function() {
 };
 
 window.onload = function () {
-  console.assert(settings);
   if ( settings.lastGame ) {
     document.getElementById('lastgame').setAttributeNS(null, 'href', settings.lastGame);
   } else {

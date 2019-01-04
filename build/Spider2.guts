@@ -2,34 +2,32 @@
 {
   "Name":"Spider Two Suits",
   "Wikipedia":"https://en.wikipedia.org/wiki/Spider_(solitaire)",
-  "Winnable":[],
-  "Stock":{"packs":4, "suitfilter":"♠♥"},      
+  "Winnable":[225531],
+  "Stock":{"packs":4, "suitfilter":"♠♥"},
   "Foundation":{"suit":2, "rank":2, "accept":"\u2263"},
   "Tableau":{"build":{"suit":1, "rank":2}, "move":{"suit":2, "rank":2}}
 }
 </script>
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-    <g class="StockSpider">
-      <rect x="10" y="10"></rect>
-    </g>
+  <g class="StockSpider"><rect x="10" y="10"></rect></g>
 
-    <g class="FoundationSpider"><rect x="144" y="10"></rect></g>
-    <g class="FoundationSpider"><rect x="211" y="10"></rect></g>
-    <g class="FoundationSpider"><rect x="278" y="10"></rect></g>
-    <g class="FoundationSpider"><rect x="345" y="10"></rect></g>
-    <g class="FoundationSpider"><rect x="412" y="10"></rect></g>
-    <g class="FoundationSpider"><rect x="479" y="10"></rect></g>
-    <g class="FoundationSpider"><rect x="546" y="10"></rect></g>
-    <g class="FoundationSpider"><rect x="613" y="10"></rect></g>
+  <g class="FoundationSpider"><rect x="144" y="10"></rect></g>
+  <g class="FoundationSpider"><rect x="211" y="10"></rect></g>
+  <g class="FoundationSpider"><rect x="278" y="10"></rect></g>
+  <g class="FoundationSpider"><rect x="345" y="10"></rect></g>
+  <g class="FoundationSpider"><rect x="412" y="10"></rect></g>
+  <g class="FoundationSpider"><rect x="479" y="10"></rect></g>
+  <g class="FoundationSpider"><rect x="546" y="10"></rect></g>
+  <g class="FoundationSpider"><rect x="613" y="10"></rect></g>
 
-    <g class="TableauSpider" deal="dddddu"><rect  x="77" y="110"></rect></g>
-    <g class="TableauSpider" deal="dddddu"><rect x="144" y="110"></rect></g>
-    <g class="TableauSpider" deal="dddddu"><rect x="211" y="110"></rect></g>
-    <g class="TableauSpider" deal="dddddu"><rect x="278" y="110"></rect></g>
-    <g class="TableauSpider" deal="ddddu" ><rect x="345" y="110"></rect></g>
-    <g class="TableauSpider" deal="ddddu" ><rect x="412" y="110"></rect></g>
-    <g class="TableauSpider" deal="ddddu" ><rect x="479" y="110"></rect></g>
-    <g class="TableauSpider" deal="ddddu" ><rect x="546" y="110"></rect></g>
-    <g class="TableauSpider" deal="ddddu" ><rect x="613" y="110"></rect></g>
-    <g class="TableauSpider" deal="ddddu" ><rect x="680" y="110"></rect></g>
+  <g class="TableauSpider" deal="dddddu"><rect  x="77" y="110"></rect></g>
+  <g class="TableauSpider" deal="dddddu"><rect x="144" y="110"></rect></g>
+  <g class="TableauSpider" deal="dddddu"><rect x="211" y="110"></rect></g>
+  <g class="TableauSpider" deal="dddddu"><rect x="278" y="110"></rect></g>
+  <g class="TableauSpider" deal="ddddu" ><rect x="345" y="110"></rect></g>
+  <g class="TableauSpider" deal="ddddu" ><rect x="412" y="110"></rect></g>
+  <g class="TableauSpider" deal="ddddu" ><rect x="479" y="110"></rect></g>
+  <g class="TableauSpider" deal="ddddu" ><rect x="546" y="110"></rect></g>
+  <g class="TableauSpider" deal="ddddu" ><rect x="613" y="110"></rect></g>
+  <g class="TableauSpider" deal="ddddu" ><rect x="680" y="110"></rect></g>

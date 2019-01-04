@@ -1,6 +1,12 @@
+04/01/2018
+Added suit-weighting to findFullestAcceptingContainer()
+Added STAR suit symbol
+Started index.html search
+
 03/01/2018
 build folder for *.guts, header.txt, footer.txt, symbols.svg; makes build *.bat and makefile redundant
 added GAME_VERSION const to index.html (for compiling)
+Implemented Flipflop 1,2,3,4
 
 02/01/2018
 Started moving from makefile + bat to Tcl build script

@@ -16,7 +16,8 @@ Some specialized containers, for example a Freecell tableau, get derived
 
 Each variant has it's own html file which contains layout information for each container and
 gameplay rules for that variant. The html file consists of boilerplate header and footers,
-wrapped at build time around a central guts file.
+wrapped at build time around a central guts file and some SVG symbols. The build script (bake.tcl)
+requires Tcl to be installed and is hardwired to my folder configuration.
 
 At run time, the layout information in the html is linked to the Javascript card container classes.
 

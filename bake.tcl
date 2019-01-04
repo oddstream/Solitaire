@@ -64,7 +64,8 @@ proc getVersion {fname} {
 
 proc xcompile {fname dst} {
   if { [getVersion $fname] ne [getVersion $dst$fname] } then {
-    puts [exec java -jar compiler.jar --version]
+    puts "compiling to $dst$fname"
+    # puts [exec java -jar compiler.jar --version]
     puts [exec java -jar compiler.jar --js $fname --language_in ECMASCRIPT_2017 --language_out ECMASCRIPT_2015 --js_output_file $dst$fname]
   }
 }
@@ -80,11 +81,13 @@ proc publish {dst} {
 
   xcopy Solitaire.css $dst
   xcopy manifest.json $dst
+  xcopy index.html $dst
 
   xcompile Solitaire.js $dst
   xcompile index.js $dst
 }
 
+puts "checking game html are up-to-date"
 foreach gutsFile [glob -directory build *.guts] {
   set htmlFile "[file rootname [file tail $gutsFile]].html"
   set updateHtml false
@@ -107,10 +110,13 @@ foreach gutsFile [glob -directory build *.guts] {
 
 if { $argc > 0 } then {
   if { [lindex $argv 0] eq "local" } then {
+    puts "publishing to localhost"
     publish "c:/inetpub/wwwroot/solitaire/"
-  }
-
-  if { [lindex argv 0] eq "db" } then {
-    publish "c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Content/"
+  } elseif { [lindex $argv 0] eq "db" } then {
+    puts "publishing to dropbox"
+    publish "c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Public/"
+    file copy -force \
+      c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Public/index.html \
+      c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Content
   }
 }

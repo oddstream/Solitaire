@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.1.1',
+  GAME_VERSION: '0.13.4.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -14,6 +14,7 @@ const Constants = {
   EDGE:       navigator.userAgent.indexOf('Edge/') !== -1,
   FIREFOX:    navigator.userAgent.indexOf('Firefox/') !== -1,
 
+  STAR: '\u2605',
   SPADE: '\u2660',     // ♠ Alt 6
   CLUB: '\u2663',      // ♣ Alt 5
   HEART: '\u2665',     // ♥ Alt 3
@@ -44,10 +45,18 @@ const Constants = {
   AUTOCOLLECT_ANY: 3
 };
 
-if ( !(Constants.CHROME || Constants.EDGE || Constants.FIREFOX) )
-  window.alert(`Browser (${navigator.userAgent}) not supported`);
-else if ( !window.PointerEvent )
-  window.alert('Pointer events not supported');
+const suitColors = new Map([
+  [Constants.STAR, 'yellow'],
+  [Constants.SPADE, 'black'],
+  [Constants.CLUB, 'black'],
+  [Constants.HEART, 'red'],
+  [Constants.DIAMOND, 'red']
+]);
+
+// if ( !(Constants.CHROME || Constants.EDGE || Constants.FIREFOX) )
+//   window.alert(`Browser (${navigator.userAgent}) not supported`);
+// else if ( !window.PointerEvent )
+//   window.alert('Pointer events not supported');
 
 const Util = {
   /**
@@ -275,6 +284,7 @@ class Baize {
    * @private
    */
   setBox_() {
+    // console.warn(window.screen.orientation, window.screen.width, window.screen.height);
     this.width = this.gutsWidth_;
     this.height = Math.max(1200,window.screen.height);
 
@@ -478,7 +488,7 @@ class Card {
     console.assert(this.id.length===4);
     // this.id = `${pack}${suit}${String(this.ordinal).padStart(2,'0')}`;
 
-    this.color = ( this.suit === Constants.HEART || this.suit === Constants.DIAMOND ) ? 'red' : 'black';
+    this.color = suitColors.get(this.suit);
     this.owner = null;
     this.pt = Util.newPoint(pt);
     this.ptOriginal = null;
@@ -1061,18 +1071,33 @@ class Card {
    * @returns {CardContainer|null} 
    */
   findFullestAcceptingContainer(ccList) {
+    /**
+     * @param {CardContainer} dst 
+     * @returns {number}
+     */
+    const calcWeight = (dst) => {
+      const dstc = dst.peek();
+      if ( dstc && dstc.suit === this.suit ) {
+        return dst.cards.length + 10;
+      } else {
+        return dst.cards.length;
+      }
+    };
+
     let cc = null;
+    let max = -1;
     for ( const dst of ccList ) {
       if ( dst === this.owner )
         continue;
       if ( this.owner.canTarget(dst) && dst.canAcceptCard(this) ) {
-        if ( !cc ) {
-          cc = dst;
-        } else if ( dst.cards.length > cc.cards.length ) {
+        const max0 = calcWeight(dst);
+        if ( max0 > max ) {
+          max = max0;
           cc = dst;
         }
       }
     }
+
     return cc;
   }
 
