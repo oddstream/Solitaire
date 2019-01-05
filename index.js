@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '0.13.4.1'; // examined by bake.tcl
+const VERSION = '0.13.5.0'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -782,18 +782,25 @@ const Variants = [
   'File':'Flipflop2',
   'Wikipedia':''
 },
-{
-  'Name':'Flipflop Three Suits',
-  'Type':'All,Other,Small Screen',
-  'Desc':'',
-  'File':'Flipflop3',
-  'Wikipedia':''
-},
+// {
+//   'Name':'Flipflop Three Suits',
+//   'Type':'All,Other,Small Screen',
+//   'Desc':'',
+//   'File':'Flipflop3',
+//   'Wikipedia':''
+// },
 {
   'Name':'Flipflop Four Suits',
   'Type':'All,Other,Small Screen',
-  'Desc':'hardest version of Flipflop',
+  'Desc':'',
   'File':'Flipflop4',
+  'Wikipedia':''
+},
+{
+  'Name':'Flipflop Five Suits',
+  'Type':'All,Other,Small Screen',
+  'Desc':'hardest version of Flipflop',
+  'File':'Flipflop5',
   'Wikipedia':''
 },
 {
@@ -859,7 +866,7 @@ function search(str) {
 }
 
 /**
- * @param {Event} e
+ * @param {InputEvent} e
  */
 function searchEvent(e) {
   search(e.target.value);
@@ -947,13 +954,19 @@ collapsibleFn.options.onOpenEnd = function() {
 }
 
 const modalSearchFn = M.Modal.getInstance(document.getElementById('modalSearch'));
+modalSearchFn.options.onOpenStart = function() {
+  const ele = /** @type {HTMLInputElement} */(document.getElementById("searchText"));
+  ele.value = '';
+  ele.focus();
+}
 
 const modalCloudFn = M.Modal.getInstance(document.getElementById('modalCloud'));
 modalCloudFn.options.onOpenStart = function() {
   const HIDE_CLASS = 'hide';
   if ( settings.dropboxAccessToken && settings.dropboxAccessToken.length ) {
     document.getElementById('dropboxAccessToken').value = settings.dropboxAccessToken;
-    document.getElementById('modalCloudAuto').checked = !!settings.autoCloudSync;
+    document.getElementById('modalCloudAuto').checked = !!settings.autoCloudSync; // might be undefined
+    document.getElementById('modalLoadSaved').checked = !!settings.loadSaved;     // might be undefined
     document.getElementById('modalCloudConnected').classList.remove(HIDE_CLASS);
     document.getElementById('modalCloudNotConnected').classList.add(HIDE_CLASS);
   } else {
@@ -977,6 +990,7 @@ modalCloudFn.options.onOpenStart = function() {
 modalCloudFn.options.onCloseEnd = function() {
   getAccessTokenFromModal();
   settings.autoCloudSync = document.getElementById('modalCloudAuto').checked;
+  settings.loadSaved = document.getElementById('modalLoadSaved').checked;
 };
 
 window.onload = function () {

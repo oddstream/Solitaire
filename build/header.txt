@@ -16,7 +16,8 @@
     <meta name="keywords" content="Solitaire, Patience, Klondike, Freecell, Yukon, Spider, Scorpion, Canfield"/>
     <meta name="author" content="Gilbert Oddstream"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
+    <meta http-equiv="Cache-control" content="no-cache"/>
+    
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
@@ -30,6 +31,7 @@
     <!-- <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css"/> -->
     <link type="text/css" rel="stylesheet" href="Solitaire.css" media="screen"/>
     </head>
+    
     <body>
 
     <nav>
@@ -49,7 +51,7 @@
     </div>
     </div>
     </div>
-    </nav>    
+    </nav>
 
     <ul id="slide-out" class="sidenav">
     <li><div id="sidenav-header" class="user-view white-text grey darken-4">
@@ -68,4 +70,3 @@
     <li><a class="waves-effect modal-trigger sidenav-close" href="#modalSettings"><i class="material-icons">settings</i>Settings...</a></li>
     <li><a class="waves-effect modal-trigger sidenav-close" href="faq.html"><i class="material-icons">help</i>Help</a></li>
     </ul>
-    
