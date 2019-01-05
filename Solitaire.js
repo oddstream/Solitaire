@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.4.1',
+  GAME_VERSION: '0.13.5.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -46,7 +46,7 @@ const Constants = {
 };
 
 const suitColors = new Map([
-  [Constants.STAR, 'yellow'],
+  [Constants.STAR, 'purple'],
   [Constants.SPADE, 'black'],
   [Constants.CLUB, 'black'],
   [Constants.HEART, 'red'],
@@ -1922,15 +1922,14 @@ class Stock extends CardContainer {
 
   createPacks() {
     this.cards = /** @type {Card[]} */([]);
-    for ( let o=1; o<Constants.cardValues.length; o++ ) {
-      for ( let p=0; p<this.rules.packs; p++ ) {
-        for ( let s of this.rules.suitfilter ) { // defaults to '♠♥♦♣'
-          const c = new Card(p, s, o, true, this.pt); // created on top of stock container
-          c.owner = this;
-          this.cards.push(c);
+    for ( let p=0; p<this.rules.packs; p++ ) { // default to 1
+      for ( let s of this.rules.suitfilter ) { // defaults to '♠♥♦♣'
+        for ( let o=1; o<Constants.cardValues.length; o++ ) {
+          this.cards.push( new Card(p, s, o, true, this.pt) );
         }
       }
     }
+    console.log(`${stock.cards.length} cards created`);
     if ( this.cards.length !== this.expectedNumberOfCards() ) { 
       displayToast(`created ${this.canAcceptCard.length} cards, expected ${stock.expectedNumberOfCards()}`);
     }
@@ -3955,6 +3954,7 @@ if ( !settings.hasOwnProperty('autoCollect') )    settings.autoCollect = Constan
 if ( !settings.hasOwnProperty('sensoryCues') )    settings.sensoryCues = true;
 if ( !settings.hasOwnProperty('autoPlay') )       settings.autoPlay = true;
 if ( !settings.hasOwnProperty('dealWinnable') )   settings.dealWinnable = false;
+if ( !settings.hasOwnProperty('loadSaved') )      settings.loadSaved = true;
 
 settings.lastGame = window.location.pathname.split('/').pop();
 settings.lastVersion = Constants.GAME_VERSION;
@@ -4358,7 +4358,7 @@ document.addEventListener('keydown', function(/** @type {KeyboardEvent} */kev) {
   }
 });
 
-if ( gameState[rules.Name].saved ) {
+if ( gameState[rules.Name].saved && settings.loadSaved ) {
   if ( !doload() ) {
     stock.createPacks();
     window.onload = dealCards;
