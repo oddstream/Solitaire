@@ -1,3 +1,6 @@
+06/01/2018
+Added SVG symbols for circle and star (oops)
+
 05/01/2018
 Implemented Flipflop 5
 

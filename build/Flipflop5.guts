@@ -3,25 +3,27 @@
   "Name":"Flipflop Five Suits",
   "Wikipedia":"",
   "Winnable":[],
-  "Stock":{"packs":1, "suitfilter":"♠♥♦♣\u2605"},
+  "Stock":{"packs":1, "suitfilter":"♠♥♦♣★"},
   "Foundation":{"suit":2, "rank":1, "accept":1},
   "Tableau":{"build":{"suit":1, "rank":4}, "move":{"suit":2, "rank":4}, "maxfan":400}
 }
 </script>
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-  <g class="Foundation"><rect x="10"  y="10"></rect></g>
   <g class="Foundation"><rect x="77"  y="10"></rect></g>
   <g class="Foundation"><rect x="144" y="10"></rect></g>
   <g class="Foundation"><rect x="211" y="10"></rect></g>
   <g class="Foundation"><rect x="278" y="10"></rect></g>
+  <g class="Foundation"><rect x="345" y="10"></rect></g>
 
-  <g class="TableauTail" deal="ddddu"><rect x="10"  y="110"></rect></g>
   <g class="TableauTail" deal="ddddu"><rect x="77"  y="110"></rect></g>
   <g class="TableauTail" deal="ddddu"><rect x="144" y="110"></rect></g>
   <g class="TableauTail" deal="ddddu"><rect x="211" y="110"></rect></g>
   <g class="TableauTail" deal="ddddu"><rect x="278" y="110"></rect></g>
+  <g class="TableauTail" deal="ddddu"><rect x="345" y="110"></rect></g>
   
-  <g class="Reserve" deal="u"><rect x="10" y="510"></rect></g>
-  <g class="Reserve" deal="u"><rect x="77" y="510"></rect></g>
-  <g class="StockScorpion"><rect x="278" y="510"></rect></g>
+  <g class="Reserve" deal="u"><rect x="77"  y="510"></rect></g>
+  <g class="Reserve" deal="u"><rect x="144" y="510"></rect></g>
+  <g class="StockScorpion"><rect x="345" y="510"></rect></g>
+
+  <g><rect x="412" style="display:none"></rect></g>

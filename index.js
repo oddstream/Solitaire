@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '0.13.5.0'; // examined by bake.tcl
+const VERSION = '0.13.5.2'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -782,13 +782,13 @@ const Variants = [
   'File':'Flipflop2',
   'Wikipedia':''
 },
-// {
-//   'Name':'Flipflop Three Suits',
-//   'Type':'All,Other,Small Screen',
-//   'Desc':'',
-//   'File':'Flipflop3',
-//   'Wikipedia':''
-// },
+{
+  'Name':'Flipflop Three Suits',
+  'Type':'All,Other,Small Screen',
+  'Desc':'',
+  'File':'Flipflop3',
+  'Wikipedia':''
+},
 {
   'Name':'Flipflop Four Suits',
   'Type':'All,Other,Small Screen',
@@ -936,6 +936,7 @@ M.Modal.init(document.querySelectorAll('.modal'));
 M.Tooltip.init(document.querySelectorAll('.tooltipped'));
 
 document.getElementById('searchText').oninput = searchEvent;
+document.getElementById('modalLoadSavedDiv').style.display = window.location.protocol === 'file:' ? '' : 'none';
 
 const LOCALSTORAGE_SETTINGS = 'Oddstream Solitaire Settings';
 const LOCALSTORAGE_GAMES = 'Oddstream Solitaire Games';

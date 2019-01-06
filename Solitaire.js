@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.5.0',
+  GAME_VERSION: '0.13.6.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -14,6 +14,7 @@ const Constants = {
   EDGE:       navigator.userAgent.indexOf('Edge/') !== -1,
   FIREFOX:    navigator.userAgent.indexOf('Firefox/') !== -1,
 
+  CIRCLE: '\u25CF',
   STAR: '\u2605',
   SPADE: '\u2660',     // ♠ Alt 6
   CLUB: '\u2663',      // ♣ Alt 5
@@ -46,6 +47,7 @@ const Constants = {
 };
 
 const suitColors = new Map([
+  [Constants.CIRCLE, 'purple'],
   [Constants.STAR, 'purple'],
   [Constants.SPADE, 'black'],
   [Constants.CLUB, 'black'],
@@ -569,13 +571,14 @@ class Card {
         const u_attribs = {
           href: `#${this.suit}`,
           height: '22',
-          width: '24'
+          width: '24',
+          fill: this.color
         };
         if ( rules.Cards.suit === 'BottomLeft' ) {
           u_attribs.x = '4';
           u_attribs.y = String((Constants.CARD_HEIGHT/3)*2);
         } else if ( rules.Cards.suit === 'TopRight' ) {
-          u_attribs.x = String(Constants.CARD_WIDTH/2);
+          u_attribs.x = String((Constants.CARD_WIDTH/5)*3);
           u_attribs.y = '4';
         } else {
           console.error('Unknown rules.Cards.suit', rules.Cards.suit);
@@ -1264,13 +1267,15 @@ class CardContainer {
    * @param {Array} arr
    */
   load(arr) {
-    this.cards.forEach( c => c.destructor() );
-    this.cards = /** @type {Card[]} */([]);
-    arr.forEach( a => {
-      const c = new Card(a.pack, a.suit, a.ordinal, a.faceDown, this.pt);
-      this.push(c);
-      baize.ele.appendChild(c.g);
-    });
+    if ( arr ) {
+      this.cards.forEach( c => c.destructor() );
+      this.cards = /** @type {Card[]} */([]);
+      arr.forEach( a => {
+        const c = new Card(a.pack, a.suit, a.ordinal, a.faceDown, this.pt);
+        baize.ele.appendChild(c.g);
+        this.push(c);
+      });
+    }
   }
 
   /**
@@ -1925,7 +1930,10 @@ class Stock extends CardContainer {
     for ( let p=0; p<this.rules.packs; p++ ) { // default to 1
       for ( let s of this.rules.suitfilter ) { // defaults to '♠♥♦♣'
         for ( let o=1; o<Constants.cardValues.length; o++ ) {
-          this.cards.push( new Card(p, s, o, true, this.pt) );
+          // create and assign new cards low-level because they're not ready to be moved yet
+          const c = new Card(p, s, o, true, this.pt);
+          c.owner = this;
+          this.cards.push(c);
         }
       }
     }
