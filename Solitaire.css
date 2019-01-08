@@ -50,7 +50,7 @@ svg {
 
 .spielkartevalue {
   font-family: var(--ffont), sans-serif;
-  font-size: 26px /*2.1vw*/;
+  font-size: 28px;
   /* fill here gets overwritten */
   pointer-events: none;
   touch-action: none;
@@ -58,7 +58,7 @@ svg {
 
 .spielkartesuit {
   font-family: var(--ffont), sans-serif;
-  font-size: 30px /*2.6vw*/;
+  font-size: 32px;
   /* fill here gets overwritten */
   pointer-events: none;
   touch-action: none;

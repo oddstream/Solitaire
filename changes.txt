@@ -1,3 +1,7 @@
+08/01/2018
+Corrected Breeze cards not having suit in bottom left
+Added 'Two Suits' variant type
+
 06/01/2018
 Added SVG symbols for circle and star (oops)
 

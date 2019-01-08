@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.6.0',
+  GAME_VERSION: '0.13.8.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -570,7 +570,7 @@ class Card {
         const u = document.createElementNS(Constants.SVG_NAMESPACE, 'use');
         const u_attribs = {
           href: `#${this.suit}`,
-          height: '22',
+          height: '24',
           width: '24',
           fill: this.color
         };
@@ -578,8 +578,8 @@ class Card {
           u_attribs.x = '4';
           u_attribs.y = String((Constants.CARD_HEIGHT/3)*2);
         } else if ( rules.Cards.suit === 'TopRight' ) {
-          u_attribs.x = String((Constants.CARD_WIDTH/5)*3);
-          u_attribs.y = '4';
+          u_attribs.x = String(Constants.CARD_WIDTH*0.6);
+          u_attribs.y = String(Constants.CARD_HEIGHT/20);
         } else {
           console.error('Unknown rules.Cards.suit', rules.Cards.suit);
         }
@@ -3760,8 +3760,7 @@ modalStatisticsFn.options.onOpenStart = function() {
   {
     let s = `In this game of ${rules.Name} (number ${GSRN.seed}) you've made `;
     s += Util.plural(tallyMan.count, 'move');
-    s += ', there are ';
-    s += Util.plural(allAvailableMoves(), 'available move');
+    s += `, there are ${Util.plural(allAvailableMoves(), 'move')} available`;
     if ( !rules.Stock.hidden ) {
       s += ', ';
       s += Util.plural(stock.cards.length, 'stock card');

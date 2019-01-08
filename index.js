@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '0.13.5.2'; // examined by bake.tcl
+const VERSION = '0.13.8.0'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -132,7 +132,7 @@ const Variants = [
 },
 {
     'Name':'Yukon One Suit',
-    'Type':'All,Easy,Yukon,Small Screen',
+    'Type':'All,Easy,Yukon,Small Screen,One Suit',
     'Desc':'easy version of Yukon',
     'File':'Yukon1',
     'Wikipedia':'https://en.wikipedia.org/wiki/Yukon_(solitaire)'
@@ -441,14 +441,14 @@ const Variants = [
 },
 {
     'Name':'Spider One Suit',
-    'Type':'All,Spider,Easy,Classic',
+    'Type':'All,Spider,Easy,Classic,One Suit',
     'Desc':'easy version of Spider with only spades',
     'File':'Spider1',
     'Wikipedia':'https://en.wikipedia.org/wiki/Spider_(solitaire)'
 },
 {
     'Name':'Spider Two Suits',
-    'Type':'All,Spider',
+    'Type':'All,Spider,Two Suits',
     'Desc':'easier version of Spider with only spades and hearts',
     'File':'Spider2',
     'Wikipedia':'https://en.wikipedia.org/wiki/Spider_(solitaire)'
@@ -462,14 +462,14 @@ const Variants = [
 },
 {
     'Name':'Spiderette One Suit',
-    'Type':'All,Spider,Easy,Small Screen',
+    'Type':'All,Spider,Easy,Small Screen,One Suit',
     'Desc':'',
     'File':'Spiderette1',
     'Wikipedia':'https://en.wikipedia.org/wiki/Spider_(solitaire)'
 },
 {
     'Name':'Spiderette Two Suits',
-    'Type':'All,Spider,Small Screen',
+    'Type':'All,Spider,Small Screen,Two Suits',
     'Desc':'',
     'File':'Spiderette2',
     'Wikipedia':'https://en.wikipedia.org/wiki/Spider_(solitaire)'
@@ -616,14 +616,14 @@ const Variants = [
 },
 {
     'Name':'Aces and Kings',
-    'Type':'All,Bisley',
+    'Type':'All,Bisley,Two Packs',
     'Desc':'build up on one foundation, down on the other, but don\'t build on the tableau',
     'File':'AcesAndKings',
     'Wikipedia':'https://en.wikipedia.org/wiki/Aces_and_Kings'
 },
 {
     'Name':'Acey and Kingsley',
-    'Type':'All,Bisley',
+    'Type':'All,Bisley,Two Packs',
     'Desc':'an easier version of Aces and Kings',
     'File':'AceyAndKingsley',
     'Wikipedia':'https://en.wikipedia.org/wiki/Aces_and_Kings'
@@ -770,14 +770,14 @@ const Variants = [
 },
 {
   'Name':'Flipflop One Suit',
-  'Type':'All,Other,Small Screen',
+  'Type':'All,Other,Small Screen,One Suit',
   'Desc':'easiest version of Flipflop by Zach Gage',
   'File':'Flipflop1',
   'Wikipedia':''
 },
 {
   'Name':'Flipflop Two Suits',
-  'Type':'All,Other,Small Screen',
+  'Type':'All,Other,Small Screen,Two Suits',
   'Desc':'',
   'File':'Flipflop2',
   'Wikipedia':''
@@ -1057,7 +1057,7 @@ function saveSettings() {
 function saveGameStateToLocalStorage(newGameState) {
   try {
     localStorage.setItem(LOCALSTORAGE_GAMES, JSON.stringify(newGameState));
-    // M.toast({html:'game state saved'});
+    M.toast({html:'local games saved'});
   } catch(err) {
     M.toast({html:'error saving games'});
     console.error(err);
@@ -1189,7 +1189,7 @@ function syncDropbox0(cloudGameState) {
     saveGameStateToDropbox(newGameState);
   }
   if ( saveLocal || saveCloud ) {
-    M.toast({html:'game sync completed'});
+    // M.toast({html:'game sync completed'});
   } else {
     M.toast({html:'no changes to save'});
   }

@@ -3,6 +3,7 @@
   "Name":"Breeze",
   "Wikipedia":"",
   "Winnable":[589700,812647],
+  "Cards":{"suit":"BottomLeft"},
   "Stock":{"packs":1, "hidden":1},
   "Foundation":{"suit":2, "rank":1, "accept":1},
   "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":13, "fan":"Right", "maxfan":190}
