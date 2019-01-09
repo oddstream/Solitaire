@@ -36,6 +36,14 @@ and implementing them exactly.
 
 # Freecell or Yukon solver
 
+#Tcl
+
+Without doubt, the greatest programming language I have encountered in forty+ years of doing this nonsense.
+I could either reimplement the whole thing in Tcl/Tk (which would make it very non-deployable)
+or keep just using Tcl for prototyping stuff and build scripts.
+I feel sorry for people that think webpack/grunt/gulp are a Good Thing.
+To quote Tim Krabbé: "The emptiness of those lives shocks me".
+
 # Forth
 
 An idea I keep kicking around is to implement a small Forth engine, with small scripts for each variant.

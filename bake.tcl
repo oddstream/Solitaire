@@ -30,7 +30,6 @@ proc xcopy {fname dst} {
     puts "$fname does not exist, cannot copy to $dst"
     return 1
   }
-  # if { ![regexp {\\$} $dst] } then
   if { [lastchar $dst] ne "/" } then {
     set dst [string cat $dst "/"]
   }
@@ -87,8 +86,14 @@ proc publish {dst} {
   xcompile index.js $dst
 }
 
-puts "checking game html are up-to-date"
-foreach gutsFile [glob -directory build *.guts] {
+if { $argc > 0 && [string match -nocase {*.guts} [lindex $argv 0]] } then {
+  puts "checking [lindex $argv 0]"
+  set gutsList [glob -directory build *.guts [lindex argv 0]]
+} else {
+  puts "checking all html are up-to-date"
+  set gutsList [glob -directory build *.guts]
+}
+foreach gutsFile $gutsList {
   set htmlFile "[file rootname [file tail $gutsFile]].html"
   set updateHtml false
   if { [file exists $htmlFile] } then {

@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.8.0',
+  GAME_VERSION: '0.13.9.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -734,6 +734,11 @@ class Card {
         console.log('don\'t care about mouse button', event.button);
         return false;
       }
+    }
+
+    if ( this.animationIds.length ) {
+      console.warn('clicking on a moving card', this.id);
+      return false;
     }
 
     if ( this.grabbedTail ) {
@@ -3569,12 +3574,11 @@ function doshowavailablemoves() {
 function gameOver(won) {
   const GSRN = gameState[rules.Name];
 
+  GSRN.totalGames += 1;
+  GSRN.totalMoves += tallyMan.count;
+
   if ( won ) {
-    console.log('recording stats for won game', GSRN);
-
-    GSRN.totalGames += 1;
-    GSRN.totalMoves += tallyMan.count;
-
+    // console.log('recording stats for won game', GSRN);
     GSRN.gamesWon += 1;
 
     if ( GSRN.currStreak < 0 )
@@ -3584,10 +3588,7 @@ function gameOver(won) {
     if ( GSRN.currStreak > GSRN.bestStreak )
       GSRN.bestStreak = GSRN.currStreak;
   } else if ( tallyMan.count > 0 && !isComplete() ) {
-    console.log('recording stats for lost game', GSRN);
-
-    GSRN.totalGames += 1;
-
+    // console.log('recording stats for lost game', GSRN);
     if ( GSRN.currStreak > 0 )
       GSRN.currStreak = 0;
     else
@@ -4123,10 +4124,13 @@ function robot() {
   }));
 
   if ( autoCollectAny() || autoCollectWhenSolveable() ) {
-    for ( let cardMoved = pullCardsToFoundations(); cardMoved; cardMoved = pullCardsToFoundations() ) {
-      waitForCards()
-      .catch( (reason) => console.log(reason) );
-    }
+    waitForCards()
+    .then( () => {
+      for ( let cardMoved = pullCardsToFoundations(); cardMoved; cardMoved = pullCardsToFoundations() ) {
+        waitForCards()
+        .catch( (reason) => console.log(reason) );
+      }
+    });
   }
 
   scrunchContainers();

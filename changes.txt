@@ -1,6 +1,11 @@
+09/01/2018
+Added an extra waitForCards between automove and autoCollect
+Toying with a sync Node version of bake
+
 08/01/2018
 Corrected Breeze cards not having suit in bottom left
 Added 'Two Suits' variant type
+Wrote bake.c; the first functional thing was to overwite it's own source code with no backup. Lols.
 
 06/01/2018
 Added SVG symbols for circle and star (oops)
