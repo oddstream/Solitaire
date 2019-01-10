@@ -1,7 +1,7 @@
 # Oddstream Solitaire builder
-# Invoke with tclsh bake.tcl from the Solitaire directory
+# Invoke with tclsh bake.tcl [Filename.guts | local | db] from the Solitaire directory
 # Using with ActiveTcl 8.6.8 from www.activestate.com
-# Using / as a pathname separator, which seems to get mapped to \
+# Using / as a pathname separator, which gets mapped to \
 
 proc lastchar {str} {
   return [string index $str end]
@@ -49,14 +49,16 @@ proc xcopy {fname dst} {
 
 proc getVersion {fname} {
   set v "0.0.0.0"
-  set f [open $fname]
-  while { [gets $f line] != -1 } {
-    if { [regexp {\d+\.\d+\.\d+\.\d+} $line value] } then {
-        set v $value
-        break
+  if { [file exists $fname] } then {
+    set f [open $fname r]
+    while { [gets $f line] != -1 } {
+      if { [regexp {\d+\.\d+\.\d+\.\d+} $line value] } then {
+          set v $value
+          break
+      }
     }
+    close $f
   }
-  close $f
   puts "$v $fname"
   return $v
 }

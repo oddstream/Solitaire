@@ -61,7 +61,6 @@
       <p id="gamesStreak"></p>
     </div>
     <div class="modal-footer">
-      <a class="modal-close btn-small steelblue" href="index.html"><i class="material-icons">apps</i> New game</a>
       <a class="modal-close btn-small steelblue" onclick="dostar()"><i class="material-icons">star</i> New deal</a>
     </div>
 </div>

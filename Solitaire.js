@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.9.0',
+  GAME_VERSION: '0.13.9.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -3568,17 +3568,14 @@ function doshowavailablemoves() {
     displayToast(`<span>${Util.plural(a, 'move')} available</span>`);
 }
 
-/**
- * @param {boolean} won 
- */
-function gameOver(won) {
+function gameOver() {
   const GSRN = gameState[rules.Name];
 
-  GSRN.totalGames += 1;
-  GSRN.totalMoves += tallyMan.count;
-
-  if ( won ) {
-    // console.log('recording stats for won game', GSRN);
+  if ( isComplete() ) {
+    console.log('recording stats for won game', GSRN);
+    GSRN.totalGames += 1;
+    GSRN.totalMoves += tallyMan.count;
+  
     GSRN.gamesWon += 1;
 
     if ( GSRN.currStreak < 0 )
@@ -3587,14 +3584,19 @@ function gameOver(won) {
       GSRN.currStreak += 1;
     if ( GSRN.currStreak > GSRN.bestStreak )
       GSRN.bestStreak = GSRN.currStreak;
-  } else if ( tallyMan.count > 0 && !isComplete() ) {
-    // console.log('recording stats for lost game', GSRN);
+  } else if ( tallyMan.count > 0 ) {
+    console.log('recording stats for lost game', GSRN);
+    GSRN.totalGames += 1;
+    GSRN.totalMoves += tallyMan.count;
+  
     if ( GSRN.currStreak > 0 )
       GSRN.currStreak = 0;
     else
       GSRN.currStreak -= 1;
     if ( GSRN.currStreak < GSRN.worstStreak )
       GSRN.worstStreak = GSRN.currStreak;
+  } else {
+    console.log('game with no moves');
   }
 
   GSRN.modified = Date.now();
@@ -3606,8 +3608,6 @@ function gameOver(won) {
  * @param {?Number} seed
 */
 function restart(seed=undefined) {
-  gameOver(false);
-
   // move all cards back to stock, can't use pop and push
   // because Blockade will try to push them back to an empty tab
   cardContainers.forEach( cc => {
@@ -3635,6 +3635,7 @@ function restart(seed=undefined) {
 }
 
 function dostar() {
+  gameOver();
   restart();
 }
 
@@ -3647,11 +3648,13 @@ function dostarseeddeal() {
   if ( isNaN(seed) || (seed < 0 || seed > 999999) ) {
     displayToast('deal number must be 1 ... 999999');
   } else {
+    gameOver();
     restart(seed);
   }
 }
 
 function doreplay() {
+  gameOver();
   restart(gameState[rules.Name].seed);
 }
 
@@ -4014,12 +4017,7 @@ document.documentElement.style.setProperty('--ffont', 'Acme');
 
 window.onbeforeunload = function(e) {
   const GSRN = gameState[rules.Name];
-  // if scattered, force a new game, otherwise loaded game won't be scattered
-  if ( foundations.some( f => f.scattered ) ) {
-    delete GSRN.saved;
-  } else {
-    GSRN.saved = new Saved();
-  }
+  GSRN.saved = new Saved();
   GSRN.modified = Date.now();
   try {
     localStorage.setItem(Constants.LOCALSTORAGE_GAMES, JSON.stringify(gameState));
@@ -4144,7 +4142,6 @@ function robot() {
         waitForCards()
         .then( () => {
           ü.reset();
-          gameOver(true);
           modalGameOverFn.open();
         });
       }
