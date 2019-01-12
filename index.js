@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '0.13.8.0'; // examined by bake.tcl
+const VERSION = '0.13.10.0'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -101,6 +101,13 @@ const Variants = [
     'Desc':'aka Aces Up - Klondike-like with a Spider-like stock',
     'File':'Easthaven',
     'Wikipedia':''
+},
+{
+  'Name':'Easthaven Relaxed',
+  'Type':'All,Klondike,Hard',
+  'Desc':'allows any card in an empty tableau',
+  'File':'EasthavenRelaxed',
+  'Wikipedia':''
 },
 {
     'Name':'Double Easthaven',

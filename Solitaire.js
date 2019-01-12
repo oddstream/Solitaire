@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.9.1',
+  GAME_VERSION: '0.13.12.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -121,10 +121,10 @@ const Util = {
   /**
    * @param {SVGPoint} pt1
    * @param {SVGPoint} pt2
-   * @param {number} slack
+   * @param {number=} slack
    * @returns {boolean}
    */
-  nearlySamePoint: function(pt1, pt2, slack) {
+  nearlySamePoint: function(pt1, pt2, slack=8) {
     const xMin = pt1.x - slack;
     const xMax = pt1.x + slack;
     const yMin = pt1.y - slack;
@@ -822,7 +822,7 @@ class Card {
       ptNew.x - this.ptOffset.x,
       ptNew.y - this.ptOffset.y
     );
-    if ( Util.nearlySamePoint(ptNewCard, this.ptOriginal, 8) ) {
+    if ( Util.nearlySamePoint(ptNewCard, this.ptOriginal) ) {
       // console.log('nearly same point', ptNewCard, this.ptOriginal);
       this.grabbedTail.forEach( c => {
         c.position0(c.ptOriginal.x, c.ptOriginal.y);
@@ -2702,22 +2702,46 @@ class Foundation extends CardContainer {
    * Don't need to wait here or slow down animation, as each card
    * will only be moving once
    */
-  solve() {
-    const solve_ = (c) => {
-      if ( c && !c.faceDown ) {
-        if ( c.owner.canTarget(this) && this.canAcceptCard(c) ) {
-          c.moveTop(this);
-          cardMoved = true;
-        }
+
+  /**
+   * "Microsoft FreeCell or FreeCell Pro only plays an available card to its 
+   * homecell automatically when all of the lower-ranked cards of the opposite color 
+   * are already on the homecells (except that a two is played if the corresponding 
+   * ace is on its homecell); aces are always played when available. This is one 
+   * version of what can be called safe autoplay"
+   */
+  collector() {
+    /**
+     * only autocollect to a foundation if it is one of the smallest
+     * 
+     * @return {Boolean}
+     */
+    const safeCheck_ = () => {
+      let fmin = foundations[0].cards.length;
+      for ( let i=1; i<foundations.length; i++ ) {
+        fmin = Math.min(fmin, foundations[i].cards.length);
       }
+      return ( this.cards.length === fmin );
     };
+
+    /**
+     * @param {Card} c
+     */
+    const safe_ = (c) => {
+      if ( !c || c.faceDown )
+        return;
+      if ( c.owner.canTarget(this) && this.canAcceptCard(c) && safeCheck_() ) {
+        c.moveTop(this);
+        cardMoved = true;
+      }
+    }
 
     let cardMoved = false;
     cells.forEach( cc => {
-      solve_(cc.peek());
+      safe_(cc.peek());
     });
     tableaux.forEach( t => {
-      solve_(t.peek());
+      safe_(t.peek());
     });
     return cardMoved;
   }
@@ -2905,9 +2929,10 @@ class FoundationSpider extends Foundation {
   }
 
   /**
+   * @override
    * @returns {boolean}
    */
-  solve() {
+  collector() {
     if ( this.cards.length ) return false;
 
     let cardMoved = false;
@@ -3548,7 +3573,7 @@ function isComplete() {
 function pullCardsToFoundations() {
   let cardMoved = false;
   foundations.forEach( (f) => {
-    if ( f.solve() )
+    if ( f.collector() )
       cardMoved = true;
   });
   return cardMoved;
@@ -3658,6 +3683,13 @@ function doreplay() {
   restart(gameState[rules.Name].seed);
 }
 
+function doautocollect() {
+  for ( let cardMoved = pullCardsToFoundations(); cardMoved; cardMoved = pullCardsToFoundations() ) {
+    waitForCards()
+    .catch( (reason) => console.log(reason) );
+  }
+}
+
 class Saved {
   constructor() {
     this.seed = gameState[rules.Name].seed;
@@ -3705,6 +3737,7 @@ function doload() {
     tallyMan.set(gss.moves);
     ü.load(gss.undo);
     scrunchContainers();
+    checkIfGameOver();
     // delete gss.saved;
     return true;
   } else {
@@ -4102,6 +4135,26 @@ const scrunchContainers = () => {
   .catch( (reason) => console.log(reason) );
 };
 
+const checkIfGameOver = () => {
+  waitForCards()
+  .then( (value) => {
+    // console.log(`wait ${Math.round(value)}ms`);
+    if ( isComplete() ) {
+      if ( foundations.every( f => !f.scattered ) ) {
+        foundations.forEach( f => f.scatter() );
+        waitForCards()
+        .then( () => {
+          ü.reset();
+          modalGameOverFn.open();
+        });
+      }
+    } else if ( !allAvailableMoves() ) {
+      displayToastNoAvailableMoves();
+    }
+  })
+  .catch( (reason) => console.log(reason) );
+};
+
 let inRobot = false;
 function robot() {
   const autoCollectAny = () => {
@@ -4133,23 +4186,7 @@ function robot() {
 
   scrunchContainers();
 
-  waitForCards()
-  .then( (value) => {
-    // console.log(`wait ${Math.round(value)}ms`);
-    if ( isComplete() ) {
-      if ( foundations.every( f => !f.scattered ) ) {
-        foundations.forEach( f => f.scatter() );
-        waitForCards()
-        .then( () => {
-          ü.reset();
-          modalGameOverFn.open();
-        });
-      }
-    } else if ( !allAvailableMoves() ) {
-      displayToastNoAvailableMoves();
-    }
-  })
-  .catch( (reason) => console.log(reason) );
+  checkIfGameOver();
 
   inRobot = false;
 }
@@ -4163,6 +4200,9 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
   switch ( kev.key.toLowerCase() ) {
     case 'a':
       doshowavailablemoves();
+      break;
+    case 'c':
+      doautocollect();
       break;
     case 'e':
       if ( waste && waste.peek() ) {

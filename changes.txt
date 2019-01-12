@@ -1,3 +1,10 @@
+12/01/2018
+Added game over check after loading game
+Safer auto collect (only auto collects to smallest foundation)
+
+10/01/2018
+Implemented Easthaven Relaxed. It's still too hard.
+
 09/01/2018
 Added an extra waitForCards between automove and autoCollect
 Toying with a sync Node version of bake
