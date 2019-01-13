@@ -3,10 +3,6 @@
 # Using with ActiveTcl 8.6.8 from www.activestate.com
 # Using / as a pathname separator, which gets mapped to \
 
-proc lastchar {str} {
-  return [string index $str end]
-}
-
 proc buildHtml {htmlFile gutsFile} {
   # Open the file for writing only. Truncate it if it exists. If it does not exist, create a new file.
   set out [open $htmlFile w]
@@ -30,7 +26,7 @@ proc xcopy {fname dst} {
     puts "$fname does not exist, cannot copy to $dst"
     return 1
   }
-  if { [lastchar $dst] ne "/" } then {
+  if { [string index $dst end] ne "/" } then {
     set dst [string cat $dst "/"]
   }
   if { [file exists $dst$fname] } then {

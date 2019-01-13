@@ -57,8 +57,6 @@
     <div class="modal-content">
       <h4 class="noselect hide-on-small-only">Complete</h4>
       <p id="movesMade"></p>
-      <p id="gamesPlayed"></p>
-      <p id="gamesStreak"></p>
     </div>
     <div class="modal-footer">
       <a class="modal-close btn-small steelblue" onclick="dostar()"><i class="material-icons">star</i> New deal</a>

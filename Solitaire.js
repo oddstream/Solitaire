@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.12.0',
+  GAME_VERSION: '0.13.13.2',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -372,7 +372,7 @@ class Mover {
   increment() {
     if ( !this.zzzz_ ) {
       this.set(this.count + 1);
-      window.setTimeout(robot, 0);
+      window.setTimeout(robot, 1000);
     }
   }
 
@@ -2727,23 +2727,19 @@ class Foundation extends CardContainer {
     /**
      * @param {Card} c
      */
-    const safe_ = (c) => {
-      if ( !c || c.faceDown )
-        return;
-      if ( c.owner.canTarget(this) && this.canAcceptCard(c) && safeCheck_() ) {
-        c.moveTop(this);
-        cardMoved = true;
+    const collect_ = (c) => {
+      if ( c && !c.faceDown ) {
+        if ( c.owner.canTarget(this) && this.canAcceptCard(c) && safeCheck_() ) {
+          c.moveTop(this);
+          cardsMoved++;
+        }
       }
     }
 
-    let cardMoved = false;
-    cells.forEach( cc => {
-      safe_(cc.peek());
-    });
-    tableaux.forEach( t => {
-      safe_(t.peek());
-    });
-    return cardMoved;
+    let cardsMoved = 0;
+    cells.forEach( cc => collect_(cc.peek()) );
+    tableaux.forEach( t => collect_(t.peek()) );
+    return cardsMoved > 0;
   }
 
   /**
@@ -3843,8 +3839,6 @@ const modalGameOverFn = M.Modal.getInstance(document.getElementById('modalGameOv
 modalGameOverFn.options.onOpenStart = function() {
   const GSRN = gameState[rules.Name];
   document.getElementById('movesMade').innerHTML = `Game ${GSRN.seed} of ${rules.Name} solved in ${tallyMan.count} moves; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
-  document.getElementById('gamesPlayed').innerHTML = `You've played ${rules.Name} ${GSRN.totalGames} times, and won ${GSRN.gamesWon} (${Math.round(GSRN.gamesWon/GSRN.totalGames*100)}%)`;
-  document.getElementById('gamesStreak').innerHTML = `Your current winning streak is ${GSRN.currStreak}, your best winning streak is ${GSRN.bestStreak}, your worst is ${GSRN.worstStreak}`;
 };
 
 modalGameOverFn.options.onCloseEnd = function() {

@@ -1,36 +1,39 @@
-12/01/2018
+13/01/2019
+Simplified game over modal (it was showing out of date stats)
+
+12/01/2019
 Added game over check after loading game
 Safer auto collect (only auto collects to smallest foundation)
 
-10/01/2018
+10/01/2019
 Implemented Easthaven Relaxed. It's still too hard.
 
-09/01/2018
+09/01/2019
 Added an extra waitForCards between automove and autoCollect
 Toying with a sync Node version of bake
 
-08/01/2018
+08/01/2019
 Corrected Breeze cards not having suit in bottom left
 Added 'Two Suits' variant type
 Wrote bake.c; the first functional thing was to overwite it's own source code with no backup. Lols.
 
-06/01/2018
+06/01/2019
 Added SVG symbols for circle and star (oops)
 
-05/01/2018
+05/01/2019
 Implemented Flipflop 5
 
-04/01/2018
+04/01/2019
 Added suit-weighting to findFullestAcceptingContainer()
 Added STAR suit symbol
 Started index.html search
 
-03/01/2018
+03/01/2019
 build folder for *.guts, header.txt, footer.txt, symbols.svg; makes build *.bat and makefile redundant
 added GAME_VERSION const to index.html (for compiling)
 Implemented Flipflop 1,2,3,4
 
-02/01/2018
+02/01/2019
 Started moving from makefile + bat to Tcl build script
 
 01/01/2019
