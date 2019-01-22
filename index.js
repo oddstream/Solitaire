@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '0.13.10.0'; // examined by bake.tcl
+const VERSION = '0.13.22.0'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -810,6 +810,29 @@ const Variants = [
   'File':'Flipflop5',
   'Wikipedia':''
 },
+
+{
+  'Name':'Infinite Loops in Squares',
+  'Type':'Loops',
+  'Desc':'',
+  'File':'Loop4',
+  'Wikipedia':''
+},
+{
+  'Name':'Infinite Loops in Hexagons',
+  'Type':'Loops',
+  'Desc':'',
+  'File':'Loop6',
+  'Wikipedia':''
+},
+{
+  'Name':'Infinite Loops in Octagons',
+  'Type':'Loops',
+  'Desc':'',
+  'File':'Loop8',
+  'Wikipedia':''
+},
+
 {
     'Name':'Quick Fail',
     'Type':'Debug',

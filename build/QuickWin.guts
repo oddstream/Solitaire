@@ -19,10 +19,10 @@
     <g class="Foundation" deal="♣01"><rect x="680" y="10"></rect></g>
     <g class="Foundation" deal="♠01"><rect x="747" y="10"></rect></g>
 
-    <g class="TableauTail" deal="dd"><rect x="10" y="110"></rect></g>
-    <g class="TableauTail" deal="dd"><rect x="77" y="110"></rect></g>
-    <g class="TableauTail" deal="dd"><rect x="144" y="110"></rect></g>
-    <g class="TableauTail" deal="dd"><rect x="211" y="110"></rect></g>
+    <g class="TableauTail" deal="du"><rect x="10" y="110"></rect></g>
+    <g class="TableauTail" deal="du"><rect x="77" y="110"></rect></g>
+    <g class="TableauTail" deal="du"><rect x="144" y="110"></rect></g>
+    <g class="TableauTail" deal="du"><rect x="211" y="110"></rect></g>
     <g class="TableauTail" deal="uu"><rect x="278" y="110"></rect></g>
     <g class="TableauTail" deal="uu"><rect x="345" y="110"></rect></g>
     <g class="TableauTail" deal="uu"><rect x="412" y="110"></rect></g>

@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.19.0',
+  GAME_VERSION: '0.13.22.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -748,10 +748,11 @@ class Card {
 
     // although card flipping is automatic, there may be a face down card in the original
     // deal. So, we manually check for face down just in case
-    if ( this.faceDown && this.isTopCard() ) {
-      this.flipUp();
-      return;
-    }
+    // if ( this.faceDown && this.isTopCard() ) {
+    //   this.flipUp();
+    //   return;
+    // }
+    // ... no we don't, it fires when clicking on stock
 
     this.ptOriginalPointerDown = this.getPointerPoint_(event);
 
