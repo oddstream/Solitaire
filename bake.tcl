@@ -5,11 +5,10 @@
 
 proc buildHtml {htmlFile gutsFile} {
   # Open the file for writing only. Truncate it if it exists. If it does not exist, create a new file.
-  set out [open $htmlFile w]
-  fconfigure $out -translation binary
+  # b is same as fconfigure $out -translation binary
+  set out [open $htmlFile wb]
   foreach fname [concat build/header.txt $gutsFile build/symbols.svg build/footer.txt] {
-    set in [open $fname]
-    fconfigure $in -translation binary
+    set in [open $fname rb]
     fcopy $in $out
     close $in
   }
@@ -33,11 +32,11 @@ proc xcopy {fname dst} {
     set srcTime [file mtime $fname]
     set dstTime [file mtime $dst$fname]
     if { $srcTime > $dstTime } then {
-      puts "updating $dst$fname"
+      puts "Updating $dst$fname"
       file copy -force $fname $dst$fname
     }
   } else {
-    puts "creating $dst$fname"
+    puts "Creating $dst$fname"
     file copy $fname $dst$fname
   }
   return 0
@@ -61,7 +60,7 @@ proc getVersion {fname} {
 
 proc xcompile {fname dst} {
   if { [getVersion $fname] ne [getVersion $dst$fname] } then {
-    puts "compiling to $dst$fname"
+    puts "Compiling to $dst$fname"
     # puts [exec java -jar compiler.jar --version]
     puts [exec java -jar compiler.jar --js $fname --language_in ECMASCRIPT_2017 --language_out ECMASCRIPT_2015 --js_output_file $dst$fname]
   }
@@ -84,13 +83,22 @@ proc publish {dst} {
   xcompile index.js $dst
 }
 
+# start of doing things here
+
+puts "Oddstream solitaire builder"
+puts "Tcl version [info tclversion]"
+
 if { $argc > 0 && [string match -nocase {*.guts} [lindex $argv 0]] } then {
-  puts "checking [lindex $argv 0]"
-  set gutsList [glob -directory build *.guts [lindex argv 0]]
+  set gutsList [glob -directory build [lindex $argv 0]]
+  puts "Checking $gutsList"
+} elseif { $argc > 0 && [string match -nocase {*.html} [lindex $argv 0]] } then {
+  set gutsList [glob -directory build [file rootname [lindex $argv 0]].guts]
+  puts "Checking $gutsList"
 } else {
-  puts "checking all html are up-to-date"
   set gutsList [glob -directory build *.guts]
+  puts "Checking all html are up-to-date"
 }
+
 foreach gutsFile $gutsList {
   set htmlFile "[file rootname [file tail $gutsFile]].html"
   set updateHtml false
@@ -113,13 +121,15 @@ foreach gutsFile $gutsList {
 
 if { $argc > 0 } then {
   if { [lindex $argv 0] eq "local" } then {
-    puts "publishing to localhost"
+    puts "Publishing to localhost"
     publish "c:/inetpub/wwwroot/solitaire/"
   } elseif { [lindex $argv 0] eq "db" } then {
-    puts "publishing to dropbox"
+    puts "Publishing to dropbox"
     publish "c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Public/"
     file copy -force \
       c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Public/index.html \
       c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Content
   }
 }
+
+puts "Completed"

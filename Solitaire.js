@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.13.2',
+  GAME_VERSION: '0.13.19.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -372,7 +372,7 @@ class Mover {
   increment() {
     if ( !this.zzzz_ ) {
       this.set(this.count + 1);
-      window.setTimeout(robot, 1000);
+      window.setTimeout(robot);
     }
   }
 
@@ -456,8 +456,8 @@ class Ündo {  // alt + 0220
     this.undoing = false;
     tallyMan.set(moveToUndo);
     // calling robot() here will cause an autoMove/autoCollect loop
-    scrunchContainers();
     allAvailableMoves(); // repaint moveable cards
+    scrunchContainers();
   }
 }
 
@@ -746,6 +746,13 @@ class Card {
       return false;
     }
 
+    // although card flipping is automatic, there may be a face down card in the original
+    // deal. So, we manually check for face down just in case
+    if ( this.faceDown && this.isTopCard() ) {
+      this.flipUp();
+      return;
+    }
+
     this.ptOriginalPointerDown = this.getPointerPoint_(event);
 
     this.grabbedTail = this.owner.canGrab(this);
@@ -914,9 +921,8 @@ class Card {
    * the card will swerve to a new destination
    * 
    * @param {SVGPoint} ptTo
-   * @param {number=} stepsOverride override the default animation speed
    */
-  animate(ptTo, stepsOverride=0) {
+  animate(ptTo) {
     // http://sol.gfxile.net/interpolation
     /*
       for (i = 0; i < N; i++)
@@ -928,7 +934,7 @@ class Card {
       N.B. this will animate cards backwards
     */
     const steps = [0,50,40,30,20,10];   // index will be 1..5
-  
+
     /**
      * @param {number} timestamp 
      */
@@ -938,11 +944,7 @@ class Card {
       const y = Math.round((ptFrom.y * v) + (ptTo.y * (1 - v)));
       this.g.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
 
-      if ( stepsOverride ) {
-        i -= N/stepsOverride;
-      } else {
-        i -= N/steps[settings.aniSpeed];
-      }
+      i -= N/steps[settings.aniSpeed];
       if ( i > 0 ) {
         this.animationIds.push(window.requestAnimationFrame(step_));
       } else {
@@ -962,7 +964,7 @@ class Card {
     if ( this.animationIds.length ) {
       waitForCard(this)
       // .then( (value) => console.log(`waited ${Math.round(value)} for ${this.id}`) )
-      .catch( (reason) => console.log(reason) );
+      .catch( (reason) => console.log('animate', reason) );
     }
     if ( N ) {
       this.animationIds.push(window.requestAnimationFrame(step_));
@@ -989,7 +991,7 @@ class Card {
     if ( this.animationIds.length ) {
       waitForCard(this)
       // .then( (value) => console.log(`waited ${Math.round(value)} for ${this.id}`) )
-      .catch( (reason) => console.log(reason) );
+      .catch( (reason) => console.log('shake', reason) );
     }
     let shakes = 6;
     this.animationIds.push(window.requestAnimationFrame(shake_));
@@ -2473,7 +2475,8 @@ class Waste extends CardContainer {
     }
     super.push(c, ptNew);
     if ( c.faceDown )
-      c.flipUp(); // automatic
+      c.flipUp();     // automatic
+    c.markMoveable(); // experimental, cosmetic
   }
 
   /**
@@ -2509,10 +2512,9 @@ class Waste extends CardContainer {
    */
   onclick(c) {
     // always face up
-    if ( !settings.autoPlay )
-      return;
-
     if ( !c.isTopCard() )
+      return;
+    if ( !settings.autoPlay )
       return;
 
     let cc = null;
@@ -3682,7 +3684,7 @@ function doreplay() {
 function doautocollect() {
   for ( let cardMoved = pullCardsToFoundations(); cardMoved; cardMoved = pullCardsToFoundations() ) {
     waitForCards()
-    .catch( (reason) => console.log(reason) );
+    .catch( (reason) => console.log('autocollect', reason) );
   }
 }
 
@@ -3790,7 +3792,9 @@ modalSettingsFn.options.onCloseEnd = function() {
 const modalStatisticsFn = M.Modal.getInstance(document.getElementById('modalStatistics'));
 modalStatisticsFn.options.onOpenStart = function() {
   const GSRN = gameState[rules.Name];
-  {
+  if ( isComplete() ) {
+    document.getElementById('thisGameStats').innerHTML = `You won this game of ${rules.Name} (number ${GSRN.seed}) in ${Util.plural(tallyMan.count, 'move')}`;
+  } else {
     let s = `In this game of ${rules.Name} (number ${GSRN.seed}) you've made `;
     s += Util.plural(tallyMan.count, 'move');
     s += `, there are ${Util.plural(allAvailableMoves(), 'move')} available`;
@@ -3838,7 +3842,7 @@ modalStatisticsFn.options.onCloseEnd = function() {
 const modalGameOverFn = M.Modal.getInstance(document.getElementById('modalGameOver'));
 modalGameOverFn.options.onOpenStart = function() {
   const GSRN = gameState[rules.Name];
-  document.getElementById('movesMade').innerHTML = `Game ${GSRN.seed} of ${rules.Name} solved in ${tallyMan.count} moves; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
+  document.getElementById('movesMade').innerHTML = `You won this game ${rules.Name} in ${tallyMan.count} moves; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
 };
 
 modalGameOverFn.options.onCloseEnd = function() {
@@ -3927,7 +3931,8 @@ function dealCards() {
   cardContainers.forEach( cc => {
     window.setTimeout( () => cc.deal(), 100 );
   });
-  waitForCards().then( () => {
+  waitForCards()
+  .then( () => {
     ü.reset();
     tallyMan.reset();
   });
@@ -4086,12 +4091,12 @@ const someCardsInTransit = () => {
  * @returns {Promise}
  */
 const waitForCards = () => new Promise((resolve,reject) => {
-  const t0 = performance.now();
-  const t1 = t0 + 10000;
+  const tStart = performance.now();
+  const tBored = tStart + 10000;
   const check = () => {
     if ( !someCardsInTransit() ) {
-      resolve(performance.now() - t0);
-    } else if ( performance.now() > t1 ) {
+      resolve(performance.now() - tStart);
+    } else if ( performance.now() > tBored ) {
       reject('timed out waiting for cards to finish moving');
     } else {
       window.setTimeout(check, 100);
@@ -4105,12 +4110,12 @@ const waitForCards = () => new Promise((resolve,reject) => {
  * @returns {Promise}
  */
 const waitForCard = (c) => new Promise((resolve,reject) => {
-  const t0 = performance.now();
-  const t1 = t0 + 10000;
+  const tStart = performance.now();
+  const tBored = tStart + 10000;
   const check = () => {
     if ( 0 === c.animationIds.length ) {
-      resolve(performance.now() - t0);
-    } else if ( performance.now() > t1 ) {
+      resolve(performance.now() - tStart);
+    } else if ( performance.now() > tBored ) {
       reject('timed out waiting for card to finish moving');
     } else {
       window.setTimeout(check, 100);
@@ -4126,7 +4131,7 @@ const scrunchContainers = () => {
     reserves.forEach( res => res.scrunchCards(rules.Reserve) );
     foundations.forEach( res => res.scrunchCards(rules.Foundation) );
   })
-  .catch( (reason) => console.log(reason) );
+  .catch( (reason) => console.log('scrunch', reason) );
 };
 
 const checkIfGameOver = () => {
@@ -4146,7 +4151,7 @@ const checkIfGameOver = () => {
       displayToastNoAvailableMoves();
     }
   })
-  .catch( (reason) => console.log(reason) );
+  .catch( (reason) => console.log('gameover', reason) );
 };
 
 let inRobot = false;
@@ -4173,7 +4178,7 @@ function robot() {
     .then( () => {
       for ( let cardMoved = pullCardsToFoundations(); cardMoved; cardMoved = pullCardsToFoundations() ) {
         waitForCards()
-        .catch( (reason) => console.log(reason) );
+        .catch( (reason) => console.log('collect', reason) );
       }
     });
   }
