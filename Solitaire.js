@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '0.13.22.0',
+  GAME_VERSION: '19.6.22.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -745,14 +745,6 @@ class Card {
       console.warn('grabbing a grabbed card', this.id);
       return false;
     }
-
-    // although card flipping is automatic, there may be a face down card in the original
-    // deal. So, we manually check for face down just in case
-    // if ( this.faceDown && this.isTopCard() ) {
-    //   this.flipUp();
-    //   return;
-    // }
-    // ... no we don't, it fires when clicking on stock
 
     this.ptOriginalPointerDown = this.getPointerPoint_(event);
 
@@ -3052,6 +3044,13 @@ class Tableau extends CardContainer {
    * @param {Card} c 
    */
   onclick(c) {
+    // although card flipping is automatic, there may be a face down card in the original
+    // deal. So, we manually check for face down just in case
+    // if ( c.faceDown && c.isTopCard() ) {
+    //   c.flipUp();
+    //   return;
+    // }
+
     if ( c.faceDown )
       return;
 
@@ -3843,7 +3842,12 @@ modalStatisticsFn.options.onCloseEnd = function() {
 const modalGameOverFn = M.Modal.getInstance(document.getElementById('modalGameOver'));
 modalGameOverFn.options.onOpenStart = function() {
   const GSRN = gameState[rules.Name];
-  document.getElementById('movesMade').innerHTML = `You won this game ${rules.Name} in ${tallyMan.count} moves; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
+  let s = `You won this game of ${rules.Name} in ${tallyMan.count} moves`;
+  if ( GSRN.gamesWon > 1 ) {
+    s = s + `; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
+  }
+  document.getElementById('movesMade').innerHTML = s;
+  // document.getElementById('movesMade').innerHTML = `You won this game ${rules.Name} in ${tallyMan.count} moves; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
 };
 
 modalGameOverFn.options.onCloseEnd = function() {

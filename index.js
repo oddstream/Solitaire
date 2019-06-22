@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '0.13.22.0'; // examined by bake.tcl
+const VERSION = '0.13.22.1'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -812,7 +812,14 @@ const Variants = [
 },
 
 {
-  'Name':'Infinite Loops in Squares',
+  'Name':'Open Loops',
+  'Type':'Loops',
+  'Desc':'',
+  'File':'Open4',
+  'Wikipedia':''
+},
+{
+  'Name':'Infinite Loops Four',
   'Type':'Loops',
   'Desc':'',
   'File':'Loop4',
@@ -826,7 +833,7 @@ const Variants = [
   'Wikipedia':''
 },
 {
-  'Name':'Infinite Loops in Octagons',
+  'Name':'Infinite Loops Eight',
   'Type':'Loops',
   'Desc':'',
   'File':'Loop8',
