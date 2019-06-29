@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '19.6.22.0',
+  GAME_VERSION: '19.6.29.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -316,10 +316,7 @@ class Baize {
     this.setBox_();
     cardContainers.forEach( cc => {
       cc.cards.forEach( c => {
-        while ( c.g.hasChildNodes() ) {
-          c.g.removeChild(c.g.lastChild);
-        }
-        c.putRectInG_();
+        c.buildCard_();
       });
     });
     allAvailableMoves();   // repaint moveable cards
@@ -464,7 +461,9 @@ class Ündo {  // alt + 0220
 const ü = new Ündo(); // alt + 0252
 
 // https://stackoverflow.com/questions/20368071/touch-through-an-element-in-a-browser-like-pointer-events-none/20387287#20387287
-function dummyTouchStartHandler(e) {e.preventDefault();}
+function dummyTouchStartHandler(e) {/*console.log('dummy touch start');*/e.preventDefault();}
+function dummyTouchMoveHandler(e) {/*console.log('dummy touch move');*/e.preventDefault();}
+function dummyTouchEndHandler(e) {/*console.log('dummy touch end');*/e.preventDefault();}
 
 class Card {
   /**
@@ -508,7 +507,7 @@ class Card {
     this.animationIds = /** @type {Number[]} */([]);
 
     this.g = /** @type {SVGGElement} */(document.createElementNS(Constants.SVG_NAMESPACE, 'g'));
-    this.putRectInG_();
+    this.buildCard_();
     this.position0();
     this.addListeners_();
   }
@@ -529,30 +528,25 @@ class Card {
 
   /**
    * @private
-   * @param {string} cl class
-   * @returns Element
    */
-  createRect_(cl) {
+  buildCard_() {
+    // flipping or orientation change: clear out any old child nodes
+    while ( this.g.hasChildNodes() )
+      this.g.removeChild(this.g.lastChild);
+
     const r = document.createElementNS(Constants.SVG_NAMESPACE, 'rect');
-    r.classList.add(cl);
     Util.setAttributesNS(r, {
       width: String(Constants.CARD_WIDTH),
       height: String(Constants.CARD_HEIGHT),
       rx: String(Constants.CARD_RADIUS),
       ry: String(Constants.CARD_RADIUS)
     });
-    return r;
-  }
+    this.g.appendChild(r);
 
-  /**
-   * @private
-   */
-  putRectInG_() {
-    console.assert(!this.g.lastChild);
     if ( this.faceDown ) {
-      this.g.appendChild(this.createRect_('spielkarteback'));
+      r.classList.add('spielkarteback');
     } else {
-      this.g.appendChild(this.createRect_('spielkarte'));
+      r.classList.add('spielkarte');
 
       const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
       t.classList.add('spielkartevalue');
@@ -620,6 +614,8 @@ class Card {
     this.g.addEventListener('pointerover', this.overHandler);
     this.g.addEventListener('pointerdown', this.downHandler);
     this.g.addEventListener('touchstart', dummyTouchStartHandler);
+    this.g.addEventListener('touchmove', dummyTouchMoveHandler);
+    this.g.addEventListener('touchend', dummyTouchEndHandler);
   }
 
   /**
@@ -629,6 +625,8 @@ class Card {
     this.g.removeEventListener('pointerover', this.overHandler);
     this.g.removeEventListener('pointerdown', this.downHandler);
     this.g.removeEventListener('touchstart', dummyTouchStartHandler);
+    this.g.removeEventListener('touchmove', dummyTouchMoveHandler);
+    this.g.removeEventListener('touchend', dummyTouchEndHandler);
   }
 
   /**
@@ -720,15 +718,17 @@ class Card {
         ... event.preventDefault() and/or event.preventDefault(event) don't stop it
         ... Chrome and Edge don't do this
     */
-    /*
-    if ( this.owner.lastEvent ) { // TODO check if this still needed with dummy touch handler
-      if ( event.pointerType !== this.owner.lastEvent.pointerType && event.timeStamp < this.owner.lastEvent.timeStamp + 1000 ) {
-        console.log('stifle Firefox event');
-        return false;
+
+    if ( Constants.FIREFOX ) {
+      if ( this.owner.lastEvent ) {
+        if ( event.pointerType !== this.owner.lastEvent.pointerType && event.timeStamp < this.owner.lastEvent.timeStamp + 1000 ) {
+          console.log('stifle Firefox event');
+          return false;
+        }
       }
+      this.owner.lastEvent = event;
     }
-    this.owner.lastEvent = event;
-    */
+
     if ( event.pointerType === 'mouse' ) {
       if ( !(event.button === 0) ) {
         console.log('don\'t care about mouse button', event.button);
@@ -745,7 +745,7 @@ class Card {
       console.warn('grabbing a grabbed card', this.id);
       return false;
     }
-
+// this.g.setPointerCapture(event.pointerId);
     this.ptOriginalPointerDown = this.getPointerPoint_(event);
 
     this.grabbedTail = this.owner.canGrab(this);
@@ -816,7 +816,7 @@ class Card {
    */
   onpointerup(event) {
     Util.absorbEvent(event);
-
+// this.g.releasePointerCapture(event.pointerId);
     const ptNew = this.getPointerPoint_(event);
     const ptNewCard = Util.newPoint(
       ptNew.x - this.ptOffset.x,
@@ -828,6 +828,7 @@ class Card {
         c.position0(c.ptOriginal.x, c.ptOriginal.y);
       });
       // a click on a card just sends the click to it's owner, so we do that directly
+      // console.log('simulate a click');
       this.owner.onclick(this);
     } else {
       const cc = this.getNewOwner();
@@ -865,9 +866,7 @@ class Card {
   flipUp() {
     if ( this.faceDown ) {
       this.faceDown = false;
-      while ( this.g.hasChildNodes() )
-        this.g.removeChild(this.g.lastChild);
-      this.putRectInG_();
+      this.buildCard_();
     } else {
       console.warn(this.id, 'is already up');
     }
@@ -878,9 +877,7 @@ class Card {
   flipDown() {
     if ( !this.faceDown ) {
       this.faceDown = true;
-      while ( this.g.hasChildNodes() )
-        this.g.removeChild(this.g.lastChild);
-      this.putRectInG_();
+      this.buildCard_();
     } else {
       console.warn(this.id, 'is already down');
     }

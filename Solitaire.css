@@ -18,6 +18,10 @@ svg {
   position: static;
 }
 
+/*
+  Basically, if you switch to pointer events you will be able to prevent pointercancel by simply using the touch-action CSS property with a value of none, 
+  as long as the browser has both features correctly implemented. (Android 5+, Chrome 55+, IE11, Edge, etc)
+*/
 .spielkarte {
   fill:white;
   stroke-width: 1;
