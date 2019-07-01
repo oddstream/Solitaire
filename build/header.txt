@@ -18,7 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
     <meta http-equiv="Pragma" content="no-cache"/>
-    <meta http-equiv="Expires" content="0"/>
+    <meta http-equiv="Expires" content="-1"/>
     <link rel="manifest" href="./manifest.json">
     <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32x32.png">
@@ -44,7 +44,7 @@
     </ul>
     <a id="nav-title" class="brand-logo hide-on-small-only"></a>
     <ul class="right">
-        <li><a onclick="ü.undo()"><i class="material-icons tooltipped noselect" data-position="bottom" data-tooltip="Undo">undo</i></a></li>
+        <li><a onclick="undoer.undo()"><i class="material-icons tooltipped noselect" data-position="bottom" data-tooltip="Undo">undo</i></a></li>
         <li><a id="moveCounter" onclick="doshowavailablemoves()" class="tooltipped noselect" data-position="bottom" data-tooltip="Moves"></a></li>
         <li><a onclick="doshowrules()"><i class="material-icons tooltipped noselect" data-position="bottom" data-tooltip="Rules">assignment</i></a></li>
         <li><a href="faq.html" target="_blank" rel="noopener" class="tooltipped noselect" data-position="bottom" data-tooltip="FAQ"><i class="material-icons">info</i></a></li>

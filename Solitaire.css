@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css?family=Acme');
+@charset "utf-8";
+@import url('https://fonts.googleapis.com/css?family=Acme') screen;
 
 body {
   overflow: auto;
@@ -53,7 +54,7 @@ svg {
 }
 
 .spielkartevalue {
-  font-family: var(--ffont), sans-serif;
+  font-family: 'Acme', sans-serif;
   font-size: 28px;
   /* fill here gets overwritten */
   pointer-events: none;
@@ -61,7 +62,7 @@ svg {
 }
 
 .spielkartesuit {
-  font-family: var(--ffont), sans-serif;
+  font-family: 'Acme', sans-serif;
   font-size: 32px;
   /* fill here gets overwritten */
   pointer-events: none;
@@ -92,14 +93,15 @@ svg {
 }
 
 .accepts {
-  font-family: var(--ffont), sans-serif;
+  font-family: 'Acme', sans-serif;
   font-size: 24px;
   stroke: none;
   fill: var(--hi-color, lightgreen);
 }
 
 .stockredeals {
-  font-family: 'Ariel', sans-serif;
+  font-family: 'Acme', sans-serif;
+  /* font-family: 'Ariel', sans-serif; */
   font-size: 48px;
   stroke: none;
   fill: var(--hi-color, lightgreen);

@@ -1,0 +1,1 @@
+xcopy /d *.* C:\Users\oddst\Dropbox\Solitaire

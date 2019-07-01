@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '19.6.29.0',
+  GAME_VERSION: '19.7.1.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -382,7 +382,7 @@ class Mover {
 
 const tallyMan = new Mover;
 
-class Ündo {  // alt + 0220
+class Undoer {
   constructor() {
     this.moves = [];
     this.undoing = false;
@@ -458,7 +458,7 @@ class Ündo {  // alt + 0220
   }
 }
 
-const ü = new Ündo(); // alt + 0252
+const undoer = new Undoer();
 
 // https://stackoverflow.com/questions/20368071/touch-through-an-element-in-a-browser-like-pointer-events-none/20387287#20387287
 function dummyTouchStartHandler(e) {/*console.log('dummy touch start');*/e.preventDefault();}
@@ -995,7 +995,7 @@ class Card {
    */
   moveTop(to) {
     const from = this.owner;
-    ü.push(from, to, 1);  // record undo before pop
+    undoer.push(from, to, 1);  // record undo before pop
     tallyMan.increment();
     from.pop();
     to.push(this);
@@ -1017,7 +1017,7 @@ class Card {
     while ( tmp.length ) {
       to.push(tmp.pop());
     }
-    ü.push(from, to, nCardsMoved);
+    undoer.push(from, to, nCardsMoved);
     tallyMan.increment();
   }
 
@@ -2005,7 +2005,7 @@ class Stock extends CardContainer {
     if ( Number.isInteger(this.redeals) ) {
       this.redeals -= 1;
       this.updateRedealsSVG_();
-      ü.reset();
+      undoer.reset();
     }
   }
 
@@ -2015,7 +2015,7 @@ class Stock extends CardContainer {
         while ( waste.cards.length ) {
           const c = waste.cards.pop(); // low level pop to bypass 3-card shuffle
           stock.push(c);
-          ü.push(waste,stock,1);
+          undoer.push(waste,stock,1);
         }
         this.decreaseRedeals();
       });
@@ -2324,7 +2324,7 @@ class StockCruel extends Stock
       this.part2_(tmp);
       this.part3_();
 
-      ü.reset();
+      undoer.reset();
 
       if ( 1 === allAvailableMoves() )   // repaint moveable cards
         displayToastNoAvailableMoves();
@@ -2382,7 +2382,7 @@ class StockFan extends Stock {
       const oldSeed = gameState[rules.Name].seed;
       stock.sort(123456);         // just some made up, reproduceable seed
       gameState[rules.Name].seed = oldSeed;   // sort(n) over-writes this
-      ü.reset();                  // can't undo a jumble
+      undoer.reset();                  // can't undo a jumble
 
       tableaux.forEach( t => {
         window.setTimeout( () => t.deal(), 0 );
@@ -3646,7 +3646,7 @@ function restart(seed=undefined) {
   stock.sort(seed);
   stock.cards.forEach( c => baize.elevateCard(c) );
   stock.redeals = rules.Stock.redeals; // could be null
-  ü.reset();
+  undoer.reset();
   tallyMan.reset();
   foundations.forEach( f => f.scattered = false );
   if ( gameState[rules.Name].saved )
@@ -3690,7 +3690,7 @@ class Saved {
     this.seed = gameState[rules.Name].seed;
     this.redeals = stock.redeals;
     this.moves = tallyMan.count;
-    this.undo = ü.makeCopy();
+    this.undo = undoer.makeCopy();
     this.containers = [];
     for ( let i=0; i<cardContainers.length; i++ ) {
       this.containers[i] = cardContainers[i].getSaveableCards();
@@ -3730,7 +3730,7 @@ function doload() {
     }
     stock.updateRedealsSVG_();
     tallyMan.set(gss.moves);
-    ü.load(gss.undo);
+    undoer.load(gss.undo);
     scrunchContainers();
     checkIfGameOver();
     // delete gss.saved;
@@ -3918,7 +3918,7 @@ function displayToast(msg) {
 }
 
 function displayToastNoAvailableMoves() {
-  displayToast('<span>no available moves</span><button class="btn-flat toast-action" onclick="ü.undo()">Undo</button><button class="btn-flat toast-action" onclick="dostar()">New</button>');
+  displayToast('<span>no available moves</span><button class="btn-flat toast-action" onclick="undoer.undo()">Undo</button><button class="btn-flat toast-action" onclick="dostar()">New</button>');
 }
 
 function dosettings() {
@@ -3935,7 +3935,7 @@ function dealCards() {
   });
   waitForCards()
   .then( () => {
-    ü.reset();
+    undoer.reset();
     tallyMan.reset();
   });
 }
@@ -4045,7 +4045,6 @@ const reserves = /** @type {Array<Reserve>} */ (linkClasses([Reserve,ReserveFrog
 
 document.documentElement.style.setProperty('--bg-color', 'darkgreen');
 document.documentElement.style.setProperty('--hi-color', 'lightgreen');
-document.documentElement.style.setProperty('--ffont', 'Acme');
 
 // document.addEventListener('contextmenu', event => event.preventDefault());
 
@@ -4145,7 +4144,7 @@ const checkIfGameOver = () => {
         foundations.forEach( f => f.scatter() );
         waitForCards()
         .then( () => {
-          ü.reset();
+          undoer.reset();
           modalGameOverFn.open();
         });
       }
@@ -4220,7 +4219,7 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
       dosave();
       break;
     case 'u':
-      ü.undo();
+      undoer.undo();
       break;
     case 'w':
       if ( stock.peek() )

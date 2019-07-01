@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '0.13.22.1'; // examined by bake.tcl
+const VERSION = '19.6.30.0'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -808,35 +808,6 @@ const Variants = [
   'Type':'All,Other,Small Screen',
   'Desc':'hardest version of Flipflop',
   'File':'Flipflop5',
-  'Wikipedia':''
-},
-
-{
-  'Name':'Open Loops',
-  'Type':'Loops',
-  'Desc':'',
-  'File':'Open4',
-  'Wikipedia':''
-},
-{
-  'Name':'Infinite Loops Four',
-  'Type':'Loops',
-  'Desc':'',
-  'File':'Loop4',
-  'Wikipedia':''
-},
-{
-  'Name':'Infinite Loops in Hexagons',
-  'Type':'Loops',
-  'Desc':'',
-  'File':'Loop6',
-  'Wikipedia':''
-},
-{
-  'Name':'Infinite Loops Eight',
-  'Type':'Loops',
-  'Desc':'',
-  'File':'Loop8',
   'Wikipedia':''
 },
 
