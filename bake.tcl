@@ -129,6 +129,10 @@ if { $argc > 0 } then {
     file copy -force \
       c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Public/index.html \
       c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Content
+  } elseif { [lindex $argv 0] eq "git" } then {
+    puts "Publishing to local copy of github pages"
+    puts "(remember to commit and push)"
+    publish "c:/Users/oddst/website/oddstream.github.io/Solitaire/"
   }
 }
 
