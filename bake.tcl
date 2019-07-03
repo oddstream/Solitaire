@@ -123,7 +123,7 @@ if { $argc > 0 } then {
   if { [lindex $argv 0] eq "local" } then {
     puts "Publishing to localhost"
     publish "c:/inetpub/wwwroot/solitaire/"
-  } elseif { [lindex $argv 0] eq "db" } then {
+  } elseif { [lindex $argv 0] eq "db" || [lindex $argv 0] eq "dropbox" } then {
     puts "Publishing to dropbox"
     publish "c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Public/"
     file copy -force \
