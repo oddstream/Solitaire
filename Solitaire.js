@@ -26,7 +26,7 @@ const Constants = {
   ACCEPT_MARTHA_SYMBOL: '¹',          // &sup1;
   ACCEPT_INSECT_SYMBOL: '\u2263',     // was 2261
 
-  // if you edit these, also edit symbols.svg if using symbol card backs
+  // if you edit these, also edit symbols.svg if using symbol card suits
   CARD_WIDTH: 60,
   CARD_WIDTH_STACKED: Math.round(60/2),
   CARD_HEIGHT: 90,
@@ -934,6 +934,11 @@ class Card {
       const y = Math.round((ptFrom.y * v) + (ptTo.y * (1 - v)));
       this.g.setAttributeNS(null, 'transform', `translate(${x} ${y})`);
 
+      /*
+        Tried using smaller number of steps for short distances,
+        to pep up the waste pile animation
+        but it doesn't look right
+      */
       i -= N/steps[settings.aniSpeed];
       if ( i > 0 ) {
         this.animationIds.push(window.requestAnimationFrame(step_));
@@ -956,10 +961,10 @@ class Card {
       // .then( (value) => console.log(`waited ${Math.round(value)} for ${this.id}`) )
       .catch( (reason) => console.log('animate', reason) );
     }
-    if ( N ) {
-      this.animationIds.push(window.requestAnimationFrame(step_));
-    } else {
+    if ( 0 === N ) {
       // console.log('no need to animate', this.id);
+    } else {
+      this.animationIds.push(window.requestAnimationFrame(step_));
     }
   }
 

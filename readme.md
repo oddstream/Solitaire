@@ -35,7 +35,7 @@ Also, make the games authentic, by taking the rules from reputable sources and i
 
 - Redeals and scorpion/spider symbols not displaying on a Chromebook. There's an open issue on the chromium tracker that relates: https://bugs.chromium.org/p/chromium/issues/detail?id=914919
 
-- Cards sometimes don't animate, so the card is displayed where it started, but the software thinks it's somewhere else. Can be cleared by reloading the page.
+- Cards sometimes don't animate, so the card is displayed where it started, but the software thinks it's somewhere else. Can be cleared by reloading the page. May be linked to grabbing a moving card?
 
 - Dragging cards goes through phases of being unreliable, as browsers get updated. It's caused when the user agent sends an unwanted pointercancel event. It's currently fixed by having dummy touch start/move/end listeners so all the touch events get ignored.
 
