@@ -551,7 +551,7 @@ class Card {
       const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
       t.classList.add('spielkartevalue');
       Util.setAttributesNS(t, {
-        'x': String(Constants.CARD_WIDTH/4),
+        'x': this.ordinal === 10 ? String(Constants.CARD_WIDTH/4 + 4) : String(Constants.CARD_WIDTH/4),
         'y': String(Constants.CARD_HEIGHT/4),
         'text-anchor': 'middle',
         'dominant-baseline': 'middle',
@@ -3797,17 +3797,14 @@ modalStatisticsFn.options.onOpenStart = function() {
   if ( isComplete() ) {
     document.getElementById('thisGameStats').innerHTML = `You won this game of ${rules.Name} (number ${GSRN.seed}) in ${Util.plural(tallyMan.count, 'move')}`;
   } else {
-    let s = `In this game of ${rules.Name} (number ${GSRN.seed}) you've made `;
-    s += Util.plural(tallyMan.count, 'move');
-    s += `, there are ${Util.plural(allAvailableMoves(), 'move')} available`;
+    let s = `Moves made: ${tallyMan.count}, moves available: ${allAvailableMoves()}`;
     if ( !rules.Stock.hidden ) {
-      s += ', ';
-      s += Util.plural(stock.cards.length, 'stock card');
+      s += `, stock cards: ${stock.cards.length}`;
     }
     if ( waste ) {
-      s += ', ';
-      s += Util.plural(waste.cards.length, 'waste card');
+      s += `, waste cards: ${waste.cards.length}`;
     }
+    s += `, game number: ${GSRN.seed}`;
     /*
       used to calculate % of foundation complete here
       but the calculation gets kludgey with Grandfather's Clock and Golf
