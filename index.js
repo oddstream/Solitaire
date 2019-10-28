@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '19.6.30.0'; // examined by bake.tcl
+const VERSION = '19.10.27.0'; // examined by bake.tcl
 
 const Variants = [
 {
