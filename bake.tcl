@@ -62,7 +62,7 @@ proc xcompile {fname dst} {
   if { [getVersion $fname] ne [getVersion $dst$fname] } then {
     puts "Compiling to $dst$fname"
     # puts [exec java -jar compiler.jar --version]
-    puts [exec java -jar compiler.jar --js $fname --language_in ECMASCRIPT_2017 --language_out ECMASCRIPT_2015 --js_output_file $dst$fname]
+    puts [exec java -jar closure-compiler-v20191027.jar --js $fname --language_in ECMASCRIPT_2017 --language_out ECMASCRIPT_2015 --js_output_file $dst$fname]
   }
 }
 
@@ -120,10 +120,7 @@ foreach gutsFile $gutsList {
 }
 
 if { $argc > 0 } then {
-  if { [lindex $argv 0] eq "local" } then {
-    puts "Publishing to localhost"
-    publish "c:/inetpub/wwwroot/solitaire/"
-  } elseif { [lindex $argv 0] eq "db" || [lindex $argv 0] eq "dropbox" } then {
+  if { [lindex $argv 0] eq "db" || [lindex $argv 0] eq "dropbox" } then {
     puts "Publishing to dropbox"
     publish "c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Public/"
     file copy -force \

@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '19.10.27.0'; // examined by bake.tcl
+const VERSION = '19.11.4.1'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -828,11 +828,6 @@ const Variants = [
 ];
 
 // polyfills for Array.prototypefor.Each and Array.prototype.includes
-
-let isIE = false || !!document.documentMode;
-if ( isIE ) {
-    window.alert('Internet Explorer is not supported.\n\nPlease try again with a modern browser.');
-}
 
 /**
  * @param {string} str 
