@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '19.11.4.1'; // examined by bake.tcl
+const VERSION = '19.11.11.0'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -847,6 +847,14 @@ function search(str) {
     if ( 0 === hits.size ) {
       Variants.forEach( v => {
         if ( -1 != v.Desc.toLowerCase().indexOf(str) ) {
+          hits.add(v);
+        }
+      });
+    }
+
+    if ( 0 === hits.size ) {
+      Variants.forEach( v => {
+        if ( -1 != v.Type.toLowerCase().indexOf(str) ) {
           hits.add(v);
         }
       });

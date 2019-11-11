@@ -4,7 +4,7 @@
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '19.10.27.0',
+  GAME_VERSION: '19.11.11.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -240,7 +240,8 @@ class Random {
 
 class Baize {
   constructor() {
-    this.ele = /** @type {SVGSVGElement} */(document.getElementById('baize'));
+    this.ele = /** @type {unknown} */(document.getElementById('baize'));
+    this.ele = /** @type {SVGSVGElement} */(this.ele);
     /** @private @type {number} */ this.borderWidth_ = 0;
     /** @private @type {number} */ this.gutsWidth_ = 0;
     /** @type {number} */ this.width = 0;
@@ -803,7 +804,7 @@ class Card {
     const ptNew = this.getPointerPoint_(event);
     this.scalePointer_(ptNew);
     this.grabbedTail.forEach( c => {
-      c.position0(ptNew.x - c.ptOffset.x, ptNew.y - c.ptOffset.y);
+      c.position1(ptNew.x - c.ptOffset.x, ptNew.y - c.ptOffset.y);
       // console.assert(c.ptOffset.x===ptNew.x - c.pt.x);
       // console.assert(c.ptOffset.y===ptNew.y - c.pt.y);
     });
@@ -825,7 +826,7 @@ class Card {
     if ( Util.nearlySamePoint(ptNewCard, this.ptOriginal) ) {
       // console.log('nearly same point', ptNewCard, this.ptOriginal);
       this.grabbedTail.forEach( c => {
-        c.position0(c.ptOriginal.x, c.ptOriginal.y);
+        c.position1(c.ptOriginal.x, c.ptOriginal.y);
       });
       // a click on a card just sends the click to it's owner, so we do that directly
       // console.log('simulate a click');
@@ -885,15 +886,22 @@ class Card {
 
   /**
    * Use SVG transform to position this card on the baize
-   * @param {number=} x optional
-   * @param {number=} y optional
    */
-  position0(x=undefined, y=undefined) {
-    if ( x !== undefined && y !== undefined ) {
-      this.pt.x = x;
-      this.pt.y = y;
-    }
+  position0() {
+    console.assert(this.pt.x !== undefined);
+    console.assert(this.pt.y !== undefined);
     this.g.setAttributeNS(null, 'transform', `translate(${this.pt.x} ${this.pt.y})`);
+  }
+
+  /**
+   * Use SVG transform to position this card on the baize
+   * @param {number=} x
+   * @param {number=} y
+   */
+  position1(x, y) {
+    this.pt.x = x;
+    this.pt.y = y;
+    this.position0();
   }
 
   /**
@@ -959,7 +967,7 @@ class Card {
     if ( this.animationIds.length ) {
       waitForCard(this)
       // .then( (value) => console.log(`waited ${Math.round(value)} for ${this.id}`) )
-      .catch( (reason) => console.log('animate', reason) );
+      .catch( (reason) => console.error('animate() did not wait for card', reason) );
     }
     if ( 0 === N ) {
       // console.log('no need to animate', this.id);
@@ -2381,7 +2389,7 @@ class StockFan extends Stock {
         // all fan games are all face up?
         // if ( !c.faceDown )
         //     c.flipDown();
-        c.position0(stock.pt.x, stock.pt.y);
+        c.position1(stock.pt.x, stock.pt.y);
       });
 
       const oldSeed = gameState[rules.Name].seed;
@@ -3645,7 +3653,7 @@ function restart(seed=undefined) {
     c.owner = stock;
     if ( !c.faceDown )
       c.flipDown();
-    c.position0(stock.pt.x, stock.pt.y);
+    c.position1(stock.pt.x, stock.pt.y);
   });
 
   stock.sort(seed);
