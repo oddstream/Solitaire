@@ -10,23 +10,23 @@
 </script>  
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-    <g class="StockKlondike"><rect x="10" y="10"></rect></g>
-    <g class="Waste"><rect x="77" y="10"></rect></g>
+    <g class="StockKlondike"><rect x="0" y="0"></rect></g>
+    <g class="Waste"><rect x="1" y="0"></rect></g>
 
-    <g class="Foundation" deal="♥13" reverse="1"><rect x="211" y="10"></rect></g>
-    <g class="Foundation" deal="♦13" reverse="1"><rect x="278" y="10"></rect></g>
-    <g class="Foundation" deal="♣13" reverse="1"><rect x="345" y="10"></rect></g>
-    <g class="Foundation" deal="♠13" reverse="1"><rect x="412" y="10"></rect></g>
+    <g class="Foundation" deal="♥13" reverse="1"><rect x="3" y="0"></rect></g>
+    <g class="Foundation" deal="♦13" reverse="1"><rect x="4" y="0"></rect></g>
+    <g class="Foundation" deal="♣13" reverse="1"><rect x="5" y="0"></rect></g>
+    <g class="Foundation" deal="♠13" reverse="1"><rect x="6" y="0"></rect></g>
 
-    <g class="Foundation" deal="♥01"><rect x="211" y="110"></rect></g>
-    <g class="Foundation" deal="♦01"><rect x="278" y="110"></rect></g>
-    <g class="Foundation" deal="♣01"><rect x="345" y="110"></rect></g>
-    <g class="Foundation" deal="♠01"><rect x="412" y="110"></rect></g>
+    <g class="Foundation" deal="♥01"><rect x="3" y="1"></rect></g>
+    <g class="Foundation" deal="♦01"><rect x="4" y="1"></rect></g>
+    <g class="Foundation" deal="♣01"><rect x="5" y="1"></rect></g>
+    <g class="Foundation" deal="♠01"><rect x="6" y="1"></rect></g>
 
-    <g class="TableauBlockade" deal="u"><rect x="211" y="310"></rect></g>
-    <g class="TableauBlockade" deal="u"><rect x="278" y="310"></rect></g>
-    <g class="TableauBlockade" deal="u"><rect x="345" y="310"></rect></g>
-    <g class="TableauBlockade" deal="u"><rect x="412" y="310"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="3" y="3"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="4" y="3"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="5" y="3"></rect></g>
+    <g class="TableauBlockade" deal="u"><rect x="6" y="3"></rect></g>
 
-    <g class="Reserve" deal="uuuuuuuuuuuuu"><rect x="10" y="110"></rect></g>
-    <g class="Reserve" deal="uuuuuuuuuuuuu"><rect x="77" y="110"></rect></g>
+    <g class="Reserve" deal="uuuuuuuuuuuuu"><rect x="0" y="1"></rect></g>
+    <g class="Reserve" deal="uuuuuuuuuuuuu"><rect x="1" y="1"></rect></g>

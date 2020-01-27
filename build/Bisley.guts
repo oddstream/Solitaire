@@ -10,29 +10,29 @@
 </script>  
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-    <g class="Stock"><rect x="814" y="10"></rect></g>
+    <g class="Stock"><rect x="12" y="0"></rect></g>
 
-    <g class="Foundation" accept="13" reverse="1"><rect  x="10" y="10"></rect></g>
-    <g class="Foundation" accept="13" reverse="1"><rect  x="77" y="10"></rect></g>
-    <g class="Foundation" accept="13" reverse="1"><rect x="144" y="10"></rect></g>
-    <g class="Foundation" accept="13" reverse="1"><rect x="211" y="10"></rect></g>
+    <g class="Foundation" accept="13" reverse="1"><rect  x="0" y="0"></rect></g>
+    <g class="Foundation" accept="13" reverse="1"><rect  x="1" y="0"></rect></g>
+    <g class="Foundation" accept="13" reverse="1"><rect x="2" y="0"></rect></g>
+    <g class="Foundation" accept="13" reverse="1"><rect x="3" y="0"></rect></g>
 
-    <g class="Foundation" deal="♥01"><rect  x="10" y="110"></rect></g>
-    <g class="Foundation" deal="♦01"><rect  x="77" y="110"></rect></g>
-    <g class="Foundation" deal="♣01"><rect x="144" y="110"></rect></g>
-    <g class="Foundation" deal="♠01"><rect x="211" y="110"></rect></g>
+    <g class="Foundation" deal="♥01"><rect  x="0" y="1"></rect></g>
+    <g class="Foundation" deal="♦01"><rect  x="1" y="1"></rect></g>
+    <g class="Foundation" deal="♣01"><rect x="2" y="1"></rect></g>
+    <g class="Foundation" deal="♠01"><rect x="3" y="1"></rect></g>
 
-    <g class="Tableau" deal="uuu"><rect  x="10" y="210"></rect></g>
-    <g class="Tableau" deal="uuu"><rect  x="77" y="210"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="144" y="210"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="211" y="210"></rect></g>
+    <g class="Tableau" deal="uuu"><rect  x="0" y="2"></rect></g>
+    <g class="Tableau" deal="uuu"><rect  x="1" y="2"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="2" y="2"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="3" y="2"></rect></g>
 
-    <g class="Tableau" deal="uuuu"><rect x="278" y="210"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="345" y="210"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="412" y="210"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="479" y="210"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="546" y="210"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="613" y="210"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="680" y="210"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="747" y="210"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="814" y="210"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="4" y="2"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="5" y="2"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="6" y="2"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="7" y="2"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="8" y="2"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="9" y="2"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="10" y="2"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="11" y="2"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="12" y="2"></rect></g>

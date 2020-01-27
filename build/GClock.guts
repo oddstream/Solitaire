@@ -10,29 +10,29 @@
 </script>
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-    <g class="Stock"><rect x="244.5" y="185"></rect></g>
+    <g class="Stock"><rect x="3.5" y="1.75"></rect></g>
 
-    <g class="Foundation" deal="♥06" complete="♥09"><rect  x="77.0" y="190"></rect></g>
-    <g class="Foundation" deal="♠07" complete="♠10"><rect x="110.5"  y="90"></rect></g>
-    <g class="Foundation" deal="♦08" complete="♦11"><rect x="177.5"  y="50"></rect></g>
+    <g class="Foundation" deal="♥06" complete="♥09"><rect x="1" y="1.8"></rect></g>
+    <g class="Foundation" deal="♠07" complete="♠10"><rect x="1.5"  y="0.8"></rect></g>
+    <g class="Foundation" deal="♦08" complete="♦11"><rect x="2.5"  y="0.4"></rect></g>
     
-    <g class="Foundation" deal="♣09" complete="♣12"><rect x="244.5"  y="10"></rect></g>
-    <g class="Foundation" deal="♥10" complete="♥01"><rect x="311.5"  y="50"></rect></g>
-    <g class="Foundation" deal="♠11" complete="♠02"><rect x="378.5"  y="90"></rect></g>
+    <g class="Foundation" deal="♣09" complete="♣12"><rect x="3.5"  y="0"></rect></g>
+    <g class="Foundation" deal="♥10" complete="♥01"><rect x="4.5"  y="0.4"></rect></g>
+    <g class="Foundation" deal="♠11" complete="♠02"><rect x="5.5"  y="0.8"></rect></g>
     
-    <g class="Foundation" deal="♦12" complete="♦03"><rect x="412.0" y="190"></rect></g>
-    <g class="Foundation" deal="♣13" complete="♣04"><rect x="378.5" y="290"></rect></g>
-    <g class="Foundation" deal="♥02" complete="♥05"><rect x="311.5" y="320"></rect></g>
+    <g class="Foundation" deal="♦12" complete="♦03"><rect x="6.0" y="1.8"></rect></g>
+    <g class="Foundation" deal="♣13" complete="♣04"><rect x="5.5" y="2.8"></rect></g>
+    <g class="Foundation" deal="♥02" complete="♥05"><rect x="4.5" y="3.1"></rect></g>
 
-    <g class="Foundation" deal="♠03" complete="♠06"><rect x="244.5" y="360"></rect></g>
-    <g class="Foundation" deal="♦04" complete="♦07"><rect x="177.5" y="320"></rect></g>
-    <g class="Foundation" deal="♣05" complete="♣08"><rect x="110.5" y="290"></rect></g>
+    <g class="Foundation" deal="♠03" complete="♠06"><rect x="3.5" y="3.5"></rect></g>
+    <g class="Foundation" deal="♦04" complete="♦07"><rect x="2.5" y="3.1"></rect></g>
+    <g class="Foundation" deal="♣05" complete="♣08"><rect x="1.5" y="2.8"></rect></g>
 
-    <g class="Tableau" deal="uuuuu"><rect  x="10" y="460"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect  x="77" y="460"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x="144" y="460"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x="211" y="460"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x="278" y="460"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x="345" y="460"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x="412" y="460"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x="479" y="460"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="0" y="4.5"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="1" y="4.5"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="2" y="4.5"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="3" y="4.5"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="4" y="4.5"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="5" y="4.5"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="6" y="4.5"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="7" y="4.5"></rect></g>

@@ -11,26 +11,26 @@
 </script>
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-    <g class="StockAgnes"><rect x="10" y="10"></rect></g>
+    <g class="StockAgnes"><rect x="0" y="0"></rect></g>
 
-    <g class="FoundationCanfield" deal="u"><rect x="211" y="10"></rect></g>
-    <g class="FoundationCanfield"><rect x="278" y="10"></rect></g>
-    <g class="FoundationCanfield"><rect x="345" y="10"></rect></g>
-    <g class="FoundationCanfield"><rect x="412" y="10"></rect></g>
+    <g class="FoundationCanfield" deal="u"><rect x="3" y="0"></rect></g>
+    <g class="FoundationCanfield"><rect x="4" y="0"></rect></g>
+    <g class="FoundationCanfield"><rect x="5" y="0"></rect></g>
+    <g class="FoundationCanfield"><rect x="6" y="0"></rect></g>
 
-    <g class="Reserve" deal="u"><rect  x="10" y="110"></rect></g>
-    <g class="Reserve" deal="u"><rect  x="77" y="110"></rect></g>
-    <g class="Reserve" deal="u"><rect x="144" y="110"></rect></g>
-    <g class="Reserve" deal="u"><rect x="211" y="110"></rect></g>
-    <g class="Reserve" deal="u"><rect x="278" y="110"></rect></g>
-    <g class="Reserve" deal="u"><rect x="345" y="110"></rect></g>
-    <g class="Reserve" deal="u"><rect x="412" y="110"></rect></g>
+    <g class="Reserve" deal="u"><rect  x="0" y="1"></rect></g>
+    <g class="Reserve" deal="u"><rect  x="1" y="1"></rect></g>
+    <g class="Reserve" deal="u"><rect x="2" y="1"></rect></g>
+    <g class="Reserve" deal="u"><rect x="3" y="1"></rect></g>
+    <g class="Reserve" deal="u"><rect x="4" y="1"></rect></g>
+    <g class="Reserve" deal="u"><rect x="5" y="1"></rect></g>
+    <g class="Reserve" deal="u"><rect x="6" y="1"></rect></g>
 
-    <g class="TableauTail" deal="u"><rect x="10" y="260"></rect></g>
-    <g class="TableauTail" deal="du"><rect x="77" y="260"></rect></g>
-    <g class="TableauTail" deal="ddu"><rect x="144" y="260"></rect></g>
-    <g class="TableauTail" deal="dddu"><rect x="211" y="260"></rect></g>
-    <g class="TableauTail" deal="ddddu"><rect x="278" y="260"></rect></g>
-    <g class="TableauTail" deal="dddddu"><rect x="345" y="260"></rect></g>
-    <g class="TableauTail" deal="ddddddu"><rect x="412" y="260"></rect></g>
+    <g class="TableauTail" deal="u"><rect x="0" y="260"></rect></g>
+    <g class="TableauTail" deal="du"><rect x="1" y="260"></rect></g>
+    <g class="TableauTail" deal="ddu"><rect x="2" y="260"></rect></g>
+    <g class="TableauTail" deal="dddu"><rect x="3" y="260"></rect></g>
+    <g class="TableauTail" deal="ddddu"><rect x="4" y="260"></rect></g>
+    <g class="TableauTail" deal="dddddu"><rect x="5" y="260"></rect></g>
+    <g class="TableauTail" deal="ddddddu"><rect x="6" y="260"></rect></g>
 

@@ -246,14 +246,22 @@ class Baize {
     /** @private @type {number} */ this.gutsWidth_ = 0;
     /** @type {number} */ this.width = 0;
     /** @type {number} */ this.height = 0;
+    
     this.ele.querySelectorAll('g>rect').forEach( r => {
+//      let x = Number.parseFloat(r.getAttribute('x'));
+      let x = Number(r.getAttribute('x'))
+      x = 10 + (x * 67);
+//      let y = Number.parseFloat(r.getAttribute('y'));
+      let y = Number(r.getAttribute('y'))
+      y = 10 + (y * 100);    
       Util.setAttributesNS(r, {
-        height: String(Constants.CARD_HEIGHT),
+        x: x,
+        y: y,
         width: String(Constants.CARD_WIDTH),
+        height: String(Constants.CARD_HEIGHT),
         rx: String(Constants.CARD_RADIUS),
         ry: String(Constants.CARD_RADIUS)
       });
-      let x = Number.parseInt(r.getAttribute('x'), 10) || 0;
       if ( x > this.gutsWidth_ ) {
         this.gutsWidth_ = x;
       }

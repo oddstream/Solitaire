@@ -10,17 +10,17 @@
 </script>
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-    <g class="Stock"><rect x="10" y="10"></rect></g>
+    <g class="Stock"><rect x="0" y="0"></rect></g>
 
-    <g class="TableauTail" deal="u"><rect x="10" y="10"></rect></g>
-    <g class="TableauTail" deal="duuuuu"><rect x="77" y="10"></rect></g>
-    <g class="TableauTail" deal="dduuuuu"><rect x="144" y="10"></rect></g>
-    <g class="TableauTail" deal="ddduuuuu"><rect x="211" y="10"></rect></g>
-    <g class="TableauTail" deal="dddduuuuu"><rect x="278" y="10"></rect></g>
-    <g class="TableauTail" deal="ddddduuuuu"><rect x="345" y="10"></rect></g>
-    <g class="TableauTail" deal="dddddduuuuu"><rect x="412" y="10"></rect></g>
+    <g class="TableauTail" deal="u"><rect x="0" y="0"></rect></g>
+    <g class="TableauTail" deal="duuuuu"><rect x="1" y="0"></rect></g>
+    <g class="TableauTail" deal="dduuuuu"><rect x="2" y="0"></rect></g>
+    <g class="TableauTail" deal="ddduuuuu"><rect x="3" y="0"></rect></g>
+    <g class="TableauTail" deal="dddduuuuu"><rect x="4" y="0"></rect></g>
+    <g class="TableauTail" deal="ddddduuuuu"><rect x="5" y="0"></rect></g>
+    <g class="TableauTail" deal="dddddduuuuu"><rect x="6" y="0"></rect></g>
 
-    <g class="Foundation"><rect x="546" y="10"></rect></g>
-    <g class="Foundation"><rect x="546" y="110"></rect></g>
-    <g class="Foundation"><rect x="546" y="210"></rect></g>
-    <g class="Foundation"><rect x="546" y="310"></rect></g>
+    <g class="Foundation"><rect x="8" y="0"></rect></g>
+    <g class="Foundation"><rect x="8" y="1"></rect></g>
+    <g class="Foundation"><rect x="8" y="2"></rect></g>
+    <g class="Foundation"><rect x="8" y="3"></rect></g>

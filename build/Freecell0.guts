@@ -10,25 +10,25 @@
 </script>
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-    <g class="Cell"><rect x="10" y="10"></rect></g>
-    <g class="Cell"><rect x="77" y="10"></rect></g>
-    <g class="Cell"><rect x="144" y="10"></rect></g>
-    <g class="Cell"><rect x="211" y="10"></rect></g>
+    <g class="Cell"><rect x="0" y="0"></rect></g>
+    <g class="Cell"><rect x="1" y="0"></rect></g>
+    <g class="Cell"><rect x="2" y="0"></rect></g>
+    <g class="Cell"><rect x="3" y="0"></rect></g>
 
-    <g class="Foundation"><rect x="278" y="10"></rect></g>
-    <g class="Foundation"><rect x="345" y="10"></rect></g>
-    <g class="Foundation"><rect x="412" y="10"></rect></g>
-    <g class="Foundation"><rect x="479" y="10"></rect></g>
+    <g class="Foundation"><rect x="4" y="0"></rect></g>
+    <g class="Foundation"><rect x="5" y="0"></rect></g>
+    <g class="Foundation"><rect x="6" y="0"></rect></g>
+    <g class="Foundation"><rect x="7" y="0"></rect></g>
 
-    <g class="Tableau" deal="uuuuuuu"><rect x="10" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuuuu"><rect x="77" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuuuu"><rect x="144" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuuuu"><rect x="211" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="278" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="345" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="412" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="479" y="110"></rect></g>
+    <g class="Tableau" deal="uuuuuuu"><rect x="0" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuuuu"><rect x="1" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuuuu"><rect x="2" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuuuu"><rect x="3" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="4" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="5" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="6" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="7" y="1"></rect></g>
 
     <g class="Stock">
-        <rect x="250" y="-100"></rect>
+        <rect x="1" y="-1"></rect>
     </g>

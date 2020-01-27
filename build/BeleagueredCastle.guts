@@ -12,22 +12,22 @@
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
     <g class="StockKlondike">
-      <rect x="10" y="10"></rect>
+      <rect x="0" y="0"></rect>
     </g>
 
-    <g class="Tableau" deal="uuuuuu"><rect x="10" y="10"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="10" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="10" y="210"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="10" y="310"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="0" y="0"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="0" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="0" y="2"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="0" y="3"></rect></g>
     
     <g class="Foundation" deal="♥01"><rect x="310" y=" 10"></rect></g>
-    <g class="Foundation" deal="♦01"><rect x="310" y="110"></rect></g>
-    <g class="Foundation" deal="♣01"><rect x="310" y="210"></rect></g>
-    <g class="Foundation" deal="♠01"><rect x="310" y="310"></rect></g>
+    <g class="Foundation" deal="♦01"><rect x="310" y="1"></rect></g>
+    <g class="Foundation" deal="♣01"><rect x="310" y="2"></rect></g>
+    <g class="Foundation" deal="♠01"><rect x="310" y="3"></rect></g>
 
     <g class="Tableau" deal="uuuuuu"><rect x="410" y=" 10"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="410" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="410" y="210"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="410" y="310"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="410" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="410" y="2"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="410" y="3"></rect></g>
 
     <g><rect x="610" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->

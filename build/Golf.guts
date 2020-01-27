@@ -9,16 +9,16 @@
 </script>
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-    <g class="TableauGolf" deal="uuuuu"><rect x="10" y="10"></rect></g>
-    <g class="TableauGolf" deal="uuuuu"><rect x="77" y="10"></rect></g>
-    <g class="TableauGolf" deal="uuuuu"><rect x="144" y="10"></rect></g>
-    <g class="TableauGolf" deal="uuuuu"><rect x="211" y="10"></rect></g>
-    <g class="TableauGolf" deal="uuuuu"><rect x="278" y="10"></rect></g>
-    <g class="TableauGolf" deal="uuuuu"><rect x="345" y="10"></rect></g>
-    <g class="TableauGolf" deal="uuuuu"><rect x="412" y="10"></rect></g>
+    <g class="TableauGolf" deal="uuuuu"><rect x="0" y="0"></rect></g>
+    <g class="TableauGolf" deal="uuuuu"><rect x="1" y="0"></rect></g>
+    <g class="TableauGolf" deal="uuuuu"><rect x="2" y="0"></rect></g>
+    <g class="TableauGolf" deal="uuuuu"><rect x="3" y="0"></rect></g>
+    <g class="TableauGolf" deal="uuuuu"><rect x="4" y="0"></rect></g>
+    <g class="TableauGolf" deal="uuuuu"><rect x="5" y="0"></rect></g>
+    <g class="TableauGolf" deal="uuuuu"><rect x="6" y="0"></rect></g>
 
     <g class="StockGolf">
-      <rect x="10" y="310"></rect>
+      <rect x="0" y="3"></rect>
     </g>
 
-    <g class="Foundation" deal="u"><rect x="77" y="310"></rect></g>
+    <g class="Foundation" deal="u"><rect x="1" y="3"></rect></g>

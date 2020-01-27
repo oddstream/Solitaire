@@ -12,32 +12,32 @@
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
     <g class="Stock">
-      <rect x="10" y="-110"></rect>
+      <rect x="0" y="-1"></rect>
     </g>
-    <g><rect x="1200" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->
+    <g><rect x="12" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->
 
-    <g class="Foundation"><rect x="210" y="10"></rect></g>
-    <g class="Foundation"><rect x="410" y="10"></rect></g>
-    <g class="Foundation"><rect x="610" y="10"></rect></g>
-    <g class="Foundation"><rect x="810" y="10"></rect></g>
+    <g class="Foundation"><rect x="2" y="0"></rect></g>
+    <g class="Foundation"><rect x="4" y="0"></rect></g>
+    <g class="Foundation"><rect x="6" y="0"></rect></g>
+    <g class="Foundation"><rect x="8" y="0"></rect></g>
 
-    <g class="TableauTail" deal="uuu"><rect x="10"  y="110"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="210" y="110"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="410" y="110"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="610" y="110"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="810" y="110"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="1010" y="110"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="0"  y="1"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="2" y="1"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="4" y="1"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="6" y="1"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="8" y="1"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="10" y="1"></rect></g>
 
-    <g class="TableauTail" deal="uuu"><rect x="10"  y="210"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="210" y="210"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="410" y="210"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="610" y="210"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="810" y="210"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="1010" y="210"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="0"  y="2"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="2" y="2"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="4" y="2"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="6" y="2"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="8" y="2"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="10" y="2"></rect></g>
 
-    <g class="TableauTail" deal="uuu"><rect x="10"  y="310"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="210" y="310"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="410" y="310"></rect></g>
-    <g class="TableauTail" deal="uuu"><rect x="610" y="310"></rect></g>
-    <g class="TableauTail" deal="uu" ><rect x="810" y="310"></rect></g>
-    <g class="TableauTail" deal="uu" ><rect x="1010" y="310"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="0"  y="3"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="2" y="3"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="4" y="3"></rect></g>
+    <g class="TableauTail" deal="uuu"><rect x="6" y="3"></rect></g>
+    <g class="TableauTail" deal="uu" ><rect x="8" y="3"></rect></g>
+    <g class="TableauTail" deal="uu" ><rect x="10" y="3"></rect></g>

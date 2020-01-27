@@ -11,17 +11,17 @@
 </script>
   
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-    <g class="StockKlondike"><rect x="10" y="10"></rect></g>
-    <g class="Waste"><rect x="110" y="10"></rect></g>
+    <g class="StockKlondike"><rect x="0" y="0"></rect></g>
+    <g class="Waste"><rect x="1" y="0"></rect></g>
 
-    <g class="Reserve" deal="dddu"><rect x="10" y="110"></rect></g>
-    <g class="Reserve" deal="dddu"><rect x="10" y="210"></rect></g>
-    <g class="Reserve" deal="dddu"><rect x="10" y="310"></rect></g>
-    <g class="Reserve" deal="dddu"><rect x="10" y="410"></rect></g>
+    <g class="Reserve" deal="dddu"><rect x="0" y="1"></rect></g>
+    <g class="Reserve" deal="dddu"><rect x="0" y="2"></rect></g>
+    <g class="Reserve" deal="dddu"><rect x="0" y="3"></rect></g>
+    <g class="Reserve" deal="dddu"><rect x="0" y="4"></rect></g>
 
-    <g class="FoundationOsmosis" deal="u"><rect x="160" y="110"></rect></g>
-    <g class="FoundationOsmosis"><rect x="160" y="210"></rect></g>
-    <g class="FoundationOsmosis"><rect x="160" y="310"></rect></g>
-    <g class="FoundationOsmosis"><rect x="160" y="410"></rect></g>
+    <g class="FoundationOsmosis" deal="u"><rect x="2" y="1"></rect></g>
+    <g class="FoundationOsmosis"><rect x="2" y="2"></rect></g>
+    <g class="FoundationOsmosis"><rect x="2" y="3"></rect></g>
+    <g class="FoundationOsmosis"><rect x="2" y="4"></rect></g>
 
-    <g><rect x="600" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->
+    <g><rect x="6" y="0" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->

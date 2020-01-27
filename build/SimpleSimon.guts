@@ -11,21 +11,21 @@
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
     <g class="Stock">
-      <rect x="10" y="10"></rect>
+      <rect x="0" y="0"></rect>
     </g>
 
-    <g class="FoundationSpider"><rect x="412" y="10"></rect></g>
-    <g class="FoundationSpider"><rect x="479" y="10"></rect></g>
-    <g class="FoundationSpider"><rect x="546" y="10"></rect></g>
-    <g class="FoundationSpider"><rect x="613" y="10"></rect></g>
+    <g class="FoundationSpider"><rect x="6" y="0"></rect></g>
+    <g class="FoundationSpider"><rect x="7" y="0"></rect></g>
+    <g class="FoundationSpider"><rect x="8" y="0"></rect></g>
+    <g class="FoundationSpider"><rect x="9" y="0"></rect></g>
 
-    <g class="TableauSpider" deal="uuuuuuuu"><rect x="10" y="110"></rect></g>
-    <g class="TableauSpider" deal="uuuuuuuu"><rect x="77" y="110"></rect></g>
-    <g class="TableauSpider" deal="uuuuuuuu"><rect x="144" y="110"></rect></g>
-    <g class="TableauSpider" deal="uuuuuuu"><rect x="211" y="110"></rect></g>
-    <g class="TableauSpider" deal="uuuuuu"><rect x="278" y="110"></rect></g>
-    <g class="TableauSpider" deal="uuuuu"><rect x="345" y="110"></rect></g>
-    <g class="TableauSpider" deal="uuuu"><rect x="412" y="110"></rect></g>
-    <g class="TableauSpider" deal="uuu"><rect x="479" y="110"></rect></g>
-    <g class="TableauSpider" deal="uu"><rect x="546" y="110"></rect></g>
-    <g class="TableauSpider" deal="u"><rect x="613" y="110"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="0" y="1"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="1" y="1"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="2" y="1"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuu"><rect x="3" y="1"></rect></g>
+    <g class="TableauSpider" deal="uuuuuu"><rect x="4" y="1"></rect></g>
+    <g class="TableauSpider" deal="uuuuu"><rect x="5" y="1"></rect></g>
+    <g class="TableauSpider" deal="uuuu"><rect x="6" y="1"></rect></g>
+    <g class="TableauSpider" deal="uuu"><rect x="7" y="1"></rect></g>
+    <g class="TableauSpider" deal="uu"><rect x="8" y="1"></rect></g>
+    <g class="TableauSpider" deal="u"><rect x="9" y="1"></rect></g>

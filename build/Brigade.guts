@@ -11,36 +11,36 @@
   
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
 
-    <g class="Foundation" deal="♥01"><rect x="211" y="10"></rect></g>
-    <g class="Foundation" deal="♦01"><rect x="278" y="10"></rect></g>
-    <g class="Foundation" deal="♣01"><rect x="345" y="10"></rect></g>
-    <g class="Foundation" deal="♠01"><rect x="412" y="10"></rect></g>
+    <g class="Foundation" deal="♥01"><rect x="3" y="0"></rect></g>
+    <g class="Foundation" deal="♦01"><rect x="4" y="0"></rect></g>
+    <g class="Foundation" deal="♣01"><rect x="5" y="0"></rect></g>
+    <g class="Foundation" deal="♠01"><rect x="6" y="0"></rect></g>
 
-    <g class="Tableau" deal="uuuuu"><rect x= "10" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x= "77" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x="144" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x="211" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x="278" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x="345" y="110"></rect></g>
-    <g class="Tableau" deal="uuuuu"><rect x="412" y="110"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x= "10" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x= "77" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="2" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="3" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="4" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="5" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuu"><rect x="6" y="1"></rect></g>
 
-    <g class="Reserve" deal="u"><rect x="546" y="10"></rect></g>
-    <g class="Reserve" deal="u"><rect x="546" y="110"></rect></g>
-    <g class="Reserve" deal="u"><rect x="546" y="210"></rect></g>
-    <g class="Reserve" deal="u"><rect x="546" y="310"></rect></g>
+    <g class="Reserve" deal="u"><rect x="8" y="0"></rect></g>
+    <g class="Reserve" deal="u"><rect x="8" y="1"></rect></g>
+    <g class="Reserve" deal="u"><rect x="8" y="2"></rect></g>
+    <g class="Reserve" deal="u"><rect x="8" y="3"></rect></g>
     
-    <g class="Reserve" deal="u"><rect x="613" y="10"></rect></g>
-    <g class="Reserve" deal="u"><rect x="613" y="110"></rect></g>
-    <g class="Reserve" deal="u"><rect x="613" y="210"></rect></g>
-    <g class="Reserve" deal="u"><rect x="613" y="310"></rect></g>
+    <g class="Reserve" deal="u"><rect x="9" y="0"></rect></g>
+    <g class="Reserve" deal="u"><rect x="9" y="1"></rect></g>
+    <g class="Reserve" deal="u"><rect x="9" y="2"></rect></g>
+    <g class="Reserve" deal="u"><rect x="9" y="3"></rect></g>
     
-    <g class="Reserve" deal="u"><rect x="680" y="10"></rect></g>
-    <g class="Reserve" deal="u"><rect x="680" y="110"></rect></g>
-    <g class="Reserve" deal="u"><rect x="680" y="210"></rect></g>
-    <g class="Reserve" deal="u"><rect x="680" y="310"></rect></g>
+    <g class="Reserve" deal="u"><rect x="10" y="0"></rect></g>
+    <g class="Reserve" deal="u"><rect x="10" y="1"></rect></g>
+    <g class="Reserve" deal="u"><rect x="10" y="2"></rect></g>
+    <g class="Reserve" deal="u"><rect x="10" y="3"></rect></g>
 
-    <g class="Reserve" deal="u"><rect x="613" y="410"></rect></g>
+    <g class="Reserve" deal="u"><rect x="9" y="4"></rect></g>
 
     <g class="Stock">
-        <rect x="250" y="-100"></rect>
+        <rect x="1" y="-1"></rect>
     </g>

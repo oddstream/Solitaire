@@ -1,0 +1,25 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Single Rail",
+  "Wikipedia":"https://www.solitaire.io/solitaire/experimental-solitaire-sultans-guard/",
+  "Stock":{"packs":1, "redeals":0},
+  "Foundation":{"suit":2, "rank":1, "accept":1},
+  "Tableau":{"build":{"suit":1, "rank":2}, "move":{"suit":1, "rank":2 }}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="StockKlondike">
+      <rect x="0" y="0"></rect>
+    </g>
+    <g class="Waste"><rect x="1" y="0"></rect></g>
+
+    <g class="Foundation"><rect x="3" y="0"></rect></g>
+    <g class="Foundation"><rect x="4" y="0"></rect></g>
+    <g class="Foundation"><rect x="5" y="0"></rect></g>
+    <g class="Foundation"><rect x="6" y="0"></rect></g>
+
+    <g class="TableauTail" deal="u"><rect x="3" y="1"></rect></g>
+    <g class="TableauTail" deal="u"><rect x="4" y="1"></rect></g>
+    <g class="TableauTail" deal="u"><rect x="5" y="1"></rect></g>
+    <g class="TableauTail" deal="u"><rect x="6" y="1"></rect></g>

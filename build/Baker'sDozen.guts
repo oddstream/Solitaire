@@ -10,23 +10,23 @@
 </script>
 
 <svg id="baize" xmlns="http://www.w3.org/2000/svg">
-    <g class="Stock"><rect x="10" y="10"></rect></g>
+    <g class="Stock"><rect x="0" y="0"></rect></g>
     
-    <g class="Foundation"><rect x="613" y="10"></rect></g>
-    <g class="Foundation"><rect x="680" y="10"></rect></g>
-    <g class="Foundation"><rect x="747" y="10"></rect></g>
-    <g class="Foundation"><rect x="814" y="10"></rect></g>
+    <g class="Foundation"><rect x="9" y="0"></rect></g>
+    <g class="Foundation"><rect x="10" y="0"></rect></g>
+    <g class="Foundation"><rect x="11" y="0"></rect></g>
+    <g class="Foundation"><rect x="12" y="0"></rect></g>
 
-    <g class="Tableau" deal="uuuu"><rect x="10"  y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="77"  y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="144" y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="211" y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="278" y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="345" y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="412" y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="479" y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="546" y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="613" y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="680" y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="747" y="110"></rect></g>
-    <g class="Tableau" deal="uuuu"><rect x="814" y="110"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="0"  y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="1"  y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="2" y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="3" y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="4" y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="5" y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="6" y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="7" y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="8" y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="9" y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="10" y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="11" y="1"></rect></g>
+    <g class="Tableau" deal="uuuu"><rect x="12" y="1"></rect></g>
