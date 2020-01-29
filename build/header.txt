@@ -44,9 +44,9 @@
     </ul>
     <a id="nav-title" class="brand-logo hide-on-small-only"></a>
     <ul class="right">
-        <li><a onclick="undoer.undo()"><i class="material-icons tooltipped noselect" data-position="bottom" data-tooltip="Undo">undo</i></a></li>
-        <li><a id="moveCounter" onclick="doshowavailablemoves()" class="tooltipped noselect" data-position="bottom" data-tooltip="Moves"></a></li>
-        <li><a onclick="doshowrules()"><i class="material-icons tooltipped noselect" data-position="bottom" data-tooltip="Rules">assignment</i></a></li>
+        <li><a onclick="window.doundo()"><i class="material-icons tooltipped noselect" data-position="bottom" data-tooltip="Undo">undo</i></a></li>
+        <li><a id="moveCounter" onclick="window.doshowavailablemoves()" class="tooltipped noselect" data-position="bottom" data-tooltip="Moves"></a></li>
+        <li><a onclick="window.doshowrules()"><i class="material-icons tooltipped noselect" data-position="bottom" data-tooltip="Rules">assignment</i></a></li>
         <li><a href="faq.html" target="_blank" rel="noopener" class="tooltipped noselect" data-position="bottom" data-tooltip="FAQ"><i class="material-icons">info</i></a></li>
     </ul>
     </div>
@@ -59,13 +59,13 @@
       <h4 id="sidenav-title">&nbsp;</h4>
       <p id="sidenav-info">&nbsp;</p>
     </div></li>
-    <li><a class="waves-effect sidenav-close" onclick="areYouSure('dostar')"><i class="material-icons">star</i>New deal</a></li>
-    <li><a class="waves-effect sidenav-close" onclick="dostarseed()"><i class="material-icons">star_border</i>Specify deal...</a></li>
-    <li><a class="waves-effect sidenav-close" onclick="areYouSure('doreplay')"><i class="material-icons">replay</i>Replay this deal</a></li>
-    <li><a class="waves-effect sidenav-close" href="index.html"><i class="material-icons">apps</i>Find new game</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="window.areYouSure('window.dostar')"><i class="material-icons">star</i>New deal</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="window.dostarseed()"><i class="material-icons">star_border</i>Specify deal...</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="window.areYouSure('window.doreplay')"><i class="material-icons">replay</i>Replay this deal</a></li>
+    <li><a class="waves-effect sidenav-close" href="chooser.html"><i class="material-icons">apps</i>Find new game</a></li>
     <li><div class="divider"></div></li>
-    <li><a class="waves-effect sidenav-close" onclick="dosave()"><i class="material-icons">save</i>Save this position</a></li>
-    <li><a class="waves-effect sidenav-close" onclick="doload()"><i class="material-icons">restore</i>Load last saved position</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="window.dosave()"><i class="material-icons">save</i>Save this position</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="window.doload()"><i class="material-icons">restore</i>Load last saved position</a></li>
     <li><div class="divider"></div></li>
     <li><a class="waves-effect modal-trigger sidenav-close" href="#modalStatistics"><i class="material-icons">assessment</i>Statistics...</a></li>
     <li><a class="waves-effect modal-trigger sidenav-close" href="#modalSettings"><i class="material-icons">settings</i>Settings...</a></li>

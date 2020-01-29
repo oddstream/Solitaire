@@ -38,7 +38,7 @@
     </div>
     <div class="modal-footer">
       <a class="modal-close btn-small steelblue noselect" onclick="dostarseeddeal()">Deal</a>
-      <a class="modal-close btn-small steelblue noselect" ">Cancel</a>
+      <a class="modal-close btn-small steelblue noselect">Cancel</a>
     </div>
 </div>
 
@@ -49,7 +49,7 @@
       <p id="gamesPlayedStats"></p>
       <p id="gamesStreakStats"></p>
       <p id="gamesTotalStats"></p>
-      <a class="modal-close noselect" onclick="areYouSure('dostatsreset')">reset statistics for this game</a>
+      <a class="modal-close noselect" onclick="areYouSure('window.dostatsreset')">reset statistics for this game</a>
     </div>
 </div>
   
@@ -88,7 +88,7 @@ M.Modal.init(document.querySelectorAll('.modal'));
 M.Tooltip.init(document.querySelectorAll('.tooltipped'));
 </script>
 <!-- <script type="text/javascript" src="https://unpkg.com/dropbox/dist/Dropbox-sdk.min.js"></script> -->
-<script type="text/javascript" src="Solitaire.js"></script>
+<script type="module" src="./Solitaire.js"></script>
 
 </body>
 </html>

@@ -3,7 +3,6 @@
 # except ones which are maintained by hand
 !faq.html
 !index.html
-!db.html
 
 # ignore old gulp node_modules folder
 node_modules/*
