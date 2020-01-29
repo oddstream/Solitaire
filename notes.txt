@@ -24,7 +24,8 @@ Class Mover
 
 const tallyMan = new Mover;
 
-class Undoer
+class Undoer {}
+undoer = new Undoer;
 
 function GameManager:undoPush()
   table.insert(self.undoStack, self:_getSavedGame())

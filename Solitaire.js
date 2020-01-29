@@ -171,155 +171,82 @@ const /** Array<CardContainer> */cardContainers = [];
 let /** @type {KeyFocus} */keyFocus = null;
 const baize = new Baize;
 
-const undoStack = {}
+let undoStack = []  // can't be a const because we load game
 
-function undoPush() {
-  const sv = new Saved()
-  undoStack.push(sv)
+/**
+ * Move a number of cards from this stack to another stack
+ * @param {!CardContainer} from 
+ * @param {!CardContainer} to 
+ * @param {!number} n
+ */
+function moveCards(from, to, n) {
+  undoPush()
+  if ( 0 == n ) {
+    console.error('moveCards(0)');
+  } else if ( 1 == n && from.length() > 0 ) {
+    console.assert(from.peek())
+    const c = from.pop();
+    to.push(c);
+  } else {
+    const tmp = [];
+    while ( n > 0 ) {
+      if ( from.peek() ) {
+        tmp.push(from.pop());
+      }
+      n = n - 1;
+    }
+    while ( tmp.length ) {
+      to.push(tmp.pop());
+    }
+  }
+  robot();
+}
+
+function undoCounter() {
   const ele = document.getElementById('moveCounter');
   if ( ele ) {
     ele.innerHTML = String(undoStack.length);
   }
+}
+
+function undoPush() {
+  const sv = new Saved();
+  undoStack.push(sv);
+  undoCounter();
 }
 
 function undoPop() {
-  const sv = undoStack.pop()
-  const ele = document.getElementById('moveCounter');
-  if ( ele ) {
-    ele.innerHTML = String(undoStack.length);
-  }
-  return sv
+  const sv = undoStack.pop();
+  undoCounter();
+  return sv;
 }
 
 function undoReset() {
-  undoStack.length = 0
+  undoStack.length = 0;
+  undoCounter();
 }
-
-class Mover {
-  constructor() {
-    /** @private */ this.zzzz_ = false;
-    this.count = 0;
-  }
-
-  /**
-   * 
-   * @param {number} newCount 
-   */
-  set(newCount) {
-    this.count = newCount;
-    const ele = document.getElementById('moveCounter');
-    if ( ele ) {
-      ele.innerHTML = String(this.count);
-    }
-  }
-
-  reset() {
-    this.set(0);
-  }
-
-  sleep(f) {
-    this.zzzz_ = true;
-    f();
-    this.zzzz_ = false;
-    this.increment();
-  }
-
-  increment() {
-    if ( !this.zzzz_ ) {
-      this.set(this.count + 1);
-      window.setTimeout(robot);
-    }
-  }
-
-  decrement() {
-    if ( !this.zzzz_ ) {
-      this.set(this.count - 1);
-    }
-  }
-}
-
-const tallyMan = new Mover;
-
-class Undoer {
-  constructor() {
-    this.moves = [];
-    this.undoing = false;
-  }
-
-  reset() {
-    this.moves.length = 0;
-  }
-
-  makeCopy() {
-    return JSON.parse(JSON.stringify(this.moves));
-  }
-
-  load(obj) {
-    this.moves = JSON.parse(JSON.stringify(obj));
-  }
-
-  /**
-   * @param {!CardContainer} f
-   * @param {!CardContainer} t
-   * @param {!Number} c
-   */
-  push(f, t, c) {
-    if ( !this.undoing ) {
-      this.moves.push({move:tallyMan.count,
-        from:cardContainers.findIndex(e => e === f),
-        to:cardContainers.findIndex(e => e === t),
-        count:c});
-    }
-  }
-
-  undo() {
-    if ( 0 === this.moves.length ) {
-      displayToast('nothing to undo');
-      return;
-    }
-  
-    this.undoing = true;
-  
-    const moveToUndo = this.moves[this.moves.length-1].move;
-    const moveArray = this.moves.filter( e => e.move === moveToUndo );  // not .reverse()
-  
-    while ( moveArray.length ) {
-      const u = moveArray.pop();
-  
-      if ( u.hasOwnProperty('from') && u.hasOwnProperty('to') ) {
-        const src = cardContainers[u.from];
-        const dst = cardContainers[u.to];
-  
-        let n = 1;
-        if ( u.count ) {
-          n = u.count;
-        }
-        let tmp = [];
-        while ( n-- ) {
-          tmp.push(dst.pop());
-        }
-        while ( tmp.length ) {
-          const c = tmp.pop();
-          // console.log(c, 'going from', dst, 'to', src);
-          src.push(c);
-        }
-      } else {
-        console.error('unknown undo', u);
-      }
-    }
-    this.moves = this.moves.filter( e => e.move !== moveToUndo );
-    this.undoing = false;
-    tallyMan.set(moveToUndo);
-    // calling robot() here will cause an autoMove/autoCollect loop
-    allAvailableMoves(); // repaint moveable cards
-    scrunchContainers();
-  }
-}
-
-const undoer = new Undoer();
 
 window.doundo = function() {
-  undoer.undo()
+  if ( undoStack.length == 0 ) {
+    displayToast('nothing to undo');
+    return;
+  }
+  const saved = undoPop();
+  // TODO look at function restart(seed=undefined) to animate cards
+  for ( let i=0; i<cardContainers.length; i++ ) {
+    cardContainers[i].load(saved.containers[i]);  // calls Card.destructor
+  }
+  gameState[rules.Name].seed = saved.seed;
+  if ( saved.hasOwnProperty('redeals') ) {
+    stock.redeals = saved.redeals;
+  } else {
+    stock.redeals = null;
+  }
+  stock.updateRedealsSVG_();
+  scrunchContainers();
+  checkIfGameOver();
+  allAvailableMoves(); // repaint moveable cards
+  scrunchContainers();
 }
 
 // https://stackoverflow.com/questions/20368071/touch-through-an-element-in-a-browser-like-pointer-events-none/20387287#20387287
@@ -862,46 +789,13 @@ class Card {
   }
 
   /**
-   * Move top card if this stack to another stack
-   * @param {!CardContainer} to
-   * 
-   * TODO method probably belongs in CardContainer
-   */
-  moveTop(to) {
-    const from = this.owner;
-    undoer.push(from, to, 1);  // record undo before pop
-    tallyMan.increment();
-    from.pop();
-    to.push(this);
-  }
-
-  /**
-   * Move a number of cards from this stack to another stack
-   * @param {!CardContainer} to 
-   * @param {!number} n2move 
-   */
-  moveSome(to, n2move) {
-    const from = this.owner;
-    const tmp = [];
-    for ( let n=0; n<n2move; n++ ) {
-      if ( from.peek() )
-        tmp.push(from.pop());
-    }
-    const nCardsMoved = tmp.length;
-    while ( tmp.length ) {
-      to.push(tmp.pop());
-    }
-    undoer.push(from, to, nCardsMoved);
-    tallyMan.increment();
-  }
-
-  /**
    * Move cards from this card to end of stack (the tail) to another stack
    * @param {!CardContainer} to 
    */
   moveTail(to) {
     const nCard = this.owner.cards.findIndex( e => e === this );
-    this.moveSome(to, this.owner.cards.length-nCard);
+    moveCards(this.owner, to, this.owner.cards.length-nCard);
+    // this.moveSome(to, this.owner.cards.length-nCard);
   }
 
   /**
@@ -1147,6 +1041,13 @@ class CardContainer {
         this.push(c);
       });
     }
+  }
+
+  /**
+   * @returns {number}
+   */
+  length() {
+    return this.cards.length;
   }
 
   /**
@@ -1564,7 +1465,7 @@ class Cell extends CardContainer {
     if ( !cc )
       cc = c.findFullestAcceptingContainer(tableaux);
     if ( cc )
-      c.moveTop(cc);
+      moveCards(this, cc, 1);
     else
       c.shake();
   }
@@ -1613,12 +1514,10 @@ class CellCarpet extends Cell {
    */
   autoMove() {
     if ( 0 === this.cards.length ) {
-      let c = waste.peek();
-      if ( !c )
-        c = stock.peek();
-      if ( c ) {
-        tallyMan.decrement();
-        c.moveTop(this);
+      if ( waste.length() > 0 ) {
+        moveCards(waste, this, 1);
+      } else if ( stock.length() > 0 ) {
+        moveCards(stock, this, 1);
       }
     }
   }
@@ -1695,7 +1594,7 @@ class Reserve extends CardContainer {
     if ( !cc )
       cc = c.findFullestAcceptingContainer(tableaux);
     if ( cc )
-      c.moveTop(cc);
+      moveCards(this, cc, 1);
     else
       c.shake();
   }
@@ -1879,20 +1778,18 @@ class Stock extends CardContainer {
     if ( Number.isInteger(this.redeals) ) {
       this.redeals -= 1;
       this.updateRedealsSVG_();
-      undoer.reset();
     }
   }
 
   clickOnEmpty() {
     if ( waste && this.redealsAvailable() ) {
-      tallyMan.sleep( () => {
-        while ( waste.cards.length ) {
-          const c = waste.cards.pop(); // low level pop to bypass 3-card shuffle
-          stock.push(c);
-          undoer.push(waste,stock,1);
-        }
-        this.decreaseRedeals();
-      });
+      undoPush();
+      while ( waste.cards.length ) {
+        const c = waste.cards.pop(); // low level pop to bypass 3-card shuffle
+        stock.push(c);
+        undoPop();
+      }
+      this.decreaseRedeals();
     }
   }
 
@@ -1980,7 +1877,8 @@ class StockKlondike extends Stock {
     // override to move 1 or 3 cards at once to waste; kludge (rule peeking)
     if ( Number.isInteger(rules.Waste.maxcards) && !(waste.cards.length < rules.Waste.maxcards) )
       return;
-    c.moveSome(waste, this.rules.cards);
+    moveCards(this, waste, this.rules.cards);
+    // c.moveSome(waste, this.rules.cards);
   }
 
   /**
@@ -1999,14 +1897,13 @@ class StockAgnes extends Stock {
    * @param {Card} c 
    */
   onclick(c) {
-    tallyMan.sleep( () => {
-      for ( const r of reserves ) {
-        const c = this.peek();
-        if ( !c )
-          break;
-        c.moveTop(r);
+    undoPush();
+    for ( const r of reserves ) {
+      if ( r.length() > 0 ) {
+        moveCards(this, r, 1);
+        undoPop();
       }
-    });
+    }
   }
 
   /**
@@ -2025,14 +1922,13 @@ class StockScorpion extends Stock {
    * @param {Card} c 
    */
   onclick(c) {
-    tallyMan.sleep( () => {
-      for ( const t of tableaux ) {
-        const c = this.peek();
-        if ( !c )
-          break;
-        c.moveTop(t);
+    undoPush();
+    for ( const t of tableaux ) {
+      if ( t.length() > 0 ) {
+        moveCards(this, t, 1);  // this pushes an entry onto undoStack, so ...
+        undoPop();  // ... take it off so all moves count as one
       }
-    });
+    }
   }
 
   /**
@@ -2067,14 +1963,13 @@ class StockSpider extends Stock {
         return;
       }
     }
-    tallyMan.sleep( () => {
-      for ( const t of tableaux ) {
-        const c = this.peek();
-        if ( !c )
-          break;
-        c.moveTop(t);
+    undoPush();
+    for ( const t of tableaux ) {
+      if ( t.length() > 0 ) {
+        moveCards(this, t, 1);
+        undoPop();
       }
-    });
+    }
   }
 
   /**
@@ -2100,7 +1995,7 @@ class StockGolf extends Stock {
    * @param {Card} c 
    */
   onclick(c) {
-    c.moveTop(foundations[0]);
+    moveCards(this, foundations[0], 1);
   }
 
   /**
@@ -2194,16 +2089,14 @@ class StockCruel extends Stock
 
   clickOnEmpty() {
     if ( this.redealsAvailable() ) {
+      undoPush();
       const tmp = this.part1_();
       this.part2_(tmp);
       this.part3_();
 
-      undoer.reset();
-
-      if ( 1 === allAvailableMoves() )   // repaint moveable cards
+      if ( 1 === allAvailableMoves() ) {  // repaint moveable cards
         displayToastNoAvailableMoves();
-      else
-        tallyMan.increment();
+      }
 
       this.decreaseRedeals();
     }
@@ -2239,6 +2132,7 @@ class StockFan extends Stock {
 
   clickOnEmpty() {
     if ( this.redealsAvailable() ) {
+      undoPush();
       // move all cards back to stock, can't use pop and push
       // because that will register in undo
       tableaux.forEach( t => {
@@ -2256,18 +2150,15 @@ class StockFan extends Stock {
       const oldSeed = gameState[rules.Name].seed;
       stock.sort(123456);         // just some made up, reproduceable seed
       gameState[rules.Name].seed = oldSeed;   // sort(n) over-writes this
-      undoer.reset();                  // can't undo a jumble
 
       tableaux.forEach( t => {
         window.setTimeout( () => t.deal(), 0 );
       });
 
       waitForCards().then ( () => {
-        if ( 1 === allAvailableMoves() )   // repaint moveable cards
+        if ( 1 === allAvailableMoves() ) {  // repaint moveable cards
           displayToastNoAvailableMoves();
-        else
-          tallyMan.increment();
-
+        }
         this.decreaseRedeals();
       });
     }
@@ -2388,7 +2279,7 @@ class Waste extends CardContainer {
     if ( !cc )
       cc = c.findFullestAcceptingContainer(cells);      // Carpet
     if ( cc )
-      c.moveTop(cc);
+      moveCards(this, cc, 1);
     else
       c.shake();
   }
@@ -2485,6 +2376,7 @@ class Foundation extends CardContainer {
    * @param {Card} c
    */
   onclick(c) {
+    // TODO why evenn have this? we never allow play from a foundation
     console.assert(!c.faceDown);
     if ( !settings.playFromFoundation )
       return;
@@ -2492,7 +2384,7 @@ class Foundation extends CardContainer {
       return;
     const cc = c.findFullestAcceptingContainer(tableaux);
     if ( cc )
-      c.moveTop(cc);
+      moveCards(this, cc, 1);
     else
       c.shake();
   }
@@ -2596,7 +2488,7 @@ class Foundation extends CardContainer {
     const collect_ = (c) => {
       if ( c && !c.faceDown ) {
         if ( c.owner.canTarget(this) && this.canAcceptCard(c) && safeCheck_() ) {
-          c.moveTop(this);
+          moveCards(c.owner, this, 1);
           cardsMoved++;
         }
       }
@@ -3023,10 +2915,8 @@ class TableauBlockade extends TableauTail {
    */
   autoMove() {
     if ( 0 === this.cards.length ) {
-      const c = stock.peek();
-      if ( c ) {
-        tallyMan.decrement();
-        c.moveTop(this);
+      if ( stock.length() > 0 ) {
+        moveCards(stock, this, 1);
       }
     }
   }
@@ -3055,12 +2945,8 @@ class TableauFortunesFavor extends Tableau {
    */
   autoMove() {
     if ( 0 === this.cards.length ) {
-      let c = waste.peek();
-      if ( !c )
-        c = stock.peek();
-      if ( c ) {
-        tallyMan.decrement();
-        c.moveTop(this);
+      if ( waste.length() > 0 ) {
+        moveCards(waste, this, 1);
       }
     }
   }
@@ -3086,10 +2972,8 @@ class TableauCanfield extends TableauTail {
    */
   autoMove() {
     if ( 0 === this.cards.length ) {
-      const c = reserves[0].peek();
-      if ( c ) {
-        tallyMan.decrement();
-        c.moveTop(this);
+      if ( reserves[0].length() > 0 ) {
+        moveCards(reserves[0], this, 1);
       }
     }
   }
@@ -3228,7 +3112,7 @@ class TableauGolf extends Tableau {
     // only click top card, which can only go to foundation[0]. always face up
     if ( c.isTopCard() ) {
       if ( foundations[0].canAcceptCard(c) ) {
-        c.moveTop(foundations[0]);
+        moveCards(this, foundations[0], 1);
       } else {
         c.shake();
       }
@@ -3468,7 +3352,7 @@ function gameOver() {
   if ( isComplete() ) {
     console.log('recording stats for won game', GSRN);
     GSRN.totalGames += 1;
-    GSRN.totalMoves += tallyMan.count;
+    GSRN.totalMoves += undoStack.length;
   
     GSRN.gamesWon += 1;
 
@@ -3478,13 +3362,13 @@ function gameOver() {
       GSRN.currStreak += 1;
     if ( GSRN.currStreak > GSRN.bestStreak )
       GSRN.bestStreak = GSRN.currStreak;
-  } else if ( tallyMan.count > 0 ) {
+  } else if ( undoStack.length > 0 ) {
     console.log('recording stats for lost game', GSRN);
     GSRN.totalGames += 1;
-    GSRN.totalMoves += tallyMan.count;
+    GSRN.totalMoves += undoStack.length;
   
     if ( GSRN.currStreak > 0 )
-      GSRN.currStreak = 0;
+      GSRN.currStreak = -1; // bug fix currStreak can never be zero
     else
       GSRN.currStreak -= 1;
     if ( GSRN.currStreak < GSRN.worstStreak )
@@ -3494,8 +3378,9 @@ function gameOver() {
   }
 
   GSRN.modified = Date.now();
-  if ( GSRN.saved )
-    delete GSRN.saved; // either way, start with a new deal
+  if ( GSRN.undoStack ) {
+    GSRN.undoStack = []; // either way, start with a new deal
+  }
 }
 
 /**
@@ -3520,11 +3405,11 @@ function restart(seed=undefined) {
   stock.sort(seed);
   stock.cards.forEach( c => baize.elevateCard(c) );
   stock.redeals = rules.Stock.redeals; // could be null
-  undoer.reset();
-  tallyMan.reset();
+  undoReset();
   foundations.forEach( f => f.scattered = false );
-  if ( gameState[rules.Name].saved )
-    delete gameState[rules.Name].saved; // .saved will now be 'undefined'
+  if ( gameState[rules.Name].undoStack ) {
+    gameState[rules.Name].undoStack = [];
+  }
   dealCards();
 }
 
@@ -3564,8 +3449,8 @@ class Saved {
   constructor() {
     this.seed = gameState[rules.Name].seed;
     this.redeals = stock.redeals;
-    this.moves = tallyMan.count;
-    this.undo = undoer.makeCopy();
+    // this.moves no longer need this
+    // this.undo no longer need this
     this.containers = [];
     for ( let i=0; i<cardContainers.length; i++ ) {
       this.containers[i] = cardContainers[i].getSaveableCards();
@@ -3574,15 +3459,22 @@ class Saved {
 }
 
 window.dosave = function() {
-  gameState[rules.Name].saved = new Saved();
-  displayToast('this position saved');
+  // TODO reimplement this by saving current undoStack.length
+  // gameState[rules.Name].saved = new Saved();
+  // displayToast('this position saved');
 }
 
 /**
  * @return {Boolean}
  */
 window.doload = function() {
-  const gss = gameState[rules.Name].saved;
+  // games are saved by popping current state onto undoStack and saving that
+  undoStack = gameState[rules.Name].undoStack || [];
+  if ( 0 === undoStack.length ) {
+    return false;
+  }
+  const gss = undoPop();
+  // gss will contain seed, redeals, containers
   if ( gss ) {
     // check that saved contains the expected number of cards
     let nCards = 0;
@@ -3604,11 +3496,8 @@ window.doload = function() {
       stock.redeals = null;
     }
     stock.updateRedealsSVG_();
-    tallyMan.set(gss.moves);
-    undoer.load(gss.undo);
     scrunchContainers();
     checkIfGameOver();
-    // delete gss.saved;
     return true;
   } else {
     displayToast('no saved position');
@@ -3665,9 +3554,9 @@ const modalStatisticsFn = M.Modal.getInstance(document.getElementById('modalStat
 modalStatisticsFn.options.onOpenStart = function() {
   const GSRN = gameState[rules.Name];
   if ( isComplete() ) {
-    document.getElementById('thisGameStats').innerHTML = `You won this game of ${rules.Name} (number ${GSRN.seed}) in ${Util.plural(tallyMan.count, 'move')}`;
+    document.getElementById('thisGameStats').innerHTML = `You won this game of ${rules.Name} (number ${GSRN.seed}) in ${Util.plural(undoStack.length, 'move')}`;
   } else {
-    let s = `Moves made: ${tallyMan.count}, moves available: ${allAvailableMoves()}`;
+    let s = `Moves made: ${undoStack.length}, moves available: ${allAvailableMoves()}`;
     if ( !rules.Stock.hidden ) {
       s += `, stock cards: ${stock.cards.length}`;
     }
@@ -3711,12 +3600,12 @@ modalStatisticsFn.options.onCloseEnd = function() {
 const modalGameOverFn = M.Modal.getInstance(document.getElementById('modalGameOver'));
 modalGameOverFn.options.onOpenStart = function() {
   const GSRN = gameState[rules.Name];
-  let s = `You won this game of ${rules.Name} in ${tallyMan.count} moves`;
+  let s = `You won this game of ${rules.Name} in ${undoStack.length} moves`;
   if ( GSRN.gamesWon > 1 ) {
     s = s + `; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
   }
   document.getElementById('movesMade').innerHTML = s;
-  // document.getElementById('movesMade').innerHTML = `You won this game ${rules.Name} in ${tallyMan.count} moves; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
+  // document.getElementById('movesMade').innerHTML = `You won this game ${rules.Name} in ${undoStack.length} moves; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
 };
 
 modalGameOverFn.options.onCloseEnd = function() {
@@ -3816,8 +3705,7 @@ function dealCards() {
   });
   waitForCards()
   .then( () => {
-    undoer.reset();
-    tallyMan.reset();
+    undoReset();
   });
 }
 
@@ -3931,7 +3819,8 @@ document.documentElement.style.setProperty('--hi-color', 'lightgreen');
 
 window.onbeforeunload = function(e) {
   const GSRN = gameState[rules.Name];
-  GSRN.saved = new Saved();
+  undoPush();
+  GSRN.undoStack = undoStack; // GSRN.saved is now ignored/deprecated to avoid loading old saved stuff into undoStack
   GSRN.modified = Date.now();
   try {
     localStorage.setItem(Constants.LOCALSTORAGE_GAMES, JSON.stringify(gameState));
@@ -4025,7 +3914,6 @@ const checkIfGameOver = () => {
         foundations.forEach( f => f.scatter() );
         waitForCards()
         .then( () => {
-          undoer.reset();
           modalGameOverFn.open();
         });
       }
@@ -4285,12 +4173,12 @@ document.addEventListener('keydown', function(/** @type {KeyboardEvent} */kev) {
   }
 });
 
-if ( gameState[rules.Name].saved && settings.loadSaved ) {
-  if ( !doload() ) {
+if ( gameState[rules.Name].undoStack && gameState[rules.Name].undoStack.length > 0 && settings.loadSaved ) {
+  if ( !window.doload() ) {
     stock.createPacks();
     window.onload = dealCards;
   }
-  delete gameState[rules.Name].saved;
+  gameState[rules.Name].undoStack = [];
 } else {
   stock.createPacks();
   window.onload = dealCards;

@@ -1,9 +1,13 @@
 x 2020-01-28 Convert 67-based coords to 1 .. N (need to inject into SVG)
-Copy undo from Opsole
+Copy undo from Opsole, retiring class Undoer and undoer
 Duchess
 Miss Mop
 Store layout once, in JSON, reference from index.html, inject into SVG in solitaire.js
-(A) import Grid from './Grid.js'; export default class Baize {}
-(A) <script defer type="module" src="Words.js"></script>
+x 2020-01-29 import Grid from './Grid.js'; export default class Baize {}
+x 2020-01-29 <script defer type="module" src="Words.js"></script>
 x 2020-01-28 Have to run module version from http://localhost/Solitaire/; Brackets server will not do. so may as well use VSCode
 x 2020-01-28 window.areYouSure = function(fn)
+Retire settings.playFromFoundation
+Retire tallyMan and class Mover
+x 2020-01-29 index.html renamed to chooser.html (and index.js); new index.html redirects to settings.lastGame
+reimplement load/save position using undoStack.length
