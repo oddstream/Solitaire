@@ -64,8 +64,8 @@
     <li><a class="waves-effect sidenav-close" onclick="window.areYouSure('window.doreplay')"><i class="material-icons">replay</i>Replay this deal</a></li>
     <li><a class="waves-effect sidenav-close" href="chooser.html"><i class="material-icons">apps</i>Find new game</a></li>
     <li><div class="divider"></div></li>
-    <li><a class="waves-effect sidenav-close" onclick="window.dosave()"><i class="material-icons">save</i>Save this position</a></li>
-    <li><a class="waves-effect sidenav-close" onclick="window.doload()"><i class="material-icons">restore</i>Load last saved position</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="window.dosaveposition()"><i class="material-icons">save</i>Save this position</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="window.doloadposition()"><i class="material-icons">restore</i>Load last saved position</a></li>
     <li><div class="divider"></div></li>
     <li><a class="waves-effect modal-trigger sidenav-close" href="#modalStatistics"><i class="material-icons">assessment</i>Statistics...</a></li>
     <li><a class="waves-effect modal-trigger sidenav-close" href="#modalSettings"><i class="material-icons">settings</i>Settings...</a></li>

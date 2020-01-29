@@ -7,7 +7,7 @@ import {Util} from './Util.js';
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '20.1.27.0',
+  GAME_VERSION: '20.1.29.2',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -232,21 +232,27 @@ window.doundo = function() {
     return;
   }
   const saved = undoPop();
-  // TODO look at function restart(seed=undefined) to animate cards
-  for ( let i=0; i<cardContainers.length; i++ ) {
-    cardContainers[i].load(saved.containers[i]);  // calls Card.destructor
+
+  // make a cache of all the cards to avoid destroying/creating them
+  const cache = /** @type {Card[]} */([]);
+  for ( const cc of cardContainers ) {
+    for ( const c of cc.cards ) {
+      cache.push(c)
+    }
   }
-  gameState[rules.Name].seed = saved.seed;
+
+  for ( let i=0; i<cardContainers.length; i++ ) {
+    cardContainers[i].load2(cache, saved.containers[i]);  // calls Card.destructor
+  }
   if ( saved.hasOwnProperty('redeals') ) {
     stock.redeals = saved.redeals;
   } else {
     stock.redeals = null;
   }
   stock.updateRedealsSVG_();
-  scrunchContainers();
-  checkIfGameOver();
   allAvailableMoves(); // repaint moveable cards
   scrunchContainers();
+  checkIfGameOver();
 }
 
 // https://stackoverflow.com/questions/20368071/touch-through-an-element-in-a-browser-like-pointer-events-none/20387287#20387287
@@ -1041,6 +1047,33 @@ class CardContainer {
         this.push(c);
       });
     }
+  }
+
+  /**
+   * @param {Card[]} cache
+   * @param {Array} arr
+   */
+  load2(cache, arr) {
+    
+    function findCardInCache(a) {
+      for ( let i=0; i<cache.length; i++ ) {
+        const c = cache[i];
+        if ( a.pack === c.pack && a.suit == c.suit && a.ordinal == c.ordinal ) {
+          return c;
+        }
+      }
+    }
+  
+    this.cards = /** @type {Card[]} */([]);
+    arr.forEach( a => {
+      const c = findCardInCache(a);
+      if ( a.faceDown && !c.faceDown ) {
+        c.flipDown();
+      } else if ( !a.faceDown && c.faceDown ) {
+        c.flipUp();
+      }
+      this.push(c);
+    });
   }
 
   /**
@@ -2376,7 +2409,7 @@ class Foundation extends CardContainer {
    * @param {Card} c
    */
   onclick(c) {
-    // TODO why evenn have this? we never allow play from a foundation
+    // TODO why even have this? we never allow play from a foundation
     console.assert(!c.faceDown);
     if ( !settings.playFromFoundation )
       return;
@@ -3175,7 +3208,8 @@ function countInstances(ccType) {
  * @param {Card} cThis
  * @returns {boolean}
  */
-function isConformant0(rules, cPrev, cThis) {   // TODO clean up this horrible looking code
+function isConformant0(rules, cPrev, cThis) {
+  // written for simplicity and speed, not prettiness
   if ( cPrev.faceDown || cThis.faceDown )
     return false;
 
@@ -3458,51 +3492,60 @@ class Saved {
   }
 }
 
-window.dosave = function() {
-  // TODO reimplement this by saving current undoStack.length
-  // gameState[rules.Name].saved = new Saved();
-  // displayToast('this position saved');
+window.dosaveposition = function() {
+  gameState[rules.Name].savedPosition = undoStack.length;
+  displayToast('this position saved');
+}
+
+window.doloadposition = function() {
+  if ( !gameState[rules.Name].hasOwnProperty('savedPosition') ) {
+    displayToast('no saved position');
+  } else if ( gameState[rules.Name].savedPosition < undoStack.length ) {
+    while ( undoStack.length > gameState[rules.Name].savedPosition ) {
+      window.doundo();
+    }
+    // keep the saved position, it's obviously meaningful to the player
+    // delete gameState[rules.Name].savedPosition;
+  }
 }
 
 /**
+ * Load game from gameState[rules.Name]
+ * 
  * @return {Boolean}
  */
 window.doload = function() {
   // games are saved by popping current state onto undoStack and saving that
-  undoStack = gameState[rules.Name].undoStack || [];
-  if ( 0 === undoStack.length ) {
+  if ( gameState[rules.Name].undoStack.length === 0 ) {
     return false;
   }
+  undoStack = gameState[rules.Name].undoStack;
   const gss = undoPop();
   // gss will contain seed, redeals, containers
-  if ( gss ) {
-    // check that saved contains the expected number of cards
-    let nCards = 0;
-    for ( let i=0; i<gss.containers.length; i++ ) {
-      nCards += gss.containers[i].length;
-    }
-    if ( nCards !== stock.expectedNumberOfCards() ) {
-      displayToast(`found ${nCards} in saved, expected ${stock.expectedNumberOfCards()}`);
-      return false;
-    }
-
-    for ( let i=0; i<cardContainers.length; i++ ) {
-      cardContainers[i].load(gss.containers[i]);
-    }
-    gameState[rules.Name].seed = gss.seed;
-    if ( gss.hasOwnProperty('redeals') ) {
-      stock.redeals = gss.redeals;
-    } else {
-      stock.redeals = null;
-    }
-    stock.updateRedealsSVG_();
-    scrunchContainers();
-    checkIfGameOver();
-    return true;
-  } else {
-    displayToast('no saved position');
+  // check that saved contains the expected number of cards
+  let nCards = 0;
+  for ( let i=0; i<gss.containers.length; i++ ) {
+    nCards += gss.containers[i].length;
+  }
+  if ( nCards !== stock.expectedNumberOfCards() ) {
+    console.log(`found ${nCards} in saved, expected ${stock.expectedNumberOfCards()}`);
+    undoReset();
     return false;
   }
+
+  for ( let i=0; i<cardContainers.length; i++ ) {
+    cardContainers[i].load(gss.containers[i]);
+  }
+  gameState[rules.Name].seed = gss.seed;
+  if ( gss.hasOwnProperty('redeals') ) {
+    stock.redeals = gss.redeals;
+  } else {
+    stock.redeals = null;
+  }
+  stock.updateRedealsSVG_();
+  scrunchContainers();
+  checkIfGameOver();
+  return true;
 }
 
 const modalStarSeedFn = M.Modal.getInstance(document.getElementById('modalStarSeed'));
@@ -3762,6 +3805,7 @@ try {
   settings = {};
   console.error(e);
 }
+if ( !settings ) { settings = {} }
 
 if ( !settings.hasOwnProperty('aniSpeed') )       settings.aniSpeed = 3;
 if ( !settings.hasOwnProperty('autoCollect') )    settings.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
