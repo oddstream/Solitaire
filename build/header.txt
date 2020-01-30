@@ -62,7 +62,7 @@
     <li><a class="waves-effect sidenav-close" onclick="window.areYouSure('window.dostar')"><i class="material-icons">star</i>New deal</a></li>
     <li><a class="waves-effect sidenav-close" onclick="window.dostarseed()"><i class="material-icons">star_border</i>Specify deal...</a></li>
     <li><a class="waves-effect sidenav-close" onclick="window.areYouSure('window.doreplay')"><i class="material-icons">replay</i>Replay this deal</a></li>
-    <li><a class="waves-effect sidenav-close" href="chooser.html"><i class="material-icons">apps</i>Find new game</a></li>
+    <li><a class="waves-effect sidenav-close" onclick="window.dofindnewgame()"><i class="material-icons">apps</i>Find new game</a></li>
     <li><div class="divider"></div></li>
     <li><a class="waves-effect sidenav-close" onclick="window.dosaveposition()"><i class="material-icons">save</i>Save this position</a></li>
     <li><a class="waves-effect sidenav-close" onclick="window.doloadposition()"><i class="material-icons">restore</i>Load last saved position</a></li>

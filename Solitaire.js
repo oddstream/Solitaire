@@ -183,7 +183,7 @@ function moveCards(from, to, n) {
   undoPush()
   if ( 0 == n ) {
     console.error('moveCards(0)');
-  } else if ( 1 == n && from.length() > 0 ) {
+  } else if ( 1 == n && from.cards.length > 0 ) {
     console.assert(from.peek())
     const c = from.pop();
     to.push(c);
@@ -1077,13 +1077,6 @@ class CardContainer {
   }
 
   /**
-   * @returns {number}
-   */
-  length() {
-    return this.cards.length;
-  }
-
-  /**
    * @returns {Card} or undefined
    */
   peek() {
@@ -1403,7 +1396,7 @@ class CardContainer {
 
     if ( rules.fan === 'Down' ) {
       this.stackFactor = Constants.DEFAULT_STACK_FACTOR_Y;
-      const max = rules.maxfan === 0 ? baize.height - this.pt.y : this.pt.y + rules.maxfan;
+      const max = rules.maxfan === 0 ? baize.height - this.pt.y : this.pt.y + (rules.maxfan * 100);
 
       let arr = this.dynamicArrayY_();
       while ( arr[arr.length-1] + Constants.CARD_HEIGHT > max && this.stackFactor < Constants.MAX_STACK_FACTOR ) {
@@ -1418,7 +1411,7 @@ class CardContainer {
       }
     } else if ( rules.fan === 'Right' ) {
       this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;
-      const max = rules.maxfan === 0 ? baize.width - this.pt.x : this.pt.x + rules.maxfan;
+      const max = rules.maxfan === 0 ? baize.width - this.pt.x : this.pt.x + (rules.maxfan * 67);
 
       let arr = this.dynamicArrayX_();
       while ( arr[arr.length-1] + Constants.CARD_WIDTH > max && this.stackFactor < Constants.MAX_STACK_FACTOR ) {
@@ -1547,9 +1540,9 @@ class CellCarpet extends Cell {
    */
   autoMove() {
     if ( 0 === this.cards.length ) {
-      if ( waste.length() > 0 ) {
+      if ( waste.cards.length > 0 ) {
         moveCards(waste, this, 1);
-      } else if ( stock.length() > 0 ) {
+      } else if ( stock.cards.length > 0 ) {
         moveCards(stock, this, 1);
       }
     }
@@ -1932,7 +1925,7 @@ class StockAgnes extends Stock {
   onclick(c) {
     undoPush();
     for ( const r of reserves ) {
-      if ( r.length() > 0 ) {
+      if ( r.cards.length > 0 ) {
         moveCards(this, r, 1);
         undoPop();
       }
@@ -1957,7 +1950,7 @@ class StockScorpion extends Stock {
   onclick(c) {
     undoPush();
     for ( const t of tableaux ) {
-      if ( t.length() > 0 ) {
+      if ( this.cards.length > 0 ) {
         moveCards(this, t, 1);  // this pushes an entry onto undoStack, so ...
         undoPop();  // ... take it off so all moves count as one
       }
@@ -1998,7 +1991,7 @@ class StockSpider extends Stock {
     }
     undoPush();
     for ( const t of tableaux ) {
-      if ( t.length() > 0 ) {
+      if ( this.cards.length > 0 ) {
         moveCards(this, t, 1);
         undoPop();
       }
@@ -2170,7 +2163,7 @@ class StockFan extends Stock {
       // because that will register in undo
       tableaux.forEach( t => {
         stock.cards = stock.cards.concat(t.cards);
-        t.cards = [];
+        t.cards = /** @type {Card[]} */([]);
       });
       stock.cards.forEach( c => {
         c.owner = stock;
@@ -2948,7 +2941,7 @@ class TableauBlockade extends TableauTail {
    */
   autoMove() {
     if ( 0 === this.cards.length ) {
-      if ( stock.length() > 0 ) {
+      if ( stock.cards.length > 0 ) {
         moveCards(stock, this, 1);
       }
     }
@@ -2978,7 +2971,7 @@ class TableauFortunesFavor extends Tableau {
    */
   autoMove() {
     if ( 0 === this.cards.length ) {
-      if ( waste.length() > 0 ) {
+      if ( waste.cards.length > 0 ) {
         moveCards(waste, this, 1);
       }
     }
@@ -3005,7 +2998,7 @@ class TableauCanfield extends TableauTail {
    */
   autoMove() {
     if ( 0 === this.cards.length ) {
-      if ( reserves[0].length() > 0 ) {
+      if ( reserves[0].cards.length > 0 ) {
         moveCards(reserves[0], this, 1);
       }
     }
@@ -3408,7 +3401,7 @@ function gameOver() {
     if ( GSRN.currStreak < GSRN.worstStreak )
       GSRN.worstStreak = GSRN.currStreak;
   } else {
-    console.log('game with no moves');
+    console.log('game over with no moves');
   }
 
   GSRN.modified = Date.now();
@@ -3426,7 +3419,7 @@ function restart(seed=undefined) {
   cardContainers.forEach( cc => {
     if ( cc !== stock ) {
       stock.cards = stock.cards.concat(cc.cards);
-      cc.cards = [];
+      cc.cards = /** @type {Card[]} */([]);
     }
   });
   stock.cards.forEach( c => {
@@ -3469,6 +3462,11 @@ window.dostarseeddeal = function() {
 window.doreplay = function() {
   gameOver();
   restart(gameState[rules.Name].seed);
+}
+
+window.dofindnewgame = function() {
+  // game state will be saved automatically when page unloads, don't do gameOver()
+  window.location.replace('chooser.html');
 }
 
 /*
@@ -3778,7 +3776,7 @@ if ( !rules.Cell.hasOwnProperty('target') )         rules.Cell.target = null;
 if ( !rules.Cell.hasOwnProperty('hidden') )         rules.Cell.hidden = false;
 
 if ( !rules.Reserve.hasOwnProperty('fan') )         rules.Reserve.fan = 'Down';
-if ( !rules.Reserve.hasOwnProperty('maxfan') )      rules.Reserve.maxfan = 0;       // use baize dimensions
+if ( !rules.Reserve.hasOwnProperty('maxfan') )      rules.Reserve.maxfan = 0;
 if ( !rules.Reserve.hasOwnProperty('target') )      rules.Reserve.target = null;
 if ( !rules.Reserve.hasOwnProperty('hidden') )      rules.Reserve.hidden = false;
 
@@ -3790,7 +3788,7 @@ if ( !rules.Foundation.hasOwnProperty('target') )   rules.Foundation.target = nu
 
 if ( !rules.Tableau.hasOwnProperty('fan') )         rules.Tableau.fan = 'Down';
 if ( !rules.Tableau.hasOwnProperty('maxcards') )    rules.Tableau.maxcards = null;    // allow any number of cards
-if ( !rules.Tableau.hasOwnProperty('maxfan') )      rules.Tableau.maxfan = 0;         // use baize dimensions
+if ( !rules.Tableau.hasOwnProperty('maxfan') )      rules.Tableau.maxfan = 0;
 if ( !rules.Tableau.hasOwnProperty('build') )       rules.Tableau.build = {suit:2, rank:4};
 if ( !rules.Tableau.hasOwnProperty('move') )        rules.Tableau.move = {suit:4, rank:2};
 if ( !rules.Tableau.hasOwnProperty('target') )      rules.Tableau.target = null;
@@ -4020,13 +4018,13 @@ document.addEventListener('keypress', function(/** @type {KeyboardEvent} */kev) 
       }
       break;
     case 'l':
-      window.doload();
+      window.doloadposition();
       break;
     case 'r':
       modalShowRulesFn.open();
       break;
     case 's':
-      window.dosave();
+      window.dosaveposition();
       break;
     case 'u':
       window.doundo();

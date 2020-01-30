@@ -6,7 +6,7 @@
   "Cards":{"suit":"BottomLeft"},
   "Stock":{"packs":1, "hidden":1},
   "Foundation":{"suit":2, "rank":1, "accept":1},
-  "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":13, "fan":"Right", "maxfan":190}
+  "Tableau":{"build":{"suit":2, "rank":2}, "move":{"suit":2, "rank":2}, "accept":13, "fan":"Right", "maxfan":3}
 }
 </script>
 
@@ -14,30 +14,29 @@
     <g class="Stock">
       <rect x="0" y="-1"></rect>
     </g>
-    <g><rect x="12" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->
 
-    <g class="Foundation"><rect x="2" y="0"></rect></g>
-    <g class="Foundation"><rect x="4" y="0"></rect></g>
-    <g class="Foundation"><rect x="6" y="0"></rect></g>
-    <g class="Foundation"><rect x="8" y="0"></rect></g>
+    <g class="Foundation"><rect x="15" y="0"></rect></g>
+    <g class="Foundation"><rect x="16" y="0"></rect></g>
+    <g class="Foundation"><rect x="17" y="0"></rect></g>
+    <g class="Foundation"><rect x="18" y="0"></rect></g>
 
-    <g class="Tableau" deal="uuu"><rect x="0"  y="1"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="2" y="1"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="4" y="1"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="0" y="1"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="3" y="1"></rect></g>
     <g class="Tableau" deal="uuu"><rect x="6" y="1"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="8" y="1"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="10" y="1"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="9" y="1"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="12" y="1"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="15" y="1"></rect></g>
 
-    <g class="Tableau" deal="uuu"><rect x="0"  y="2"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="2" y="2"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="4" y="2"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="0" y="2"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="3" y="2"></rect></g>
     <g class="Tableau" deal="uuu"><rect x="6" y="2"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="8" y="2"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="10" y="2"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="9" y="2"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="12" y="2"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="15" y="2"></rect></g>
 
-    <g class="Tableau" deal="uuu"><rect x="0"  y="3"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="2" y="3"></rect></g>
-    <g class="Tableau" deal="uuu"><rect x="4" y="3"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="0" y="3"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="3" y="3"></rect></g>
     <g class="Tableau" deal="uuu"><rect x="6" y="3"></rect></g>
-    <g class="Tableau" deal="uu" ><rect x="8" y="3"></rect></g>
-    <g class="Tableau" deal="uu" ><rect x="10" y="3"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="9" y="3"></rect></g>
+    <g class="Tableau" deal="uu" ><rect x="12" y="3"></rect></g>
+    <g class="Tableau" deal="uu" ><rect x="15" y="3"></rect></g>

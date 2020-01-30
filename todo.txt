@@ -10,4 +10,8 @@ x 2020-01-28 window.areYouSure = function(fn)
 Retire settings.playFromFoundation
 x 2020-01-29 Retire tallyMan and class Mover
 x 2020-01-29 index.html renamed to chooser.html (and index.js); new index.html redirects to settings.lastGame
-reimplement load/save position using undoStack.length
+x 2020-01-29 reimplement load/save position using undoStack.length
+x 2020-01-30 maxfan
+x 2020-01-30 Flipflop 1 undo - REMOVED FLIPFLIP 3 and 5
+(A) Keyboard may hang the browser
+Need fan="left" for Fortress - can't because fan is per class, not per instance

@@ -6,7 +6,7 @@
   "Cards":{"suit":"BottomLeft"},
   "Stock":{"packs":1, "redeals":0},
   "Foundation":{"suit":2, "rank":1, "accept":1, "scatter":"Right"},
-  "Tableau":{"build":{"suit":1, "rank":2}, "move":{"suit":1, "rank":2}, "fan":"Right", "maxfan":290}
+  "Tableau":{"build":{"suit":1, "rank":2}, "move":{"suit":1, "rank":2}, "fan":"Right", "maxfan":4}
 }
 </script>
 
@@ -20,14 +20,14 @@
     <g class="Tableau" deal="uuuuuu"><rect x="0" y="2"></rect></g>
     <g class="Tableau" deal="uuuuuu"><rect x="0" y="3"></rect></g>
     
-    <g class="Foundation" deal="♥01"><rect x="310" y=" 10"></rect></g>
-    <g class="Foundation" deal="♦01"><rect x="310" y="1"></rect></g>
-    <g class="Foundation" deal="♣01"><rect x="310" y="2"></rect></g>
-    <g class="Foundation" deal="♠01"><rect x="310" y="3"></rect></g>
+    <g class="Foundation" deal="♥01"><rect x="4" y="0"></rect></g>
+    <g class="Foundation" deal="♦01"><rect x="4" y="1"></rect></g>
+    <g class="Foundation" deal="♣01"><rect x="4" y="2"></rect></g>
+    <g class="Foundation" deal="♠01"><rect x="4" y="3"></rect></g>
 
-    <g class="Tableau" deal="uuuuuu"><rect x="410" y=" 10"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="410" y="1"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="410" y="2"></rect></g>
-    <g class="Tableau" deal="uuuuuu"><rect x="410" y="3"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="6" y="0"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="6" y="1"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="6" y="2"></rect></g>
+    <g class="Tableau" deal="uuuuuu"><rect x="6" y="3"></rect></g>
 
-    <g><rect x="610" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->
+    <g><rect x="8" style="display:none"></rect></g>  <!-- dummy invisible rect for viewBox -->

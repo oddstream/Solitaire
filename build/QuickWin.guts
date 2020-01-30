@@ -5,7 +5,7 @@
   "Winnable":[],
   "Stock":{"packs":1, "hidden":1},
   "Foundation":{"suit":2, "rank":1},
-  "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":4, "rank":2}, "maxfan":200}
+  "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":4, "rank":2}, "maxfan":2}
 }
 </script>
 

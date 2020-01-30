@@ -790,27 +790,12 @@ const Variants = [
   'Wikipedia':''
 },
 {
-  'Name':'Flipflop Three Suits',
-  'Type':'All,Other,Small Screen',
-  'Desc':'',
-  'File':'Flipflop3',
-  'Wikipedia':''
-},
-{
   'Name':'Flipflop Four Suits',
   'Type':'All,Other,Small Screen',
   'Desc':'',
   'File':'Flipflop4',
   'Wikipedia':''
 },
-{
-  'Name':'Flipflop Five Suits',
-  'Type':'All,Other,Small Screen',
-  'Desc':'hardest version of Flipflop',
-  'File':'Flipflop5',
-  'Wikipedia':''
-},
-
 {
     'Name':'Quick Fail',
     'Type':'Debug',

@@ -4,7 +4,7 @@
   "Wikipedia":"https://en.wikipedia.org/wiki/Golf_(patience)",
   "Winnable":[],
   "Stock":{"packs":1, "redeals":0},
-  "Foundation":{"suit":1, "rank":4, "fan":"Right", "maxfan":412, "scatter":"Circle"}
+  "Foundation":{"suit":1, "rank":4, "fan":"Right", "maxfan":6, "scatter":"Circle"}
 }
 </script>
 
