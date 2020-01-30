@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '20.1.29.0'; // examined by bake.tcl
+const VERSION = '20.1.30.1'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -101,13 +101,6 @@ const Variants = [
     'Desc':'aka Aces Up - Klondike-like with a Spider-like stock',
     'File':'Easthaven',
     'Wikipedia':''
-},
-{
-  'Name':'Easthaven Relaxed',
-  'Type':'All,Klondike,Hard',
-  'Desc':'allows any card in an empty tableau',
-  'File':'EasthavenRelaxed',
-  'Wikipedia':''
 },
 {
     'Name':'Double Easthaven',
@@ -570,13 +563,6 @@ const Variants = [
     'Type':'All,Klondike,Tableau Redeal',
     'Desc':'Klondike variant with one tableau reshuffle and no stock or waste',
     'File':'Usk',
-    'Wikipedia':'https://politaire.com/help/usk'
-},
-{
-    'Name':'Usk Relaxed',
-    'Type':'All,Klondike,Tableau Redeal',
-    'Desc':'allows unlimited tableau reshuffles',
-    'File':'UskRelaxed',
     'Wikipedia':'https://politaire.com/help/usk'
 },
 {

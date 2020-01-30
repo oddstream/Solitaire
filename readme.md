@@ -1,6 +1,6 @@
 # Solitaire
 
-To play the games, visit the live version at [droppages](https://oddstream.droppages.com/).
+To play the games, visit the [live version](https://oddstream.games/Solitaire).
 
 For user-oriented information, please see the [FAQ](https://oddstream.droppages.com/faq.html).
 
