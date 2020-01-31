@@ -13,6 +13,7 @@ css/*
 
 junk/*
 img/*
+docs/*
 .vscode/*
 *.code-workspace
 make.exe

@@ -4,6 +4,8 @@ To play the games, visit the [live version](https://oddstream.games/Solitaire).
 
 For user-oriented information, please see the [FAQ](https://oddstream.droppages.com/faq.html).
 
+There is also a Lua/Corona SDK version of this at the [Google Play Store](https://play.google.com/store/apps/details?id=com.oddstream.solitaire).
+
 ## Implementation
 
 Written in [vanilla ES2017 Javascript](http://vanilla-js.com/),
@@ -38,15 +40,3 @@ Also, make the games authentic, by taking the rules from reputable sources and i
 - Cards sometimes don't animate, so the card is displayed where it started, but the software thinks it's somewhere else. Can be cleared by reloading the page. May be linked to grabbing a moving card?
 
 - Dragging cards goes through phases of being unreliable, as browsers get updated. It's caused when the user agent sends an unwanted pointercancel event. It's currently fixed by having dummy touch start/move/end listeners so all the touch events get ignored.
-
-## Tcl
-
-Without doubt, the greatest programming language I have encountered in forty+ years of doing this nonsense.
-I could either reimplement the whole thing in Tcl/Tk (which would make it very non-deployable)
-or keep just using Tcl for prototyping stuff and build scripts.
-
-## Forth
-
-An idea I keep kicking around is to implement a small Forth engine, with small scripts for each variant.
-Solitaire is all about managing stacks of cards, so the stack-metaphor or Forth ought to
-work well.

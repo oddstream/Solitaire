@@ -78,9 +78,13 @@ proc publish {dst} {
   xcopy Solitaire.css $dst
   xcopy manifest.json $dst
   xcopy index.html $dst
+  xcopy chooser.html $dst
 
-  xcompile Solitaire.js $dst
-  xcompile index.js $dst
+  xcopy Solitaire.js $dst
+  xcopy chooser.js $dst
+
+  # xcompile Solitaire.js $dst
+  # xcompile chooser.js $dst
 }
 
 # start of doing things here
