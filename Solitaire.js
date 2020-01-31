@@ -184,7 +184,6 @@ function moveCards(from, to, n) {
   if ( 0 == n ) {
     console.error('moveCards(0)');
   } else if ( 1 == n && from.cards.length > 0 ) {
-    console.assert(from.peek())
     const c = from.pop();
     to.push(c);
   } else {
@@ -281,7 +280,7 @@ class Card {
     } else {
       this.id = `${pack}${suit}${String(this.ordinal)}`;
     }
-    console.assert(this.id.length===4);
+    // console.assert(this.id.length===4);
     // this.id = `${pack}${suit}${String(this.ordinal).padStart(2,'0')}`;
 
     this.color = suitColors.get(this.suit);
@@ -682,8 +681,8 @@ class Card {
    * Use SVG transform to position this card on the baize
    */
   position0() {
-    console.assert(this.pt.x !== undefined);
-    console.assert(this.pt.y !== undefined);
+    // console.assert(this.pt.x !== undefined);
+    // console.assert(this.pt.y !== undefined);
     this.g.setAttributeNS(null, 'transform', `translate(${this.pt.x} ${this.pt.y})`);
   }
 
@@ -2265,7 +2264,7 @@ class Waste extends CardContainer {
    * @returns {Card}
    */
   pop() {
-    const c = super.pop();      console.assert(!c.faceDown);
+    const c = super.pop();  // console.assert(!c.faceDown);
 
     if ( this.cards.length > 2 ) {
       // top card needs to go to right position
@@ -2388,7 +2387,7 @@ class Foundation extends CardContainer {
    */
   push(c) {
     // override to fan
-    console.assert(!c.faceDown);
+    // console.assert(!c.faceDown);
     const ptNew = Util.newPoint(this.pt);
     if ( rules.Foundation.fan === 'Down' )
       ptNew.y = this.dynamicY_();
@@ -2403,7 +2402,7 @@ class Foundation extends CardContainer {
    */
   onclick(c) {
     // TODO why even have this? we never allow play from a foundation
-    console.assert(!c.faceDown);
+    // console.assert(!c.faceDown);
     if ( !settings.playFromFoundation )
       return;
     if ( !settings.autoPlay )
@@ -3664,7 +3663,7 @@ const modalAreYouSureFn = M.Modal.getInstance(document.getElementById('modalAreY
   In case there's a need to interoperate with global scope, a variable should be explicitly exposed as a global inside a module:
 */
 window.areYouSure = function(f) {
-  console.assert(typeof f === 'string');
+  // console.assert(typeof f === 'string');
   const ele = document.getElementById('modalAreYouSureYes');
   ele.setAttribute('onclick', `${f}()`);
   modalAreYouSureFn.open();
