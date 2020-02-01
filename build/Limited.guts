@@ -24,8 +24,8 @@
     <g class="Foundation"><rect x="10" y="0"></rect></g>
     <g class="Foundation"><rect x="11" y="0"></rect></g>
 
-    <g class="Tableau" deal="uuu"><rect  x="0" y="1"></rect></g>
-    <g class="Tableau" deal="uuu"><rect  x="1" y="1"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="0" y="1"></rect></g>
+    <g class="Tableau" deal="uuu"><rect x="1" y="1"></rect></g>
     <g class="Tableau" deal="uuu"><rect x="2" y="1"></rect></g>
     <g class="Tableau" deal="uuu"><rect x="3" y="1"></rect></g>
     <g class="Tableau" deal="uuu"><rect x="4" y="1"></rect></g>

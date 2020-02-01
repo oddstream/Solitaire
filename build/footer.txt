@@ -8,18 +8,12 @@
         
         <p><label for="sensoryCues"><input type="checkbox" id="sensoryCues" class="filled-in steelblue"/><span>Highlight movable cards</span></label></p>
         <p><label for="autoPlay"><input type="checkbox" id="autoPlay" class="filled-in steelblue"/><span>Allow single click to move a card</span></label></p>
-<!--
-        <p><label for="autoFlip"><input type="checkbox" id="autoFlip" class="filled-in steelblue"/><span>Automatically turn over exposed tableau cards</span></label></p>
-        <p><label for="playFromFoundation"><input type="checkbox" id="playFromFoundation" class="filled-in steelblue"/><span>Allow play from foundation<span></label></p>
--->       
         <div class="row">
         <div class="col s6">
-        <p><label for="autoOff"><input type="radio" id="autoOff" name="auto" value="off"/><span>No auto collect</span></label></p>
-        <p><label for="autoSolve"><input type="radio" id="autoSolve" name="auto" value="solve"/><span>Auto collect when solveable</span></label></p>
-<!--        
-        <p><label for="autoAces"><input type="radio" id="autoAces" name="auto" value="aces"/><span>Auto collect aces</span></label></p>
--->        
         <p><label for="autoAny"><input type="radio" id="autoAny" name="auto" value="any"/><span>Auto collect any card</span></label></p>
+        <p><label for="autoSafe"><input type="radio" id="autoSafe" name="auto" value="safe"/><span>Auto collect when safe</span></label></p>
+        <p><label for="autoSolve"><input type="radio" id="autoSolvable" name="auto" value="solvable"/><span>Auto collect when solveable</span></label></p>
+        <p><label for="autoOff"><input type="radio" id="autoOff" name="auto" value="off"/><span>No auto collect</span></label></p>
         </div>
         </div>
     </div>

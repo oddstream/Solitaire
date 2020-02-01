@@ -42,11 +42,6 @@ const Constants = {
 
   cardValues: 'Joker A 2 3 4 5 6 7 8 9 10 J Q K'.split(' '),
   cardValuesEnglish: 'Joker Ace 2 3 4 5 6 7 8 9 10 Jack Queen King'.split(' '),
-
-  AUTOCOLLECT_OFF: 0,
-  AUTOCOLLECT_SOLVEABLE: 1,
-  AUTOCOLLECT_ACES: 2,        // retired, keep around for startup legacy check
-  AUTOCOLLECT_ANY: 3
 };
 
 const suitColors = new Map([
@@ -2500,11 +2495,15 @@ class Foundation extends CardContainer {
      * @return {Boolean}
      */
     const safeCheck_ = () => {
-      let fmin = foundations[0].cards.length;
-      for ( let i=1; i<foundations.length; i++ ) {
-        fmin = Math.min(fmin, foundations[i].cards.length);
+      if ( settings.autoKollect === 'safe' ) {
+        let fmin = foundations[0].cards.length;
+        for ( let i=1; i<foundations.length; i++ ) {
+          fmin = Math.min(fmin, foundations[i].cards.length);
+        }
+        return ( this.cards.length === fmin );
+      } else {
+        return true;
       }
-      return ( this.cards.length === fmin );
     };
 
     /**
@@ -3562,30 +3561,26 @@ modalSettingsFn.options.onOpenStart = function() {
   document.getElementById('aniSpeed').value = settings.aniSpeed;
   document.getElementById('sensoryCues').checked = settings.sensoryCues;
   document.getElementById('autoPlay').checked = settings.autoPlay;
-  // document.getElementById('autoFlip').checked = settings.autoFlip;
-  // document.getElementById('playFromFoundation').checked = settings.playFromFoundation;
 
-  document.getElementById('autoOff').checked = settings.autoCollect === Constants.AUTOCOLLECT_OFF;
-  document.getElementById('autoSolve').checked = settings.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE;
-  // document.getElementById('autoAces').checked = settings.autoCollect === Constants.AUTOCOLLECT_ACES;
-  document.getElementById('autoAny').checked = settings.autoCollect === Constants.AUTOCOLLECT_ANY;
+  document.getElementById('autoAny').checked = settings.autoKollect === 'any';
+  document.getElementById('autoSafe').checked = settings.autoKollect === 'safe';
+  document.getElementById('autoSolvable').checked = settings.autoKollect === 'solvable';
+  document.getElementById('autoOff').checked = settings.autoKollect === 'off';
 };
 
 modalSettingsFn.options.onCloseEnd = function() {
   settings.aniSpeed = document.getElementById('aniSpeed').value;
   settings.sensoryCues = document.getElementById('sensoryCues').checked;
   settings.autoPlay = document.getElementById('autoPlay').checked;
-  // settings.autoFlip = document.getElementById('autoFlip').checked;
-  // settings.playFromFoundation = document.getElementById('playFromFoundation').checked;
 
-  if ( document.getElementById('autoOff').checked )
-    settings.autoCollect = Constants.AUTOCOLLECT_OFF;
-  else if ( document.getElementById('autoSolve').checked )
-    settings.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
-  // else if ( document.getElementById('autoAces').checked )
-  //     settings.autoCollect = Constants.AUTOCOLLECT_ACES;
-  else if ( document.getElementById('autoAny').checked )
-    settings.autoCollect = Constants.AUTOCOLLECT_ANY;
+  if ( document.getElementById('autoAny').checked )
+    settings.autoKollect = 'any';
+  else if ( document.getElementById('autoSafe').checked )
+    settings.autoKollect = 'safe';
+  else if ( document.getElementById('autoSolvable').checked )
+    settings.autoKollect = 'solvable';
+  else if ( document.getElementById('autoOff').checked )
+    settings.autoKollect = 'off';
 
   allAvailableMoves();   // mark moveable cards
 };
@@ -3804,9 +3799,11 @@ try {
 }
 if ( !settings ) { settings = {} }
 
+if ( settings.hasOwnProperty('autoCollect') )     delete settings.autoCollect;  // replaced with autoKollect 20.2.1.0
 if ( !settings.hasOwnProperty('aniSpeed') )       settings.aniSpeed = 3;
-if ( !settings.hasOwnProperty('autoCollect') )    settings.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
+if ( !settings.hasOwnProperty('autoKollect') )    settings.autoKollect = 'safe';
 if ( !settings.hasOwnProperty('sensoryCues') )    settings.sensoryCues = true;
+if ( !settings.hasOwnProperty('powerMoves') )     settings.powerMoves = true;
 if ( !settings.hasOwnProperty('autoPlay') )       settings.autoPlay = true;
 if ( !settings.hasOwnProperty('dealWinnable') )   settings.dealWinnable = false;
 if ( !settings.hasOwnProperty('loadSaved') )      settings.loadSaved = true;
@@ -3815,8 +3812,6 @@ settings.lastGame = window.location.pathname.split('/').pop();
 settings.lastVersion = Constants.GAME_VERSION;
 if ( settings.aniSpeed < 1 || settings.aniSpeed > 5 )
   settings.aniSpeed = 3;
-if ( settings.autoCollect === Constants.AUTOCOLLECT_ACES )
-  settings.autoCollect = Constants.AUTOCOLLECT_SOLVEABLE;
 
 let gameState = {};
 try {
@@ -3968,11 +3963,10 @@ const checkIfGameOver = () => {
 let inRobot = false;
 function robot() {
   const autoCollectAny = () => {
-    return settings.autoCollect === Constants.AUTOCOLLECT_ANY;
+    return settings.autoKollect === 'any' || settings.autoKollect === 'safe';
   };
-  const autoCollectWhenSolveable = () => {
-    return settings.autoCollect === Constants.AUTOCOLLECT_SOLVEABLE
-          && cardContainers.every( f => f.isSolveable() );
+  const autoCollectWhenSolvable = () => {
+    return settings.autoKollect === 'solvable' && cardContainers.every( f => f.isSolveable() );
   };
 
   console.assert(!inRobot);
@@ -3984,7 +3978,7 @@ function robot() {
     .catch( (reason) => console.log(reason) )
   }));
 
-  if ( autoCollectAny() || autoCollectWhenSolveable() ) {
+  if ( autoCollectAny() || autoCollectWhenSolvable() ) {
     waitForCards()
     .then( () => {
       for ( let cardMoved = pullCardsToFoundations(); cardMoved; cardMoved = pullCardsToFoundations() ) {

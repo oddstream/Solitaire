@@ -82,6 +82,8 @@ proc publish {dst} {
 
   xcopy Solitaire.js $dst
   xcopy chooser.js $dst
+  xcopy Random.js $dst
+  xcopy Util.js $dst
 
   # xcompile Solitaire.js $dst
   # xcompile chooser.js $dst
