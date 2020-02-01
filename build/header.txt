@@ -46,6 +46,7 @@
     <ul class="right">
         <li><a onclick="window.doundo()"><i class="material-icons tooltipped noselect" data-position="bottom" data-tooltip="Undo">undo</i></a></li>
         <li><a id="moveCounter" onclick="window.doshowavailablemoves()" class="tooltipped noselect" data-position="bottom" data-tooltip="Moves"></a></li>
+        <li><a id="percentComplete" class="tooltipped noselect" data-position="bottom" data-tooltip="Percent complete"></a></li>
         <li><a onclick="window.doshowrules()"><i class="material-icons tooltipped noselect" data-position="bottom" data-tooltip="Rules">assignment</i></a></li>
         <li><a href="faq.html" target="_blank" rel="noopener" class="tooltipped noselect" data-position="bottom" data-tooltip="FAQ"><i class="material-icons">info</i></a></li>
     </ul>

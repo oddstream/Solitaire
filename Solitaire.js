@@ -197,7 +197,7 @@ function moveCards(from, to, n) {
 }
 
 function undoCounter() {
-  const ele = document.getElementById('moveCounter');
+  let ele = document.getElementById('moveCounter');
   if ( ele ) {
     ele.innerHTML = String(undoStack.length);
   }
@@ -2389,6 +2389,7 @@ class Foundation extends CardContainer {
     else if ( rules.Foundation.fan === 'Right' )
       ptNew.x = this.dynamicX_();
     super.push(c, ptNew);
+    updatePercent();
   }
 
   /**
@@ -3344,6 +3345,27 @@ function englishRules(rules) {
   return s;
 }
 
+/**
+ * @returns {number}
+ */
+function calcPercent() {
+  let count = 0;
+  foundations.forEach( (f) => {
+    count += f.cards.length;
+  });
+  return Math.round(count / stock.expectedNumberOfCards() * 100);
+}
+
+function updatePercent() {
+  // waitForCards()
+  // .then( () => {
+    const ele = document.getElementById('percentComplete');
+    if ( ele ) {
+      ele.innerHTML = String(calcPercent() + '%');
+    }
+  // });
+}
+
 function isComplete() {
   return cardContainers.every( cc => cc.isComplete() );
 }
@@ -3387,6 +3409,8 @@ function gameOver() {
       GSRN.currStreak += 1;
     if ( GSRN.currStreak > GSRN.bestStreak )
       GSRN.bestStreak = GSRN.currStreak;
+
+    GSRN.bestPercent = 100;
   } else if ( undoStack.length > 0 ) {
     console.log('recording stats for lost game', GSRN);
     GSRN.totalGames += 1;
@@ -3398,6 +3422,13 @@ function gameOver() {
       GSRN.currStreak -= 1;
     if ( GSRN.currStreak < GSRN.worstStreak )
       GSRN.worstStreak = GSRN.currStreak;
+
+    if ( GSRN.bestPercent < 100 ) {
+      const thisPercent = calcPercent();
+      if ( thisPercent > GSRN.bestPercent ) {
+        GSRN.bestPercent = thisPercent;
+      }
+    }
   } else {
     console.log('game over with no moves');
   }
@@ -3431,6 +3462,7 @@ function restart(seed=undefined) {
   stock.cards.forEach( c => baize.elevateCard(c) );
   stock.redeals = rules.Stock.redeals; // could be null
   undoReset();
+  updatePercent();
   foundations.forEach( f => f.scattered = false );
   if ( gameState[rules.Name].undoStack ) {
     gameState[rules.Name].undoStack = [];
@@ -3606,9 +3638,15 @@ modalStatisticsFn.options.onOpenStart = function() {
     document.getElementById('thisGameStats').innerHTML = s;
   }
 
-  document.getElementById('gamesPlayedStats').innerHTML = GSRN.totalGames === 0
-    ? `You've not played ${rules.Name} before`
-    : `You've played ${rules.Name} ${GSRN.totalGames} times, and won ${GSRN.gamesWon} (${Math.round(GSRN.gamesWon/GSRN.totalGames*100)}%)`;
+  if ( GSRN.totalGames === 0 ) {
+    document.getElementById('gamesPlayedStats').innerHTML = `You've not played ${rules.Name} before`;
+  } else {
+    if ( GSRN.gamesWon > 0 ) {
+      document.getElementById('gamesPlayedStats').innerHTML = `You've played ${rules.Name} ${Util.plural(GSRN.totalGames, 'time')}, and won ${GSRN.gamesWon} (${Math.round(GSRN.gamesWon/GSRN.totalGames*100)}%)`;
+    } else {
+      document.getElementById('gamesPlayedStats').innerHTML = `You've played ${rules.Name} ${Util.plural(GSRN.totalGames, 'time')}; your best score is ${GSRN.bestPercent}%`;
+    }
+  }
 
   if ( GSRN.totalGames > 0 )
     document.getElementById('gamesStreakStats').innerHTML = `Your current streak is ${GSRN.currStreak}, your best winning streak is ${GSRN.bestStreak}, your worst is ${GSRN.worstStreak}`;
@@ -3695,6 +3733,8 @@ window.dostatsreset = function() {
   GSRN.currStreak = 0;
   GSRN.bestStreak = 0;
   GSRN.worstStreak = 0;
+
+  GSRN.bestPercent = 0;
 
   GSRN.modified = Date.now();
 }
@@ -3838,6 +3878,8 @@ if ( !gameState[rules.Name].gamesWon )      gameState[rules.Name].gamesWon = 0;
 if ( !gameState[rules.Name].currStreak )    gameState[rules.Name].currStreak = 0;
 if ( !gameState[rules.Name].bestStreak )    gameState[rules.Name].bestStreak = 0;
 if ( !gameState[rules.Name].worstStreak )   gameState[rules.Name].worstStreak = 0;
+
+if ( !gameState[rules.Name].bestPercent )   gameState[rules.Name].bestPercent = 0;
 
 const stocks = /** @type {Array<Stock>} */ (linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]));
 const stock = stocks[0];
