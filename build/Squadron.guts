@@ -35,7 +35,7 @@
     <g class="Tableau" deal="uuuu"><rect x="9" y="1"></rect></g>
     <g class="Tableau" deal="uuuu"><rect x="10" y="1"></rect></g>
 
-    <g class="Cell" deal="u"><rect x="8" y="5"></rect></g>    
-    <g class="Cell" deal="u"><rect x="9" y="5"></rect></g>
-    <g class="Cell" deal="u"><rect x="10" y="5"></rect></g>
+    <g class="Cell" deal="u"><rect x="12" y="0"></rect></g>    
+    <g class="Cell" deal="u"><rect x="12" y="1"></rect></g>
+    <g class="Cell" deal="u"><rect x="12" y="2"></rect></g>
     

@@ -2972,6 +2972,8 @@ class TableauFortunesFavor extends Tableau {
     if ( 0 === this.cards.length ) {
       if ( waste.cards.length > 0 ) {
         moveCards(waste, this, 1);
+      } else if ( stock.cards.length > 0 ) {
+        moveCards(stock, this, 1);
       }
     }
   }
