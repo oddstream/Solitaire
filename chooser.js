@@ -320,6 +320,11 @@ const Variants = [
     'File':'Limited',
     'Wikipedia':'https://en.wikipedia.org/wiki/Forty_Thieves_(card_game)'
 },
+{   'Name': 'Single Rail',
+    'Type': 'All,Forty Thieves,Small Screen',
+    'Desc': 'A single pack variation of Forty Thieves',
+    'File': 'SingleRail',
+},
 {
     'Name':'Freecell',
     'Type':'All,Freecell,Classic,Small Screen',
