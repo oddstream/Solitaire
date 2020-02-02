@@ -1,0 +1,29 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Duchess",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Duchess_(solitaire)",
+  "Waste":{"fan":"Down"},
+  "Stock":{"packs":1, "cards":3, "redeals":1},
+  "Foundation":{"suit":2, "rank":1, "rankwrap":1},
+  "Reserve":{"fan":"Right","maxfan":3},
+  "Tableau":{"build":{"suit":4, "rank":2, "rankwrap":1}, "move":{"suit":4, "rank":2, "rankwrap":1}, "fan":"Down"}
+}
+</script>
+  
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="Reserve" deal="uuu"><rect x="0" y="0"></rect></g>
+    <g class="Reserve" deal="uuu"><rect x="2" y="0"></rect></g>
+    <g class="Reserve" deal="uuu"><rect x="4" y="0"></rect></g>
+    <g class="Reserve" deal="uuu"><rect x="6" y="0"></rect></g>
+    <g class="StockKlondike"><rect x="0" y="1"></rect></g>
+    <g class="Waste"><rect x="0" y="2"></rect></g>
+
+    <g class="FoundationCanfield"><rect x="2" y="1"></rect></g>
+    <g class="FoundationCanfield"><rect x="3" y="1"></rect></g>
+    <g class="FoundationCanfield"><rect x="4" y="1"></rect></g>
+    <g class="FoundationCanfield"><rect x="5" y="1"></rect></g>
+
+    <g class="Tableau" deal="u"><rect x="2" y="2"></rect></g>
+    <g class="Tableau" deal="u"><rect x="3" y="2"></rect></g>
+    <g class="Tableau" deal="u"><rect x="4" y="2"></rect></g>
+    <g class="Tableau" deal="u"><rect x="5" y="2"></rect></g>

@@ -7,7 +7,7 @@ import {Util} from './Util.js';
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '20.1.30.2',
+  GAME_VERSION: '20.2.2.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -31,8 +31,9 @@ const Constants = {
 
   // if you edit these, also edit symbols.svg if using symbol card suits
   CARD_WIDTH: 60,
-  CARD_WIDTH_STACKED: Math.round(60/2),
+  CARD_WIDTH_STACKED: Math.round(60/2), // used to stack Waste cards
   CARD_HEIGHT: 90,
+  CARD_HEIGHT_STACKED: Math.round(90/3),  // used to stack Waste cards
   CARD_RADIUS: 4,
   DEFAULT_STACK_FACTOR_Y: (10.0/3.0),
   DEFAULT_STACK_FACTOR_X: 2.0,
@@ -973,18 +974,8 @@ class CardContainer {
     this.a_deal = this.g.getAttribute('deal');
     this.stackFactor = NaN;
 
-    // accept is either:
-    // missing - we accept anything, stored as 0
-    // a symbol - special rules
-    // a number - card ordinal usually 1=Ace or 13=King
-    // if it's missing/0, it can get overriden by rules.Foundation|Tableau.accept
-    this.a_accept = g.getAttribute('accept') || 0;
-    if ( !this.isAcceptSymbol_() ) {
-      this.a_accept = Number.parseInt(this.a_accept, 10);
-      console.assert(!isNaN(this.a_accept));
-    }
-    if ( this.a_accept )
-      this.createAcceptSVG_();
+    this.resetAccept();
+
     cardContainers.push(this);
   }
 
@@ -996,6 +987,24 @@ class CardContainer {
     return ( Constants.ACCEPT_NOTHING_SYMBOL === this.a_accept
       || Constants.ACCEPT_INSECT_SYMBOL === this.a_accept
       || Constants.ACCEPT_MARTHA_SYMBOL === this.a_accept );
+  }
+
+  /**
+   * Added so starting a new deal will reset accept in dynamically-set accepts (Duchess)
+   */
+  resetAccept() {
+    // accept is either:
+    // missing - we accept anything, stored as 0
+    // a symbol - special rules
+    // a number - card ordinal usually 1=Ace or 13=King
+    // if it's missing/0, it can get overriden by rules.Foundation|Tableau.accept
+    this.a_accept = this.g.getAttribute('accept') || 0;
+    if ( !this.isAcceptSymbol_() ) {
+      this.a_accept = Number.parseInt(this.a_accept, 10);
+      console.assert(!isNaN(this.a_accept));
+    }
+    if ( this.a_accept )
+      this.createAcceptSVG_();
   }
 
   /**
@@ -1405,6 +1414,7 @@ class CardContainer {
       }
     } else if ( rules.fan === 'Right' ) {
       this.stackFactor = Constants.DEFAULT_STACK_FACTOR_X;
+      // const max = rules.maxfan === 0 ? 1000 : this.pt.x + (rules.maxfan * 67);
       const max = rules.maxfan === 0 ? baize.width - this.pt.x : this.pt.x + (rules.maxfan * 67);
 
       let arr = this.dynamicArrayX_();
@@ -1805,9 +1815,9 @@ class Stock extends CardContainer {
     if ( waste && this.redealsAvailable() ) {
       undoPush();
       while ( waste.cards.length ) {
-        const c = waste.cards.pop(); // low level pop to bypass 3-card shuffle
+        const c = waste.cards.pop(); // low level pop to bypass 3-card shuffle ...
         stock.push(c);
-        undoPop();
+        // undoPop(); // ... do don't do this!
       }
       this.decreaseRedeals();
     }
@@ -2221,6 +2231,16 @@ class Waste extends CardContainer {
    * @returns {number}
    */
   rightX_() { return this.pt.x + Constants.CARD_WIDTH_STACKED * 2; }
+  /**
+   * @private
+   * @returns {number}
+   */
+  middleY_() { return this.pt.y + Constants.CARD_HEIGHT_STACKED; }
+  /**
+   * @private
+   * @returns {number}
+   */
+  bottomY_() { return this.pt.y + Constants.CARD_HEIGHT_STACKED * 2; }
 
   /**
    * @override
@@ -2228,25 +2248,47 @@ class Waste extends CardContainer {
    */
   push(c) {
     const ptNew = Util.newPoint(this.pt);
-    if ( 0 === this.cards.length ) {
-      // incoming card will go to left position
-    } else if ( 1 === this.cards.length ) {
-      // incoming card will go to middle position
-      ptNew.x = this.middleX_();
-    } else if ( 2 === this.cards.length ) {
-      // incoming card will go to right position
-      ptNew.x = this.rightX_();
-    } else {
-      // incoming card will go to right position
-      ptNew.x = this.rightX_();
-      // card in middle needs to go to left position
-      const cMiddle = this.cards[this.cards.length-2];
-      const ptLeft = Util.newPoint(this.pt.x, this.pt.y);
-      cMiddle.animate(ptLeft);
-      // card on right (top card) needs to go to middle position
-      const cTop = this.peek();
-      const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
-      cTop.animate(ptMiddle);
+    if ( this.rules.fan === 'Right' ) {
+      if ( 0 === this.cards.length ) {
+        // incoming card will go to left position
+      } else if ( 1 === this.cards.length ) {
+        // incoming card will go to middle position
+        ptNew.x = this.middleX_();
+      } else if ( 2 === this.cards.length ) {
+        // incoming card will go to right position
+        ptNew.x = this.rightX_();
+      } else {
+        // incoming card will go to right position
+        ptNew.x = this.rightX_();
+        // card in middle needs to go to left position
+        const cMiddle = this.cards[this.cards.length-2];
+        const ptLeft = Util.newPoint(this.pt.x, this.pt.y);
+        cMiddle.animate(ptLeft);
+        // card on right (top card) needs to go to middle position
+        const cTop = this.peek();
+        const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
+        cTop.animate(ptMiddle);
+      }
+    } else if ( this.rules.fan === 'Down' ) {
+      if ( 0 === this.cards.length ) {
+        // incoming card will go to top position
+      } else if ( 1 === this.cards.length ) {
+        // incoming card will go to middle position
+        ptNew.y = this.middleY_();
+      } else if ( 2 === this.cards.length ) {
+        // incoming card will go to bottom position
+        ptNew.y = this.bottomY_();
+      } else {
+        // incoming card will go to bottom position
+        ptNew.y = this.bottomY_();
+        // card in middle needs to go to top position
+        const cMiddle = this.cards[this.cards.length-2];
+        cMiddle.animate(Util.newPoint(this.pt.x, this.pt.y));
+        // card on bottom needs to go to middle position
+        const cBottom = this.peek();
+        const ptMiddle = Util.newPoint(this.pt.x, this.middleY_());
+        cBottom.animate(ptMiddle);
+      }
     }
     super.push(c, ptNew);
     if ( c.faceDown )
@@ -2262,20 +2304,37 @@ class Waste extends CardContainer {
     const c = super.pop();  // console.assert(!c.faceDown);
 
     if ( this.cards.length > 2 ) {
-      // top card needs to go to right position
-      const cTop = this.cards[this.cards.length-1];
-      const ptRight = Util.newPoint(this.rightX_(), this.pt.y);
-      cTop.animate(ptRight);
+      if ( this.rules.fan === 'Right' ) {
+        // top card needs to go to right position
+        const cTop = this.cards[this.cards.length-1];
+        const ptRight = Util.newPoint(this.rightX_(), this.pt.y);
+        cTop.animate(ptRight);
 
-      // top-1 card needs to go to middle position
-      const cTop1 = this.cards[this.cards.length-2];
-      const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
-      cTop1.animate(ptMiddle);
+        // top-1 card needs to go to middle position
+        const cTop1 = this.cards[this.cards.length-2];
+        const ptMiddle = Util.newPoint(this.middleX_(), this.pt.y);
+        cTop1.animate(ptMiddle);
 
-      // top-2 card needs to go to left position
-      const cTop2 = this.cards[this.cards.length-3];
-      const ptLeft = Util.newPoint(this.pt.x, this.pt.y);
-      cTop2.animate(ptLeft);
+        // top-2 card needs to go to left position
+        const cTop2 = this.cards[this.cards.length-3];
+        const ptLeft = Util.newPoint(this.pt.x, this.pt.y);
+        cTop2.animate(ptLeft);
+      } else if ( this.rules.fan === 'Down' ) {
+        // top card needs to go to bottom position
+        const cTop0 = this.cards[this.cards.length-1];
+        const ptBottom = Util.newPoint(this.pt.x, this.bottomY_());
+        cTop0.animate(ptBottom);
+
+        // top-1 card needs to go to middle position
+        const cTop1 = this.cards[this.cards.length-2];
+        const ptMiddle = Util.newPoint(this.pt.x, this.middleY_());
+        cTop1.animate(ptMiddle);
+
+        // top-2 card needs to go to top position
+        const cTop2 = this.cards[this.cards.length-3];
+        const ptTop = Util.newPoint(this.pt.x, this.pt.y);
+        cTop2.animate(ptTop);
+      }
     }
 
     return c;
@@ -2332,6 +2391,13 @@ class Waste extends CardContainer {
    */
   isSolveable() {
     return 0 === this.cards.length;
+  }
+
+  /**
+   * @override
+   * @param {Object} rules 
+   */
+  scrunchCards(rules) {
   }
 
   // uses default availableMoves() - just top card

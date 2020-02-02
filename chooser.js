@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '20.1.30.2'; // examined by bake.tcl
+const VERSION = '20.2.2.0'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -201,6 +201,13 @@ const Variants = [
     'File':'AmericanToad',
     'Wikipedia':'https://en.wikipedia.org/wiki/American_Toad_(solitaire)'
 },
+// {
+//   'Name':'Duchess',
+//   'Type':'All,Canfield',
+//   'Desc':'Similar to Canfield, but has more scope for strategy.',
+//   'File':'Duchess',
+//   'Wikipedia':'https://en.wikipedia.org/wiki/Duchess_(solitaire)',
+// },
 {
     'Name':'Golf',
     'Type':'All,Golf',
