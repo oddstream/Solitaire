@@ -7,7 +7,7 @@ import {Util} from './Util.js';
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '20.2.2.0',
+  GAME_VERSION: '20.2.4.0',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -167,7 +167,7 @@ const /** Array<CardContainer> */cardContainers = [];
 let /** @type {KeyFocus} */keyFocus = null;
 const baize = new Baize;
 
-let undoStack = []  // can't be a const because we load game
+let undoStack = /* @type {Saved[]} */([]);  // can't be a const because we load game
 
 /**
  * Move a number of cards from this stack to another stack
@@ -210,6 +210,9 @@ function undoPush() {
   undoCounter();
 }
 
+/**
+ * @return {Saved}
+ */
 function undoPop() {
   const sv = undoStack.pop();
   undoCounter();
@@ -226,7 +229,7 @@ window.doundo = function() {
     displayToast('nothing to undo');
     return;
   }
-  const saved = undoPop();
+  const /* @type {Saved} */saved = undoPop();
 
   // make a cache of all the cards to avoid destroying/creating them
   const cache = /** @type {Card[]} */([]);
@@ -237,7 +240,7 @@ window.doundo = function() {
   }
 
   for ( let i=0; i<cardContainers.length; i++ ) {
-    cardContainers[i].load3(cache, saved.containers[i]);  // calls Card.destructor
+    cardContainers[i].load3(cache, saved.piles[i]);  // calls Card.destructor
   }
   if ( saved.hasOwnProperty('redeals') ) {
     stock.redeals = saved.redeals;
@@ -975,20 +978,21 @@ class CardContainer {
   /**
    * Used when restarting a game; give each CardContainer the chance to clean up
    */
-  reset() {
-    if ( this.a_accept ) {
-      delete this.a_accept;
-      let oldText = this.g.querySelector('text');
-      if ( oldText ) {
-        this.g.removeChild(oldText);
-      }
-      // TODO refactor
-      this.resetAccept();
-      if ( this.a_accept ) {
-        this.createAcceptSVG_();
-      }
-    }
-  }
+  // reset() {
+  //   if ( this.a_accept ) {
+  //     console.log('reset a_accept=', this.a_accept);
+  //     delete this.a_accept;
+  //     let oldText = this.g.querySelector('text');
+  //     if ( oldText ) {
+  //       this.g.removeChild(oldText);
+  //     }
+  //     // TODO refactor
+  //     this.resetAccept();
+  //     if ( this.a_accept ) {
+  //       this.createAcceptSVG_();
+  //     }
+  //   }
+  // }
 
   /**
    * @private
@@ -1009,13 +1013,18 @@ class CardContainer {
     // a symbol - special rules
     // a number - card ordinal usually 1=Ace or 13=King
     // if it's missing/0, it can get overriden by rules.Foundation|Tableau.accept
+
+    // getAttribute can return null or empty string on failure
+    // in javascript, both null and "" are false
     this.a_accept = this.g.getAttribute('accept') || 0;
-    if ( !this.isAcceptSymbol_() ) {
-      this.a_accept = Number.parseInt(this.a_accept, 10);
-      console.assert(!isNaN(this.a_accept));
+    if ( this.a_accept !== 0 ) {
+      console.log('reload accept from html', this.a_accept);
+      if ( !this.isAcceptSymbol_() ) {
+        this.a_accept = Number.parseInt(this.a_accept, 10);
+        console.assert(!isNaN(this.a_accept));
+      }
     }
-    if ( this.a_accept )
-      this.createAcceptSVG_();
+    this.createAcceptSVG_();
   }
 
   /**
@@ -1024,96 +1033,56 @@ class CardContainer {
   createAcceptSVG_() {
     // gets updated by Canfield calling dostar()
     // g has .rect and .text children
-    console.assert(this.a_accept);
+    console.log('create accept svg', this.a_accept);
 
     let oldText = this.g.querySelector('text');
     if ( oldText ) {
-      if ( this.isAcceptSymbol_() )
+      if ( 0 === this.a_accept ) {
+        this.g.removeChild(oldText);
+      } else if ( this.isAcceptSymbol_() ) {
         oldText.innerHTML = this.a_accept;
-      else
-        oldText.innerHTML = Constants.cardValues[this.a_accept];
-    } else {
-      const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
-      t.classList.add('accepts');
-      if ( this.isAcceptSymbol_() ) {
-        t.setAttributeNS(null, 'x', String(this.pt.x + 10));
-        t.setAttributeNS(null, 'y', String(this.pt.y + 24));
-        t.innerHTML = this.a_accept;
       } else {
-        t.setAttributeNS(null, 'x', String(this.pt.x + 4));
-        t.setAttributeNS(null, 'y', String(this.pt.y + 24));
-        t.innerHTML = Constants.cardValues[this.a_accept];
+        oldText.innerHTML = Constants.cardValues[this.a_accept];
       }
-      this.g.appendChild(t);
+    } else {
+      if ( 0 !== this.a_accept ) {
+        const t = document.createElementNS(Constants.SVG_NAMESPACE, 'text');
+        t.classList.add('accepts');
+        if ( this.isAcceptSymbol_() ) {
+          t.setAttributeNS(null, 'x', String(this.pt.x + 10));
+          t.setAttributeNS(null, 'y', String(this.pt.y + 24));
+          t.innerHTML = this.a_accept;
+        } else {
+          t.setAttributeNS(null, 'x', String(this.pt.x + 4));
+          t.setAttributeNS(null, 'y', String(this.pt.y + 24));
+          t.innerHTML = Constants.cardValues[this.a_accept];
+        }
+        this.g.appendChild(t);
+      }
     }
   }
 
   /**
-   * @param {object} obj
+   * @param {SavedCardContainer} scc
    */
-  load(obj) {
-    if ( !obj ) { return; }
+  load(scc) {
+    if ( !scc ) { return; }
 
     this.cards.forEach( c => c.destructor() );
     this.cards = /** @type {Card[]} */([]);
 
-    if ( !Array.isArray(obj) ) {
-      const scc = /* @type {SavedCardContainer}*/(obj);
-      scc.cards.forEach( /** @type {SavedCard} */(sc) => {
-        const c = new Card(sc.pack, sc.suit, sc.ordinal, sc.faceDown, this.pt);
-        baize.ele.appendChild(c.g);
-        this.push(c);
-      });
-    } else {
-      const arr = /* @type {Array} */(obj);
-      arr.forEach( a => {
-        const c = new Card(a.pack, a.suit, a.ordinal, a.faceDown, this.pt);
-        baize.ele.appendChild(c.g);
-        this.push(c);
-      });
-    }
-  }
-
-  /**
-   * @param {Card[]} cache
-   * @param {Array} arr
-   */
-  load2(cache, arr) {
-    
-    function findCardInCache(a) {
-      for ( let i=0; i<cache.length; i++ ) {
-        const c = cache[i];
-        if ( a.pack === c.pack && a.suit == c.suit && a.ordinal == c.ordinal ) {
-          return c;
-        }
-      }
-    }
-
-    console.assert(Array.isArray(arr));
-
-    this.cards = /** @type {Card[]} */([]);
-    arr.forEach( a => {
-      const c = findCardInCache(a);
-      if ( a.faceDown && !c.faceDown ) {
-        c.flipDown();
-      } else if ( !a.faceDown && c.faceDown ) {
-        c.flipUp();
-      }
+    scc.cards.forEach( /** @type {SavedCard} */(sc) => {
+      const c = new Card(sc.pack, sc.suit, sc.ordinal, sc.faceDown, this.pt);
+      baize.ele.appendChild(c.g);
       this.push(c);
     });
   }
 
   /**
    * @param {Card[]} cache
-   * @param {Object} obj
+   * @param {SavedCardContainer} scc
    */
-  load3(cache, obj) {
-    if ( Array.isArray(obj) ) {
-      console.log('loading old Saved Card[]');
-      this.load2(cache, obj);
-      return;
-    }
-
+  load3(cache, scc) {
     /**
      * @param {SavedCard} sc
      */
@@ -1126,9 +1095,6 @@ class CardContainer {
       }
     }
 
-    console.log('loading new SavedCardContainer');
-
-    const scc = /* @type {SavedCardContainer}*/(obj);
     if ( this.a_accept !== scc.accept ) {
       console.log('updating a_accept');
       delete this.a_accept;
@@ -3585,7 +3551,7 @@ function restart(seed=undefined) {
       cc.cards = /** @type {Card[]} */([]);
     }
     // TODO reset each container (Duchess a_accept)
-    cc.reset();
+    cc.resetAccept();
   });
   stock.cards.forEach( c => {
     c.owner = stock;
@@ -3671,9 +3637,9 @@ class Saved {
   constructor() {
     this.seed = gameState[rules.Name].seed;
     this.redeals = stock.redeals;
-    this.containers = /** @type {SavedCardContainer[]} */([]);
+    this.piles = /** @type {SavedCardContainer[]} */([]);
     for ( let i=0; i<cardContainers.length; i++ ) {
-      this.containers[i] = new SavedCardContainer(cardContainers[i]);
+      this.piles[i] = new SavedCardContainer(cardContainers[i]);
     }
   }
 }
@@ -3708,16 +3674,19 @@ window.doload = function() {
   }
   undoStack = gameState[rules.Name].undoStack;
   const gss = undoPop();
-  // gss will contain seed, redeals, containers
+  if ( gss.hasOwnProperty('containers') ) {
+    // an old version (new version since 20.2.4.0 has .piles); refuse to load
+    console.log('not loading an old saved game');
+    undoReset();
+    delete gameState[rules.Name].undoStack;
+    return false;
+  }
+  // gss will contain seed, redeals, piles
   // check that saved contains the expected number of cards
   let nCards = 0;
-  for ( let i=0; i<gss.containers.length; i++ ) {
-    const obj = gss.containers[i];
-    if ( obj.cards ) {
-      nCards += obj.cards.length;
-    } else {
-      nCards += obj.length;
-    }
+  for ( let i=0; i<gss.piles.length; i++ ) {
+    const obj = gss.piles[i];
+    nCards += obj.cards.length;
   }
   if ( nCards !== stock.expectedNumberOfCards() ) {
     console.log(`found ${nCards} in saved, expected ${stock.expectedNumberOfCards()}`);
@@ -3726,7 +3695,7 @@ window.doload = function() {
   }
 
   for ( let i=0; i<cardContainers.length; i++ ) {
-    cardContainers[i].load(gss.containers[i]);
+    cardContainers[i].load(gss.piles[i]);
   }
   gameState[rules.Name].seed = gss.seed;
   if ( gss.hasOwnProperty('redeals') ) {
