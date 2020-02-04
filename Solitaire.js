@@ -964,35 +964,15 @@ class CardContainer {
    * @param {!SVGGElement} g 
    */
   constructor(pt, g) {
+    // g already has rect child with x, y attributes (from .guts/.html)
     this.pt = pt;
     this.g = g;
     this.cards = /** @type {Card[]} */([]);
     this.a_deal = this.g.getAttribute('deal');
+    this.a_accept = 0;  // by default, accept anything
     this.stackFactor = NaN;
-
-    this.resetAccept();
-
-    cardContainers.push(this);
+    this.rules = null;  // set by subclasses
   }
-
-  /**
-   * Used when restarting a game; give each CardContainer the chance to clean up
-   */
-  // reset() {
-  //   if ( this.a_accept ) {
-  //     console.log('reset a_accept=', this.a_accept);
-  //     delete this.a_accept;
-  //     let oldText = this.g.querySelector('text');
-  //     if ( oldText ) {
-  //       this.g.removeChild(oldText);
-  //     }
-  //     // TODO refactor
-  //     this.resetAccept();
-  //     if ( this.a_accept ) {
-  //       this.createAcceptSVG_();
-  //     }
-  //   }
-  // }
 
   /**
    * @private
@@ -1007,24 +987,25 @@ class CardContainer {
   /**
    * Added so starting a new deal will reset accept in dynamically-set accepts (Duchess)
    */
-  resetAccept() {
+  loadAccept() {
     // accept is either:
     // missing - we accept anything, stored as 0
     // a symbol - special rules
     // a number - card ordinal usually 1=Ace or 13=King
     // if it's missing/0, it can get overriden by rules.Foundation|Tableau.accept
 
-    // getAttribute can return null or empty string on failure
-    // in javascript, both null and "" are false
-    this.a_accept = this.g.getAttribute('accept') || 0;
-    if ( this.a_accept !== 0 ) {
-      console.log('reload accept from html', this.a_accept);
-      if ( !this.isAcceptSymbol_() ) {
-        this.a_accept = Number.parseInt(this.a_accept, 10);
-        console.assert(!isNaN(this.a_accept));
+    // Foundation and Tableau classes will have this.rules set by constructor
+    if ( this.rules && this.rules.hasOwnProperty('accept') ) {
+      this.a_accept = this.rules.accept;
+      // console.log('load accept from rules', this.a_accept);
+      if ( this.a_accept !== 0 ) {
+        if ( !this.isAcceptSymbol_() ) {
+          this.a_accept = Number.parseInt(this.a_accept, 10);
+          console.assert(!isNaN(this.a_accept));
+        }
       }
+      this.createAcceptSVG_();
     }
-    this.createAcceptSVG_();
   }
 
   /**
@@ -1033,7 +1014,6 @@ class CardContainer {
   createAcceptSVG_() {
     // gets updated by Canfield calling dostar()
     // g has .rect and .text children
-    console.log('create accept svg', this.a_accept);
 
     let oldText = this.g.querySelector('text');
     if ( oldText ) {
@@ -1096,17 +1076,8 @@ class CardContainer {
     }
 
     if ( this.a_accept !== scc.accept ) {
-      console.log('updating a_accept');
-      delete this.a_accept;
-      let oldText = this.g.querySelector('text');
-      if ( oldText ) {
-        this.g.removeChild(oldText);
-      }
-      // TODO refactor
       this.a_accept = scc.accept;
-      if ( this.a_accept ) {
-        this.createAcceptSVG_();
-      }
+      this.createAcceptSVG_();
     }
     this.cards = /** @type {Card[]} */([]);
     scc.cards.forEach( sc => {
@@ -2451,13 +2422,10 @@ class Foundation extends CardContainer {
    */
   constructor(pt, g) {
     super(pt, g);
+    this.rules = rules.Foundation;
+    this.loadAccept();
     this.resetStackFactor_(rules.Foundation);
     this.scattered = false;
-    if ( 0 === this.a_accept && rules.Foundation.accept ) {
-      // accept not specified in guts, so we use rules
-      this.a_accept = rules.Foundation.accept;
-      this.createAcceptSVG_();
-    }
     this.a_complete = this.g.getAttribute('complete');  // e.g. "♥01"
     if ( this.a_complete ) {
       this.a_completeSuit = this.a_complete.charAt(0);
@@ -2849,6 +2817,7 @@ class Tableau extends CardContainer {
   constructor(pt, g) {
     super(pt, g);
     this.rules = rules.Tableau;
+    this.loadAccept();
     this.resetStackFactor_(this.rules);
     if ( 0 === this.a_accept && this.rules.accept ) {
       // accept not specified in guts, so we use rules
@@ -3275,7 +3244,9 @@ function linkClasses(ccClasses) {
       const x = Number.parseInt(r.getAttribute('x'), 10) || 0;
       const y = Number.parseInt(r.getAttribute('y'), 10) || 0;
       const pt = Util.newPoint(x, y);
-      dst.push(new ccClass(pt, g));
+      const newCC = new ccClass(pt, g);
+      cardContainers.push(newCC);
+      dst.push(newCC);
     });
   });
   return dst;
@@ -3551,7 +3522,7 @@ function restart(seed=undefined) {
       cc.cards = /** @type {Card[]} */([]);
     }
     // TODO reset each container (Duchess a_accept)
-    cc.resetAccept();
+    cc.loadAccept();
   });
   stock.cards.forEach( c => {
     c.owner = stock;
@@ -3627,7 +3598,7 @@ class SavedCardContainer {
    * @param {CardContainer} cc
    */
   constructor(cc) {
-    this.accept = cc.a_accept;
+    this.accept = cc.a_accept || 0;
     this.cards = /** @type {SavedCard[]} */([]);
     cc.cards.forEach(c => this.cards.push(new SavedCard(c)));
   }
