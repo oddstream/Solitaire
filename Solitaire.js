@@ -7,7 +7,7 @@ import {Util} from './Util.js';
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '20.2.4.0',
+  GAME_VERSION: '20.2.4.3',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -994,18 +994,25 @@ class CardContainer {
     // a number - card ordinal usually 1=Ace or 13=King
     // if it's missing/0, it can get overriden by rules.Foundation|Tableau.accept
 
-    // Foundation and Tableau classes will have this.rules set by constructor
-    if ( this.rules && this.rules.hasOwnProperty('accept') ) {
-      this.a_accept = this.rules.accept;
-      // console.log('load accept from rules', this.a_accept);
-      if ( this.a_accept !== 0 ) {
-        if ( !this.isAcceptSymbol_() ) {
-          this.a_accept = Number.parseInt(this.a_accept, 10);
-          console.assert(!isNaN(this.a_accept));
-        }
+    // Bisley, AcesAndKings: accept may be an attribute of g, eg:
+    // <g class="Foundation" accept="13" reverse="1"><rect x="0" y="0"></rect></g>
+    this.a_accept = this.g.getAttribute('accept') || 0;
+    // getAttribute returns null or "" when it fails; both are falsy in Javascript
+    if ( this.a_accept === 0 ) {
+      // Foundation and Tableau classes will have this.rules set by constructor
+      if ( this.rules && this.rules.hasOwnProperty('accept') ) {
+        this.a_accept = this.rules.accept;
       }
-      this.createAcceptSVG_();
     }
+
+    // console.log('load accept from rules', this.a_accept);
+    if ( this.a_accept !== 0 ) {
+      if ( !this.isAcceptSymbol_() ) {
+        this.a_accept = Number.parseInt(this.a_accept, 10);
+        console.assert(!isNaN(this.a_accept));
+      }
+    }
+    this.createAcceptSVG_();
   }
 
   /**
@@ -3521,8 +3528,7 @@ function restart(seed=undefined) {
       stock.cards = stock.cards.concat(cc.cards);
       cc.cards = /** @type {Card[]} */([]);
     }
-    // TODO reset each container (Duchess a_accept)
-    cc.loadAccept();
+    cc.loadAccept();  // reset each container (Duchess a_accept)
   });
   stock.cards.forEach( c => {
     c.owner = stock;

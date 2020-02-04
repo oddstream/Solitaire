@@ -5,7 +5,7 @@
     "Winnable":[],
     "Stock":{"packs":1, "hidden":1},
     "Foundation":{"suit":2, "rank":1, "accept":1},
-    "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":4, "rank":2}}
+    "Tableau":{"build":{"suit":4, "rank":2}, "move":{"suit":4, "rank":2}, "accept":13}
 }
 </script>
 
@@ -20,14 +20,14 @@
     <g class="Foundation"><rect x="6" y="0"></rect></g>
     <g class="Foundation"><rect x="7" y="0"></rect></g>
 
-    <g class="TableauFreecell" deal="uuuuuu" accept="13"><rect x="0"  y="1"></rect></g>
-    <g class="TableauFreecell" deal="uuuuuu" accept="13"><rect x="1"  y="1"></rect></g>
-    <g class="TableauFreecell" deal="uuuuuu" accept="13"><rect x="2" y="1"></rect></g>
-    <g class="TableauFreecell" deal="uuuuuu" accept="13"><rect x="3" y="1"></rect></g>
-    <g class="TableauFreecell" deal="uuuuuu" accept="13"><rect x="4" y="1"></rect></g>
-    <g class="TableauFreecell" deal="uuuuuu" accept="13"><rect x="5" y="1"></rect></g>
-    <g class="TableauFreecell" deal="uuuuuu" accept="13"><rect x="6" y="1"></rect></g>
-    <g class="TableauFreecell" deal="uuuuuu" accept="13"><rect x="7" y="1"></rect></g>
+    <g class="TableauFreecell" deal="uuuuuu"><rect x="0"  y="1"></rect></g>
+    <g class="TableauFreecell" deal="uuuuuu"><rect x="1"  y="1"></rect></g>
+    <g class="TableauFreecell" deal="uuuuuu"><rect x="2" y="1"></rect></g>
+    <g class="TableauFreecell" deal="uuuuuu"><rect x="3" y="1"></rect></g>
+    <g class="TableauFreecell" deal="uuuuuu"><rect x="4" y="1"></rect></g>
+    <g class="TableauFreecell" deal="uuuuuu"><rect x="5" y="1"></rect></g>
+    <g class="TableauFreecell" deal="uuuuuu"><rect x="6" y="1"></rect></g>
+    <g class="TableauFreecell" deal="uuuuuu"><rect x="7" y="1"></rect></g>
 
     <g class="Stock">
         <rect x="1" y="-1"></rect>

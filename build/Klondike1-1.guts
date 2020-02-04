@@ -13,10 +13,10 @@
     <g class="StockKlondike"><rect x="0" y="0"></rect></g>
     <g class="Waste"><rect x="1" y="0"></rect></g>
 
-    <g class="Foundation" accept="1"><rect x="3" y="0"></rect></g>
-    <g class="Foundation" accept="1"><rect x="4" y="0"></rect></g>
-    <g class="Foundation" accept="1"><rect x="5" y="0"></rect></g>
-    <g class="Foundation" accept="1"><rect x="6" y="0"></rect></g>
+    <g class="Foundation"><rect x="3" y="0"></rect></g>
+    <g class="Foundation"><rect x="4" y="0"></rect></g>
+    <g class="Foundation"><rect x="5" y="0"></rect></g>
+    <g class="Foundation"><rect x="6" y="0"></rect></g>
 
     <g class="TableauTail" deal="u"><rect x="0" y="1"></rect></g>
     <g class="TableauTail" deal="du"><rect x="1" y="1"></rect></g>

@@ -17,8 +17,8 @@
     <g class="Foundation" accept="13" reverse="1"><rect x="2" y="0"></rect></g>
     <g class="Foundation" accept="13" reverse="1"><rect x="3" y="0"></rect></g>
 
-    <g class="Foundation" deal="♥01"><rect  x="0" y="1"></rect></g>
-    <g class="Foundation" deal="♦01"><rect  x="1" y="1"></rect></g>
+    <g class="Foundation" deal="♥01"><rect x="0" y="1"></rect></g>
+    <g class="Foundation" deal="♦01"><rect x="1" y="1"></rect></g>
     <g class="Foundation" deal="♣01"><rect x="2" y="1"></rect></g>
     <g class="Foundation" deal="♠01"><rect x="3" y="1"></rect></g>
 
