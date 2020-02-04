@@ -237,7 +237,7 @@ window.doundo = function() {
   }
 
   for ( let i=0; i<cardContainers.length; i++ ) {
-    cardContainers[i].load2(cache, saved.containers[i]);  // calls Card.destructor
+    cardContainers[i].load3(cache, saved.containers[i]);  // calls Card.destructor
   }
   if ( saved.hasOwnProperty('redeals') ) {
     stock.redeals = saved.redeals;
@@ -949,13 +949,6 @@ class Card {
     this.g.firstChild.classList.remove('grabbed');
   }
 
-  /**
-   * @returns {!Object}
-   */
-  getSaveableCard() {
-    return {'pack':this.pack, 'suit':this.suit, 'ordinal':this.ordinal, 'faceDown':this.faceDown};
-  }
-
   destructor() {
     this.removeListeners_();
     baize.ele.removeChild(this.g);
@@ -977,6 +970,24 @@ class CardContainer {
     this.resetAccept();
 
     cardContainers.push(this);
+  }
+
+  /**
+   * Used when restarting a game; give each CardContainer the chance to clean up
+   */
+  reset() {
+    if ( this.a_accept ) {
+      delete this.a_accept;
+      let oldText = this.g.querySelector('text');
+      if ( oldText ) {
+        this.g.removeChild(oldText);
+      }
+      // TODO refactor
+      this.resetAccept();
+      if ( this.a_accept ) {
+        this.createAcceptSVG_();
+      }
+    }
   }
 
   /**
@@ -1038,12 +1049,23 @@ class CardContainer {
   }
 
   /**
-   * @param {Array} arr
+   * @param {object} obj
    */
-  load(arr) {
-    if ( arr ) {
-      this.cards.forEach( c => c.destructor() );
-      this.cards = /** @type {Card[]} */([]);
+  load(obj) {
+    if ( !obj ) { return; }
+
+    this.cards.forEach( c => c.destructor() );
+    this.cards = /** @type {Card[]} */([]);
+
+    if ( !Array.isArray(obj) ) {
+      const scc = /* @type {SavedCardContainer}*/(obj);
+      scc.cards.forEach( /** @type {SavedCard} */(sc) => {
+        const c = new Card(sc.pack, sc.suit, sc.ordinal, sc.faceDown, this.pt);
+        baize.ele.appendChild(c.g);
+        this.push(c);
+      });
+    } else {
+      const arr = /* @type {Array} */(obj);
       arr.forEach( a => {
         const c = new Card(a.pack, a.suit, a.ordinal, a.faceDown, this.pt);
         baize.ele.appendChild(c.g);
@@ -1066,13 +1088,66 @@ class CardContainer {
         }
       }
     }
-  
+
+    console.assert(Array.isArray(arr));
+
     this.cards = /** @type {Card[]} */([]);
     arr.forEach( a => {
       const c = findCardInCache(a);
       if ( a.faceDown && !c.faceDown ) {
         c.flipDown();
       } else if ( !a.faceDown && c.faceDown ) {
+        c.flipUp();
+      }
+      this.push(c);
+    });
+  }
+
+  /**
+   * @param {Card[]} cache
+   * @param {Object} obj
+   */
+  load3(cache, obj) {
+    if ( Array.isArray(obj) ) {
+      console.log('loading old Saved Card[]');
+      this.load2(cache, obj);
+      return;
+    }
+
+    /**
+     * @param {SavedCard} sc
+     */
+    function findCardInCache(sc) {
+      for ( let i=0; i<cache.length; i++ ) {
+        const c = cache[i];
+        if ( sc.pack === c.pack && sc.suit == c.suit && sc.ordinal == c.ordinal ) {
+          return c;
+        }
+      }
+    }
+
+    console.log('loading new SavedCardContainer');
+
+    const scc = /* @type {SavedCardContainer}*/(obj);
+    if ( this.a_accept !== scc.accept ) {
+      console.log('updating a_accept');
+      delete this.a_accept;
+      let oldText = this.g.querySelector('text');
+      if ( oldText ) {
+        this.g.removeChild(oldText);
+      }
+      // TODO refactor
+      this.a_accept = scc.accept;
+      if ( this.a_accept ) {
+        this.createAcceptSVG_();
+      }
+    }
+    this.cards = /** @type {Card[]} */([]);
+    scc.cards.forEach( sc => {
+      const c = findCardInCache(sc);
+      if ( sc.faceDown && !c.faceDown ) {
+        c.flipDown();
+      } else if ( !sc.faceDown && c.faceDown ) {
         c.flipUp();
       }
       this.push(c);
@@ -1447,15 +1522,6 @@ class CardContainer {
    */
   isComplete() {
     return 0 === this.cards.length;
-  }
-
-  /**
-   * @returns {Array}
-   */
-  getSaveableCards() {
-    const o = [];
-    this.cards.forEach(c => o.push(c.getSaveableCard()));
-    return o;
   }
 
   /**
@@ -1929,7 +1995,7 @@ class StockAgnes extends Stock {
   onclick(c) {
     undoPush();
     for ( const r of reserves ) {
-      if ( r.cards.length > 0 ) {
+      if ( this.cards.length > 0 ) {
         moveCards(this, r, 1);
         undoPop();
       }
@@ -3518,6 +3584,8 @@ function restart(seed=undefined) {
       stock.cards = stock.cards.concat(cc.cards);
       cc.cards = /** @type {Card[]} */([]);
     }
+    // TODO reset each container (Duchess a_accept)
+    cc.reset();
   });
   stock.cards.forEach( c => {
     c.owner = stock;
@@ -3575,15 +3643,37 @@ function doautocollect() {
   }
 }
 */
+
+class SavedCard {
+  /**
+   * @param {Card} c
+   */
+  constructor(c) {
+    this.pack = c.pack;
+    this.suit = c.suit;
+    this.ordinal = c.ordinal;
+    this.faceDown = c.faceDown;
+  }
+}
+
+class SavedCardContainer {
+  /**
+   * @param {CardContainer} cc
+   */
+  constructor(cc) {
+    this.accept = cc.a_accept;
+    this.cards = /** @type {SavedCard[]} */([]);
+    cc.cards.forEach(c => this.cards.push(new SavedCard(c)));
+  }
+}
+
 class Saved {
   constructor() {
     this.seed = gameState[rules.Name].seed;
     this.redeals = stock.redeals;
-    // this.moves no longer need this
-    // this.undo no longer need this
-    this.containers = [];
+    this.containers = /** @type {SavedCardContainer[]} */([]);
     for ( let i=0; i<cardContainers.length; i++ ) {
-      this.containers[i] = cardContainers[i].getSaveableCards();
+      this.containers[i] = new SavedCardContainer(cardContainers[i]);
     }
   }
 }
@@ -3611,6 +3701,7 @@ window.doloadposition = function() {
  * @return {Boolean}
  */
 window.doload = function() {
+  // console.log('last version', settings.lastVersion);
   // games are saved by popping current state onto undoStack and saving that
   if ( gameState[rules.Name].undoStack.length === 0 ) {
     return false;
@@ -3621,7 +3712,12 @@ window.doload = function() {
   // check that saved contains the expected number of cards
   let nCards = 0;
   for ( let i=0; i<gss.containers.length; i++ ) {
-    nCards += gss.containers[i].length;
+    const obj = gss.containers[i];
+    if ( obj.cards ) {
+      nCards += obj.cards.length;
+    } else {
+      nCards += obj.length;
+    }
   }
   if ( nCards !== stock.expectedNumberOfCards() ) {
     console.log(`found ${nCards} in saved, expected ${stock.expectedNumberOfCards()}`);

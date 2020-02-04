@@ -5,7 +5,7 @@
   "Winnable":[],
   "Stock":{"packs":1, "redeals":0},
   "Foundation":{"suit":2, "rank":1, "rankwrap":1},
-  "Reserve":{"maxfan":1.5},
+  "Reserve":{"fan":"None"},
   "Tableau":{"build":{"suit":3, "rank":2}, "move":{"suit":3, "rank":2}, "accept":"\u00D7"}
 }
 </script>
@@ -26,11 +26,11 @@
     <g class="Reserve" deal="u"><rect x="5" y="1"></rect></g>
     <g class="Reserve" deal="u"><rect x="6" y="1"></rect></g>
 
-    <g class="TableauTail" deal="u"><rect x="0" y="2.6"></rect></g>
-    <g class="TableauTail" deal="du"><rect x="1" y="2.6"></rect></g>
-    <g class="TableauTail" deal="ddu"><rect x="2" y="2.6"></rect></g>
-    <g class="TableauTail" deal="dddu"><rect x="3" y="2.6"></rect></g>
-    <g class="TableauTail" deal="ddddu"><rect x="4" y="2.6"></rect></g>
-    <g class="TableauTail" deal="dddddu"><rect x="5" y="2.6"></rect></g>
-    <g class="TableauTail" deal="ddddddu"><rect x="6" y="2.6"></rect></g>
+    <g class="TableauTail" deal="u"><rect x="0" y="2"></rect></g>
+    <g class="TableauTail" deal="du"><rect x="1" y="2"></rect></g>
+    <g class="TableauTail" deal="ddu"><rect x="2" y="2"></rect></g>
+    <g class="TableauTail" deal="dddu"><rect x="3" y="2"></rect></g>
+    <g class="TableauTail" deal="ddddu"><rect x="4" y="2"></rect></g>
+    <g class="TableauTail" deal="dddddu"><rect x="5" y="2"></rect></g>
+    <g class="TableauTail" deal="ddddddu"><rect x="6" y="2"></rect></g>
 

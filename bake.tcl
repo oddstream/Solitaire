@@ -134,8 +134,10 @@ if { $argc > 0 } then {
       c:/Users/oddst/Dropbox/Apps/My.DropPages/oddstream.droppages.com/Content
   } elseif { [lindex $argv 0] eq "git" } then {
     puts "Publishing to local copy of github pages"
-    puts "(remember to commit and push)"
     publish "c:/Users/oddst/website/oddstream.github.io/Solitaire/"
+    puts "git add --all"
+    puts "git commit -m \"version\""
+    puts "git push -u origin master"
   }
 }
 

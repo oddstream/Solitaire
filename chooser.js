@@ -201,13 +201,13 @@ const Variants = [
     'File':'AmericanToad',
     'Wikipedia':'https://en.wikipedia.org/wiki/American_Toad_(solitaire)'
 },
-// {
-//   'Name':'Duchess',
-//   'Type':'All,Canfield',
-//   'Desc':'Similar to Canfield, but has more scope for strategy.',
-//   'File':'Duchess',
-//   'Wikipedia':'https://en.wikipedia.org/wiki/Duchess_(solitaire)',
-// },
+{
+  'Name':'Duchess',
+  'Type':'All,Canfield',
+  'Desc':'Similar to Canfield, but has more scope for strategy.',
+  'File':'Duchess',
+  'Wikipedia':'https://en.wikipedia.org/wiki/Duchess_(solitaire)',
+},
 {
     'Name':'Golf',
     'Type':'All,Golf',
