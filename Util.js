@@ -111,5 +111,22 @@ export const Util = {
     for ( let a in attribs ) {
       ele.setAttributeNS(null, a, attribs[a]);
     }
-  }
+  },
+
+  /**
+   * @param {string} id
+   */
+  play(id) {
+    console.log(`audio#${id}`);
+    let ele = /** @type {HTMLMediaElement} */(document.querySelector(`audio#${id}`));
+    var promise = ele.play();
+    if (promise !== undefined) {
+      promise.then(_ => {
+        // Autoplay started!
+      }).catch(error => {
+        // Autoplay was prevented.
+      });
+    }
+  },
+
 };

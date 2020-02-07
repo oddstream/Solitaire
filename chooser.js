@@ -322,7 +322,7 @@ const Variants = [
 },
 {
     'Name':'Limited',
-    'Type':'All,Forty Thieves',
+    'Type':'All,Two Packs,Forty Thieves',
     'Desc':'easier version of Forty Thieves with more tableaux piles',
     'File':'Limited',
     'Wikipedia':'https://en.wikipedia.org/wiki/Forty_Thieves_(card_game)'

@@ -176,6 +176,7 @@ let undoStack = /* @type {Saved[]} */([]);  // can't be a const because we load 
  * @param {!number} n
  */
 function moveCards(from, to, n) {
+  Util.play(1 == n ? 'move1' : 'move2');
   undoPush()
   if ( 0 == n ) {
     console.error('moveCards(0)');
@@ -229,6 +230,9 @@ window.doundo = function() {
     displayToast('nothing to undo');
     return;
   }
+
+  Util.play('undo');
+
   const /* @type {Saved} */saved = undoPop();
 
   // make a cache of all the cards to avoid destroying/creating them
@@ -3476,6 +3480,7 @@ function gameOver() {
 
   if ( isComplete() ) {
     console.log('recording stats for won game', GSRN);
+
     GSRN.totalGames += 1;
     GSRN.totalMoves += undoStack.length;
   
@@ -3658,6 +3663,7 @@ window.doload = function() {
     delete gameState[rules.Name].undoStack;
     return false;
   }
+  Util.play('load');
   // gss will contain seed, redeals, piles
   // check that saved contains the expected number of cards
   let nCards = 0;
@@ -3688,7 +3694,7 @@ window.doload = function() {
 
 const modalStarSeedFn = M.Modal.getInstance(document.getElementById('modalStarSeed'));
 modalStarSeedFn.options.onOpenStart = function() {
-  const ele = document.getElementById('starSeed');
+  const ele = /** @type {HTMLInputElement} */(document.getElementById('starSeed'));
   if ( ele ) {
     ele.value = String(gameState[rules.Name].seed);
     ele.focus();
@@ -3885,6 +3891,7 @@ window.dohelp = function() {
 }
 
 function dealCards() {
+  Util.play('deal');
   cardContainers.forEach( cc => {
     window.setTimeout( () => cc.deal(), 100 );
   });
@@ -4098,6 +4105,7 @@ const checkIfGameOver = () => {
   .then( (value) => {
     // console.log(`wait ${Math.round(value)}ms`);
     if ( isComplete() ) {
+      Util.play('complete');
       if ( foundations.every( f => !f.scattered ) ) {
         foundations.forEach( f => f.scatter() );
         waitForCards()

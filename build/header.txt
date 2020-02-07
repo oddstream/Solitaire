@@ -34,7 +34,14 @@
     </head>
     
     <body>
-
+		<audio src="audio/complete.wav" type="audio/wav" id="complete" preload="auto"></audio>
+		<audio src="audio/cardFan1.wav" type="audio/wav" id="deal" preload="auto"></audio>
+		<audio src="audio/cardFan2.wav" type="audio/wav" id="load" preload="auto"></audio>
+		<audio src="audio/cardPlace3.wav" type="audio/wav" id="move1" preload="auto"></audio>
+		<audio src="audio/cardPlace4.wav" type="audio/wav" id="move2" preload="auto"></audio>
+		<audio src="audio/cardPlace1.wav" type="audio/wav" id="move3" preload="auto"></audio>
+		<audio src="audio/cardPlace2.wav" type="audio/wav" id="move4" preload="auto"></audio>
+		<audio src="audio/cardOpenPackage2.wav" type="audio/wav" id="undo" preload="auto"></audio>
     <nav>
     <div class="nav-wrapper white-text grey darken-4">
     <div class="row">

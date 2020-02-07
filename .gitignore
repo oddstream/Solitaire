@@ -3,6 +3,10 @@
 # except ones which are maintained by hand
 !faq.html
 !index.html
+!chooser.html
+
+# ignore audio files
+audio/*
 
 # ignore old gulp node_modules folder
 node_modules/*
