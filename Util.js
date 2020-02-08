@@ -117,14 +117,13 @@ export const Util = {
    * @param {string} id
    */
   play(id) {
-    console.log(`audio#${id}`);
     let ele = /** @type {HTMLMediaElement} */(document.querySelector(`audio#${id}`));
     var promise = ele.play();
     if (promise !== undefined) {
       promise.then(_ => {
-        // Autoplay started!
+        // console.log(`Play audio#${id}`);
       }).catch(error => {
-        // Autoplay was prevented.
+        // console.log(`Autoplay prevented audio#${id}`);
       });
     }
   },

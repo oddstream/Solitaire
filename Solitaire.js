@@ -103,7 +103,7 @@ class Baize {
         r.setAttributeNS(null, 'x', String(x + b));
       }
     });
-    cardContainers.forEach( cc => {
+    piles.forEach( cc => {
       cc.pt.x += b;
       cc.cards.forEach( c => {
         c.pt.x += b;
@@ -144,8 +144,8 @@ class Baize {
       this.borderWidth_ = 0;
     }
     this.setBox_();
-    cardContainers.forEach( cc => {
-      cc.cards.forEach( c => {
+    piles.forEach( pile => {
+      pile.cards.forEach( c => {
         c.buildCard_();
       });
     });
@@ -163,7 +163,7 @@ class Baize {
   }
 }
 
-const /** Array<CardContainer> */cardContainers = [];
+const /** Array<Pile> */piles = [];
 let /** @type {KeyFocus} */keyFocus = null;
 const baize = new Baize;
 
@@ -171,8 +171,8 @@ let undoStack = /* @type {Saved[]} */([]);  // can't be a const because we load 
 
 /**
  * Move a number of cards from this stack to another stack
- * @param {!CardContainer} from 
- * @param {!CardContainer} to 
+ * @param {!Pile} from 
+ * @param {!Pile} to 
  * @param {!number} n
  */
 function moveCards(from, to, n) {
@@ -237,14 +237,14 @@ window.doundo = function() {
 
   // make a cache of all the cards to avoid destroying/creating them
   const cache = /** @type {Card[]} */([]);
-  for ( const cc of cardContainers ) {
-    for ( const c of cc.cards ) {
+  for ( const pile of piles ) {
+    for ( const c of pile.cards ) {
       cache.push(c)
     }
   }
 
-  for ( let i=0; i<cardContainers.length; i++ ) {
-    cardContainers[i].load3(cache, saved.piles[i]);  // calls Card.destructor
+  for ( let i=0; i<piles.length; i++ ) {
+    piles[i].load3(cache, saved.piles[i]);  // calls Card.destructor
   }
   if ( saved.hasOwnProperty('redeals') ) {
     stock.redeals = saved.redeals;
@@ -628,9 +628,9 @@ class Card {
       // console.log('simulate a click');
       this.owner.onclick(this);
     } else {
-      const cc = this.getNewOwner();
-      if ( cc ) {
-        this.moveTail(cc);
+      const pile = this.getNewOwner();
+      if ( pile ) {
+        this.moveTail(pile);
       } else {
         this.grabbedTail.forEach( c => {
           c.animate(c.ptOriginal);
@@ -798,7 +798,7 @@ class Card {
 
   /**
    * Move cards from this card to end of stack (the tail) to another stack
-   * @param {!CardContainer} to 
+   * @param {!Pile} to 
    */
   moveTail(to) {
     const nCard = this.owner.cards.findIndex( e => e === this );
@@ -821,13 +821,13 @@ class Card {
   }
 
   /**
-   * Find an accepting CardContainer that this card overlaps the most
-   * @returns {CardContainer|null}
+   * Find an accepting Pile that this card overlaps the most
+   * @returns {Pile|null}
    */
   getNewOwner() {
-    let ccMost = null;
+    let pileMost = null;
     let ovMost = 0;
-    for ( const dst of cardContainers ) {
+    for ( const dst of piles ) {
       if ( this.owner === dst )
         continue;
       if ( this.owner.canTarget(dst) && dst.canAcceptCard(this) ) {
@@ -835,20 +835,20 @@ class Card {
         let ov = this.overlapArea_(tc ? tc.pt : dst.pt);
         if ( ov > ovMost ) {
           ovMost = ov;
-          ccMost = dst;
+          pileMost = dst;
         }
       }
     }
-    return ccMost;
+    return pileMost;
   }
 
   /**
-   * @param {Array<CardContainer>} ccList
-   * @returns {CardContainer|null} 
+   * @param {Array<Pile>} pileList
+   * @returns {Pile|null} 
    */
-  findFullestAcceptingContainer(ccList) {
+  findFullestAcceptingPile(pileList) {
     /**
-     * @param {CardContainer} dst 
+     * @param {Pile} dst 
      * @returns {number}
      */
     const calcWeight = (dst) => {
@@ -860,21 +860,21 @@ class Card {
       }
     };
 
-    let cc = null;
+    let pile = null;
     let max = -1;
-    for ( const dst of ccList ) {
+    for ( const dst of pileList ) {
       if ( dst === this.owner )
         continue;
       if ( this.owner.canTarget(dst) && dst.canAcceptCard(this) ) {
         const max0 = calcWeight(dst);
         if ( max0 > max ) {
           max = max0;
-          cc = dst;
+          pile = dst;
         }
       }
     }
 
-    return cc;
+    return pile;
   }
 
   /**
@@ -886,15 +886,15 @@ class Card {
    */
   potentialMovesToContainers() {
     /**
-     * @param {CardContainer} a 
-     * @param {CardContainer} b 
+     * @param {Pile} a 
+     * @param {Pile} b 
      */
     const sameContainer = (a,b) => (a.constructor.name === b.constructor.name);
 
     console.assert(!(this.owner instanceof Foundation));
     let count = 0;
-    [foundations,tableaux,cells].forEach( ccList => {
-      const dst = this.findFullestAcceptingContainer(ccList);
+    [foundations,tableaux,cells].forEach( pileList => {
+      const dst = this.findFullestAcceptingPile(pileList);
       if ( dst ) {
         // moving a bottom card to an empty container of the same type is futile
         if ( 0 === dst.cards.length && this.owner.cards[0] === this && sameContainer(dst, this.owner) ) {
@@ -928,9 +928,9 @@ class Card {
   /**
    * Mark this card moveable/unmoveable
    * (odd logic because modalSettings may turn sensory cues flag on/off)
-   * @param {CardContainer} ccDst 
+   * @param {Pile} ccDst 
    */
-  markMoveable(ccDst=null) {
+  markMoveable(pileDst=null) {
     if ( this.faceDown )
       return;
     if ( this.g.firstChild.localName !== 'rect' )
@@ -938,7 +938,7 @@ class Card {
     const cl = this.g.firstChild.classList;
     const UN = 'unmoveable';
     if ( settings.sensoryCues ) {
-      if ( ccDst ) {
+      if ( pileDst ) {
         cl.remove(UN);
       } else {
         cl.add(UN); // ignored if class already there
@@ -962,7 +962,7 @@ class Card {
   }
 }
 
-class CardContainer {
+class Pile {
   /**
    * @param {!SVGPoint} pt 
    * @param {!SVGGElement} g 
@@ -1054,15 +1054,15 @@ class CardContainer {
   }
 
   /**
-   * @param {SavedCardContainer} scc
+   * @param {SavedPile} svPile
    */
-  load(scc) {
-    if ( !scc ) { return; }
+  load(svPile) {
+    if ( !svPile ) { return; }
 
     this.cards.forEach( c => c.destructor() );
     this.cards = /** @type {Card[]} */([]);
 
-    scc.cards.forEach( /** @type {SavedCard} */(sc) => {
+    svPile.cards.forEach( /** @type {SavedCard} */(sc) => {
       const c = new Card(sc.pack, sc.suit, sc.ordinal, sc.faceDown, this.pt);
       baize.ele.appendChild(c.g);
       this.push(c);
@@ -1071,9 +1071,9 @@ class CardContainer {
 
   /**
    * @param {Card[]} cache
-   * @param {SavedCardContainer} scc
+   * @param {SavedPile} svPile
    */
-  load3(cache, scc) {
+  load3(cache, svPile) {
     /**
      * @param {SavedCard} sc
      */
@@ -1086,12 +1086,12 @@ class CardContainer {
       }
     }
 
-    if ( this.a_accept !== scc.accept ) {
-      this.a_accept = scc.accept;
+    if ( this.a_accept !== svPile.accept ) {
+      this.a_accept = svPile.accept;
       this.createAcceptSVG_();
     }
     this.cards = /** @type {Card[]} */([]);
-    scc.cards.forEach( sc => {
+    svPile.cards.forEach( sc => {
       const c = findCardInCache(sc);
       if ( sc.faceDown && !c.faceDown ) {
         c.flipDown();
@@ -1133,7 +1133,7 @@ class CardContainer {
    * @param {!Card} c
    */
   onclick(c) {
-    console.error('onclick not implemented in base CardContainer', c);
+    console.error('onclick not implemented in base Pile', c);
   }
 
   /**
@@ -1177,11 +1177,11 @@ class CardContainer {
   }
 
   /**
-   * @param {!CardContainer} cc
+   * @param {!Pile} pile
    * @returns {boolean}
    */
-  canTarget(cc) {
-    console.error('can target container not implemented', cc);
+  canTarget(pile) {
+    console.error('can target container not implemented', pile);
     return false;
   }
 
@@ -1202,7 +1202,7 @@ class CardContainer {
    * @returns {number}
    */
   availableMovesTopCard_() {
-    // used by base CardContainer
+    // used by base Pile
     let count = 0;
     const c = this.peek();
     if ( c ) {
@@ -1486,7 +1486,7 @@ class CardContainer {
   }
 }
 
-class Cell extends CardContainer {
+class Cell extends Pile {
   /**
    * @param {SVGPoint} pt
    * @param {SVGGElement} g
@@ -1504,12 +1504,12 @@ class Cell extends CardContainer {
     if ( !settings.autoPlay )
       return;
 
-    let cc = null;
-    cc = c.findFullestAcceptingContainer(foundations);
-    if ( !cc )
-      cc = c.findFullestAcceptingContainer(tableaux);
-    if ( cc )
-      moveCards(this, cc, 1);
+    let pile = null;
+    pile = c.findFullestAcceptingPile(foundations);
+    if ( !pile )
+      pile = c.findFullestAcceptingPile(tableaux);
+    if ( pile )
+      moveCards(this, pile, 1);
     else
       c.shake();
   }
@@ -1527,13 +1527,13 @@ class Cell extends CardContainer {
 
   /**
    * @override
-   * @param {CardContainer} cc
-   * @returns {boolean} 
+   * @param {Pile} pile
+   * @returns {boolean}
    */
-  canTarget(cc) {
+  canTarget(pile) {
     if ( null === this.rules.target )
       return true;
-    return ( this.rules.target === cc.constructor.name );
+    return ( this.rules.target === pile.constructor.name );
   }
 
   /**
@@ -1577,7 +1577,7 @@ class CellCarpet extends Cell {
   }
 }
 
-class Reserve extends CardContainer {
+class Reserve extends Pile {
   /**
    * 
    * @param {SVGPoint} pt 
@@ -1633,12 +1633,12 @@ class Reserve extends CardContainer {
     if ( !settings.autoPlay )
       return;
 
-    let cc = null;
-    cc = c.findFullestAcceptingContainer(foundations);
-    if ( !cc )
-      cc = c.findFullestAcceptingContainer(tableaux);
-    if ( cc )
-      moveCards(this, cc, 1);
+    let pile = null;
+    pile = c.findFullestAcceptingPile(foundations);
+    if ( !pile )
+      pile = c.findFullestAcceptingPile(tableaux);
+    if ( pile )
+      moveCards(this, pile, 1);
     else
       c.shake();
   }
@@ -1654,13 +1654,13 @@ class Reserve extends CardContainer {
 
   /**
    * @override
-   * @param {CardContainer} cc
+   * @param {Pile} pile
    * @returns {boolean} 
    */
-  canTarget(cc) {
+  canTarget(pile) {
     if ( null === this.rules.target )
       return true;
-    return ( this.rules.target === cc.constructor.name );
+    return ( this.rules.target === pile.constructor.name );
   }
 
   /**
@@ -1713,7 +1713,7 @@ class ReserveFrog extends Reserve {
   }
 }
 
-class Stock extends CardContainer {
+class Stock extends Pile {
   /**
    * @param {SVGPoint} pt
    * @param {SVGGElement} g
@@ -1848,14 +1848,14 @@ class Stock extends CardContainer {
 
   /**
    * @override
-   * @param {CardContainer} cc 
+   * @param {Pile} pile
    * @returns {boolean}
    */
-  canTarget(cc) {
+  canTarget(pile) {
     // override base class to implement
     if ( null === this.rules.target )
       return true;
-    return ( this.rules.target === cc.constructor.name );
+    return ( this.rules.target === pile.constructor.name );
   }
 
   /**
@@ -2226,7 +2226,7 @@ class StockFan extends Stock {
   }
 }
 
-class Waste extends CardContainer {
+class Waste extends Pile {
   /**
    * @param {SVGPoint} pt
    * @param {SVGGElement} g
@@ -2365,14 +2365,14 @@ class Waste extends CardContainer {
     if ( !settings.autoPlay )
       return;
 
-    let cc = null;
-    cc = c.findFullestAcceptingContainer(foundations);
-    if ( !cc )
-      cc = c.findFullestAcceptingContainer(tableaux);
-    if ( !cc )
-      cc = c.findFullestAcceptingContainer(cells);      // Carpet
-    if ( cc )
-      moveCards(this, cc, 1);
+    let pile = null;
+    pile = c.findFullestAcceptingPile(foundations);
+    if ( !pile )
+      pile = c.findFullestAcceptingPile(tableaux);
+    if ( !pile )
+      pile = c.findFullestAcceptingPile(cells);      // Carpet
+    if ( pile )
+      moveCards(this, pile, 1);
     else
       c.shake();
   }
@@ -2390,13 +2390,13 @@ class Waste extends CardContainer {
 
   /**
    * @override
-   * @param {CardContainer} cc
-   * @returns {boolean} 
+   * @param {Pile} pile
+   * @returns {boolean}
    */
-  canTarget(cc) {
+  canTarget(pile) {
     if ( null === this.rules.target )
       return true;
-    return ( this.rules.target === cc.constructor.name );
+    return ( this.rules.target === pile.constructor.name );
   }
 
   /**
@@ -2425,7 +2425,7 @@ class Waste extends CardContainer {
   }
 }
 
-class Foundation extends CardContainer {
+class Foundation extends Pile {
 
   /**
    * @param {SVGPoint} pt
@@ -2480,9 +2480,9 @@ class Foundation extends CardContainer {
       return;
     if ( !settings.autoPlay )
       return;
-    const cc = c.findFullestAcceptingContainer(tableaux);
-    if ( cc )
-      moveCards(this, cc, 1);
+    const pile = c.findFullestAcceptingPile(tableaux);
+    if ( pile )
+      moveCards(this, pile, 1);
     else
       c.shake();
   }
@@ -2531,14 +2531,14 @@ class Foundation extends CardContainer {
 
   /**
    * @override
-   * @param {CardContainer} cc
+   * @param {Pile} pile
    * @returns {boolean}
    */
-  canTarget(cc) {
+  canTarget(pile) {
     // override base class to implement
     if ( null === rules.Foundation.target )
       return true;
-    return ( rules.Foundation.target === cc.constructor.name );
+    return ( rules.Foundation.target === pile.constructor.name );
   }
 
   /**
@@ -2597,8 +2597,8 @@ class Foundation extends CardContainer {
     }
 
     let cardsMoved = 0;
-    cells.forEach( cc => collect_(cc.peek()) );
-    tableaux.forEach( t => collect_(t.peek()) );
+    cells.forEach( cell => collect_(cell.peek()) );
+    tableaux.forEach( tab => collect_(tab.peek()) );
     return cardsMoved > 0;
   }
 
@@ -2820,7 +2820,7 @@ class FoundationSpider extends Foundation {
   }
 }
 
-class Tableau extends CardContainer {
+class Tableau extends Pile {
   /**
    * @param {SVGPoint} pt
    * @param {SVGGElement} g
@@ -2896,13 +2896,13 @@ class Tableau extends CardContainer {
 
   /**
    * @override
-   * @param {CardContainer} cc
+   * @param {Pile} pile
    * @returns {boolean}
    */
-  canTarget(cc) {
+  canTarget(pile) {
     if ( null === this.rules.target )
       return true;
-    return ( this.rules.target === cc.constructor.name );
+    return ( this.rules.target === pile.constructor.name );
   }
 
   /**
@@ -2926,15 +2926,15 @@ class Tableau extends CardContainer {
     if ( !this.canGrab(c) )
       return;
 
-    let cc = null;
+    let pile = null;
     if ( c.isTopCard() )
-      cc = c.findFullestAcceptingContainer(foundations);
-    if ( !cc )
-      cc = c.findFullestAcceptingContainer(tableaux);
-    if ( !cc && c.isTopCard() )
-      cc = c.findFullestAcceptingContainer(cells);
-    if ( cc )
-      c.moveTail(cc);
+      pile = c.findFullestAcceptingPile(foundations);
+    if ( !pile )
+      pile = c.findFullestAcceptingPile(tableaux);
+    if ( !pile && c.isTopCard() )
+      pile = c.findFullestAcceptingPile(cells);
+    if ( pile )
+      c.moveTail(pile);
     else
       c.shake();
   }
@@ -3108,13 +3108,13 @@ class TableauSpider extends TableauTail {
       return;
 
     if ( !this.canGrab(c) )
-      return;
+      returpile
 
-    let cc = c.findFullestAcceptingContainer(foundations);
-    if ( !cc )
-      cc = c.findFullestAcceptingContainer(tableaux);
-    if ( cc )
-      c.moveTail(cc);
+    let pile = c.findFullestAcceptingPile(foundations);
+    if ( !pile )
+      pile = c.findFullestAcceptingPile(tableaux);
+    if ( pile )
+      c.moveTail(pile);
     else
       c.shake();
   }
@@ -3241,36 +3241,36 @@ class TableauGolf extends Tableau {
 }
 
 /**
- * @param {Array} ccClasses 
- * @returns {Array<CardContainer>}
+ * @param {Array} pileClasses 
+ * @returns {Array<Pile>}
  */
-function linkClasses(ccClasses) {
-  const /** Array<CardContainer> */dst = [];
-  ccClasses.forEach ( ccClass => {
+function linkClasses(pileClasses) {
+  const /** Array<Pile> */dst = [];
+  pileClasses.forEach ( pileClass => {
     // window[e] = e; // export for --compilation_level ADVANCED_OPTIMIZATIONS 
     // <g class="StockKlondike"><rect x="10" y="10"></rect></g>
-    document.querySelectorAll('g.' + ccClass.name).forEach( g => {
+    document.querySelectorAll('g.' + pileClass.name).forEach( g => {
       // g contains a rect, the rect contains x,y attributes in SVG coords
       const r = g.querySelector('rect');
       const x = Number.parseInt(r.getAttribute('x'), 10) || 0;
       const y = Number.parseInt(r.getAttribute('y'), 10) || 0;
       const pt = Util.newPoint(x, y);
-      const newCC = new ccClass(pt, g);
-      cardContainers.push(newCC);
-      dst.push(newCC);
+      const newPile = new pileClass(pt, g);
+      piles.push(newPile);
+      dst.push(newPile);
     });
   });
   return dst;
 }
 
 /**
- * @param {Function} ccType
+ * @param {Function} pileType
  * @returns {string}
  */
-function countInstances(ccType) {
+function countInstances(pileType) {
   let count = 0;
-  cardContainers.forEach( cc => {
-    if ( cc instanceof ccType )
+  piles.forEach( pile => {
+    if ( pile instanceof pileType )
       count++;
   });
   return `(${Util.plural(count, 'stack')})`;
@@ -3449,7 +3449,7 @@ function updatePercent() {
 }
 
 function isComplete() {
-  return cardContainers.every( cc => cc.isComplete() );
+  return piles.every( cc => cc.isComplete() );
 }
 
 function pullCardsToFoundations() {
@@ -3462,7 +3462,7 @@ function pullCardsToFoundations() {
 }
 
 function allAvailableMoves() {
-  return cardContainers.reduce( (acc,obj) => {
+  return piles.reduce( (acc,obj) => {
     return acc + obj.availableMoves();
   }, 0);
 }
@@ -3528,7 +3528,7 @@ function gameOver() {
 function restart(seed=undefined) {
   // move all cards back to stock, can't use pop and push
   // because Blockade will try to push them back to an empty tab
-  cardContainers.forEach( cc => {
+  piles.forEach( cc => {
     if ( cc !== stock ) {
       stock.cards = stock.cards.concat(cc.cards);
       cc.cards = /** @type {Card[]} */([]);
@@ -3604,9 +3604,9 @@ class SavedCard {
   }
 }
 
-class SavedCardContainer {
+class SavedPile {
   /**
-   * @param {CardContainer} cc
+   * @param {Pile} cc
    */
   constructor(cc) {
     this.accept = cc.a_accept || 0;
@@ -3619,9 +3619,9 @@ class Saved {
   constructor() {
     this.seed = gameState[rules.Name].seed;
     this.redeals = stock.redeals;
-    this.piles = /** @type {SavedCardContainer[]} */([]);
-    for ( let i=0; i<cardContainers.length; i++ ) {
-      this.piles[i] = new SavedCardContainer(cardContainers[i]);
+    this.piles = /** @type {SavedPile[]} */([]);
+    for ( let i=0; i<piles.length; i++ ) {
+      this.piles[i] = new SavedPile(piles[i]);
     }
   }
 }
@@ -3677,8 +3677,8 @@ window.doload = function() {
     return false;
   }
 
-  for ( let i=0; i<cardContainers.length; i++ ) {
-    cardContainers[i].load(gss.piles[i]);
+  for ( let i=0; i<piles.length; i++ ) {
+    piles[i].load(gss.piles[i]);
   }
   gameState[rules.Name].seed = gss.seed;
   if ( gss.hasOwnProperty('redeals') ) {
@@ -3892,7 +3892,7 @@ window.dohelp = function() {
 
 function dealCards() {
   Util.play('deal');
-  cardContainers.forEach( cc => {
+  piles.forEach( cc => {
     window.setTimeout( () => cc.deal(), 100 );
   });
   waitForCards()
@@ -4029,22 +4029,22 @@ window.onbeforeunload = function(e) {
 
 const someCardsInTransit = () => {
   // let arr = [];
-  // for ( let i=0; i<cardContainers.length; i++ ) {
-  //   for ( let j=0; j<cardContainers[i].cards.length; j++ ) {
-  //     if ( cardContainers[i].cards[j].animationIds.length > 0 )
-  //       arr.push(cardContainers[i].cards[j].id);
+  // for ( let i=0; i<piles.length; i++ ) {
+  //   for ( let j=0; j<piles[i].cards.length; j++ ) {
+  //     if ( piles[i].cards[j].animationIds.length > 0 )
+  //       arr.push(piles[i].cards[j].id);
   //   }
   // }
   // if ( arr.length ) console.log(arr);
 
-  for ( const cc of cardContainers ) {
+  for ( const cc of piles ) {
     if ( cc.cards.some( c => c.animationIds.length ) )
       return true;
   }
 
   // use array indexing for memory
-  // for ( let i=0; i<cardContainers.length; i++ ) {
-  //   const ccds = cardContainers[i].cards;
+  // for ( let i=0; i<piles.length; i++ ) {
+  //   const ccds = piles[i].cards;
   //   for ( let j=0; j<ccds.length; j++ ) {
   //     if ( ccds[j].animationIds.length > 0 )
   //       return true;
@@ -4126,7 +4126,7 @@ function robot() {
     return settings.autoKollect === 'any' || settings.autoKollect === 'safe';
   };
   const autoCollectWhenSolvable = () => {
-    return settings.autoKollect === 'solvable' && cardContainers.every( f => f.isSolveable() );
+    return settings.autoKollect === 'solvable' && piles.every( f => f.isSolveable() );
   };
 
   console.assert(!inRobot);
@@ -4224,17 +4224,17 @@ class KeyFocus {
     this.mark(false);
 
     const nCard = this.c ? this.c.owner.cards.findIndex( e => e === this.c ) : -1;
-    let i = cardContainers.findIndex(e => e == this.cc);
+    let i = piles.findIndex(e => e == this.cc);
     for (;;) {
       if ( 0 === i ) {
-        i = cardContainers.length - 1;
+        i = piles.length - 1;
       } else {
         i -= 1;
       }
-      if ( !cardContainers[i].rules.hidden )
+      if ( !piles[i].rules.hidden )
         break;
     }
-    this.cc = cardContainers[i];
+    this.cc = piles[i];
     if ( nCard >= 0 && nCard < this.cc.cards.length )
       this.c = this.cc.cards[nCard];
     else
@@ -4248,17 +4248,17 @@ class KeyFocus {
     this.mark(false);
 
     const nCard = this.c ? this.c.owner.cards.findIndex( e => e === this.c ) : -1;
-    let i = cardContainers.findIndex(e => e == this.cc);
+    let i = piles.findIndex(e => e == this.cc);
     for (;;) {
-      if ( cardContainers.length - 1 === i ) {
+      if ( piles.length - 1 === i ) {
         i = 0;
       } else {
         i += 1;
       }
-      if ( !cardContainers[i].rules.hidden )
+      if ( !piles[i].rules.hidden )
         break;
     }
-    this.cc = cardContainers[i];
+    this.cc = piles[i];
     if ( nCard >= 0 && nCard < this.cc.cards.length )
       this.c = this.cc.cards[nCard];
     else
@@ -4270,7 +4270,7 @@ class KeyFocus {
 
   moveUp() {
     const findContainerAbove = () => {
-      let ccAbove = cardContainers.find( (cc) => { return ( !cc.rules.hidden && cc.pt.x === this.cc.pt.x && cc.pt.y < this.cc.pt.y ) });
+      let ccAbove = piles.find( (cc) => { return ( !cc.rules.hidden && cc.pt.x === this.cc.pt.x && cc.pt.y < this.cc.pt.y ) });
       if ( ccAbove )
         this.cc = ccAbove;
       return !!ccAbove;
@@ -4295,7 +4295,7 @@ class KeyFocus {
 
   moveDown() {
     const findContainerBelow = () => {
-      let ccBelow = cardContainers.find( (cc) => { return ( !cc.rules.hidden && cc.pt.x === this.cc.pt.x && cc.pt.y > this.cc.pt.y ) });
+      let ccBelow = piles.find( (cc) => { return ( !cc.rules.hidden && cc.pt.x === this.cc.pt.x && cc.pt.y > this.cc.pt.y ) });
       if ( ccBelow )
         this.cc = ccBelow;
       return !!ccBelow;
