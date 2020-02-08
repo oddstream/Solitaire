@@ -8,20 +8,15 @@ There is also a Lua/Corona SDK version of this at the [Google Play Store](https:
 
 ## Implementation
 
-Written in [vanilla ES2017 Javascript](http://vanilla-js.com/),
-formatted as per the [Google style rules](https://google.github.io/styleguide/jsguide.html)
-with [JSDoc](http://usejsdoc.org/) annotations to try to keep the Visual Studio Code type checker quiet.
+Written in [vanilla ES2017 Javascript](http://vanilla-js.com/), formatted as per the [Google style rules](https://google.github.io/styleguide/jsguide.html) with [JSDoc](http://usejsdoc.org/) annotations to try to keep the Visual Studio Code type checker quiet.
  
-Implemented as a small hierarchy of classes;
-a Card class and a Card Container class, with classes derived from that for Stock, Waste, Foundation, Tableau &c.
-Some specialized containers, for example a Freecell tableau, get derived
+Implemented as a small hierarchy of classes; a Card class and a Pile class, with classes derived from that for Stock, Waste, Foundation, Tableau &c.
+Some specialized piles, for example a Freecell tableau, get derived.
 
-Each variant has it's own html file which contains layout information for each container and
-gameplay rules for that variant. The html file consists of boilerplate header and footers,
-wrapped at build time around a central guts file and some SVG symbols. The build script (bake.tcl)
-requires Tcl to be installed and is hardwired to my folder configuration.
+Each variant has it's own html file which contains layout information for each pile and gameplay rules for that variant. The html file consists of boilerplate header and footers,
+wrapped at build time around a central guts file and some SVG symbols. The build script (bake.tcl) requires Tcl to be installed and is hardwired to my folder configuration.
 
-At run time, the layout information in the html is linked to the Javascript card container classes.
+At run time, the layout information in the html is linked to the Javascript pile classes.
 
 The graphics are implemented in SVG, so they scale smoothly.
 
