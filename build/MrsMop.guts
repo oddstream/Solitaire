@@ -1,10 +1,10 @@
 <script type="application/json" id="rules">
 {
   "Name":"Mrs Mop",
-  "Wikipedia":"https://en.wikipedia.org/wiki/Simple_Simon_(solitaire)",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Mrs._Mop",
   "Stock":{"packs":2, "hidden":1},
   "Foundation":{"suit":2, "rank":2, "hidden":1},
-  "Tableau":{"build":{"suit":1, "rank":2, "rankwrap":1}, "move":{"suit":2, "rank":2, "rankwrap":1}}
+  "Tableau":{"build":{"suit":1, "rank":2}, "move":{"suit":2, "rank":2}}
 }
 </script>
 
@@ -32,6 +32,6 @@
     <g class="TableauSpider" deal="uuuuuuuu"><rect x="7" y="0"></rect></g>
     <g class="TableauSpider" deal="uuuuuuuu"><rect x="8" y="0"></rect></g>
     <g class="TableauSpider" deal="uuuuuuuu"><rect x="9" y="0"></rect></g>
-    <g class="TableauSpider" deal="uuuuuuuu"><rect x="0" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="10" y="0"></rect></g>
     <g class="TableauSpider" deal="uuuuuuuu"><rect x="11" y="0"></rect></g>
     <g class="TableauSpider" deal="uuuuuuuu"><rect x="12" y="0"></rect></g>

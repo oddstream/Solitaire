@@ -2434,6 +2434,9 @@ class Foundation extends Pile {
   constructor(pt, g) {
     super(pt, g);
     this.rules = rules.Foundation;
+    if ( this.rules.hidden ) {
+      this.g.style.display = 'none';
+    }
     this.loadAccept();
     this.resetStackFactor_(rules.Foundation);
     this.scattered = false;
@@ -4368,7 +4371,8 @@ document.addEventListener('keydown', function(/** @type {KeyboardEvent} */kev) {
   }
 });
 
-if ( gameState[rules.Name].undoStack && gameState[rules.Name].undoStack.length > 0 && settings.loadSaved ) {
+// if ( gameState[rules.Name].undoStack && gameState[rules.Name].undoStack.length > 0 && settings.loadSaved ) {
+  if ( gameState[rules.Name].undoStack && gameState[rules.Name].undoStack.length > 0 ) {
   if ( !window.doload() ) {
     stock.createPacks();
     window.onload = dealCards;

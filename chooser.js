@@ -1,7 +1,7 @@
 //@ts-check
 'use strict';
 
-const VERSION = '20.2.2.0'; // examined by bake.tcl
+const VERSION = '20.2.10.0'; // examined by bake.tcl
 
 const Variants = [
 {
@@ -499,6 +499,13 @@ const Variants = [
     'Desc':'like a one-deck Spider where all cards start face up in a triangular tableau',
     'File':'SimpleSimon',
     'Wikipedia':'https://en.wikipedia.org/wiki/Simple_Simon_(solitaire)'
+},
+{
+  'Name':'Mrs Mop',
+  'Type':'All,Simple,Spider',
+  'Desc':'Invented by Charles Jewell, it is a relative of Spider in which all of the cards are dealt face up at the beginning of the game.',
+  'File':'MrsMop',
+  'Wikipedia':'https://en.wikipedia.org/wiki/Mrs._Mop'
 },
 {
     'Name':'Fortress',
