@@ -1,0 +1,37 @@
+<script type="application/json" id="rules">
+{
+  "Name":"Mrs Mop Relaxed",
+  "Wikipedia":"https://en.wikipedia.org/wiki/Mrs._Mop",
+  "Stock":{"packs":2, "hidden":1},
+  "Foundation":{"suit":2, "rank":2, "hidden":1},
+  "Tableau":{"build":{"suit":1, "rank":2, "rankwrap":1}, "move":{"suit":2, "rank":2, "rankwrap":1}}
+}
+</script>
+
+<svg id="baize" xmlns="http://www.w3.org/2000/svg">
+    <g class="Stock">
+      <rect x="0" y="0"></rect>
+    </g>
+
+    <g class="FoundationSpider"><rect x="2" y="-1"></rect></g>
+    <g class="FoundationSpider"><rect x="3" y="-1"></rect></g>
+    <g class="FoundationSpider"><rect x="4" y="-1"></rect></g>
+    <g class="FoundationSpider"><rect x="5" y="-1"></rect></g>
+    <g class="FoundationSpider"><rect x="6" y="-1"></rect></g>
+    <g class="FoundationSpider"><rect x="7" y="-1"></rect></g>
+    <g class="FoundationSpider"><rect x="8" y="-1"></rect></g>
+    <g class="FoundationSpider"><rect x="9" y="-1"></rect></g>
+
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="0" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="1" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="2" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="3" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="4" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="5" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="6" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="7" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="8" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="9" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="10" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="11" y="0"></rect></g>
+    <g class="TableauSpider" deal="uuuuuuuu"><rect x="12" y="0"></rect></g>

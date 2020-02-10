@@ -7,7 +7,7 @@ import {Util} from './Util.js';
 
 const Constants = {
   GAME_NAME: 'Oddstream Solitaire',
-  GAME_VERSION: '20.2.4.3',
+  GAME_VERSION: '20.2.10.1',
   SVG_NAMESPACE: 'http://www.w3.org/2000/svg',
   LOCALSTORAGE_SETTINGS: 'Oddstream Solitaire Settings',
   LOCALSTORAGE_GAMES: 'Oddstream Solitaire Games',
@@ -243,8 +243,13 @@ window.doundo = function() {
     }
   }
 
+  console.assert(saved.seed==GSRN.seed);
+
   for ( let i=0; i<piles.length; i++ ) {
     piles[i].load3(cache, saved.piles[i]);  // calls Card.destructor
+  }
+  if ( saved.hasOwnProperty('savedPosition') ) {
+    GSRN.savedPosition = saved.savedPosition;
   }
   if ( saved.hasOwnProperty('redeals') ) {
     stock.redeals = saved.redeals;
@@ -1164,7 +1169,7 @@ class Pile {
       }
     }
 
-    gameState[rules.Name].seed = seed;
+    GSRN.seed = seed;
   }
 
   /**
@@ -2191,9 +2196,9 @@ class StockFan extends Stock {
         c.position1(stock.pt.x, stock.pt.y);
       });
 
-      const oldSeed = gameState[rules.Name].seed;
+      const oldSeed = GSRN.seed;
       stock.sort(123456);         // just some made up, reproduceable seed
-      gameState[rules.Name].seed = oldSeed;   // sort(n) over-writes this
+      GSRN.seed = oldSeed;   // sort(n) over-writes this
 
       tableaux.forEach( t => {
         window.setTimeout( () => t.deal(), 0 );
@@ -3479,8 +3484,6 @@ window.doshowavailablemoves = function() {
 }
 
 function gameOver() {
-  const GSRN = gameState[rules.Name];
-
   if ( isComplete() ) {
     console.log('recording stats for won game', GSRN);
 
@@ -3551,8 +3554,8 @@ function restart(seed=undefined) {
   undoReset();
   updatePercent();
   foundations.forEach( f => f.scattered = false );
-  if ( gameState[rules.Name].undoStack ) {
-    gameState[rules.Name].undoStack = [];
+  if ( GSRN.undoStack ) {
+    GSRN.undoStack = [];
   }
   dealCards();
 }
@@ -3578,7 +3581,7 @@ window.dostarseeddeal = function() {
 
 window.doreplay = function() {
   gameOver();
-  restart(gameState[rules.Name].seed);
+  restart(GSRN.seed);
 }
 
 window.dofindnewgame = function() {
@@ -3620,7 +3623,10 @@ class SavedPile {
 
 class Saved {
   constructor() {
-    this.seed = gameState[rules.Name].seed;
+    this.seed = GSRN.seed;
+    if ( GSRN.hasOwnProperty('savedPosition') ) {
+      this.savedPosition = GSRN.savedPosition
+    }
     this.redeals = stock.redeals;
     this.piles = /** @type {SavedPile[]} */([]);
     for ( let i=0; i<piles.length; i++ ) {
@@ -3630,48 +3636,48 @@ class Saved {
 }
 
 window.dosaveposition = function() {
-  gameState[rules.Name].savedPosition = undoStack.length;
+  GSRN.savedPosition = undoStack.length;
   displayToast('this position saved');
 }
 
 window.doloadposition = function() {
-  if ( !gameState[rules.Name].hasOwnProperty('savedPosition') ) {
+  if ( !GSRN.hasOwnProperty('savedPosition') ) {
     displayToast('no saved position');
-  } else if ( gameState[rules.Name].savedPosition < undoStack.length ) {
-    while ( undoStack.length > gameState[rules.Name].savedPosition ) {
+  } else if ( GSRN.savedPosition < undoStack.length ) {
+    while ( undoStack.length > GSRN.savedPosition ) {
       window.doundo();
     }
     // keep the saved position, it's obviously meaningful to the player
-    // delete gameState[rules.Name].savedPosition;
+    // delete GSRN.savedPosition;
   }
 }
 
 /**
- * Load game from gameState[rules.Name]
+ * Load game from GSRN / gameState[rules.Name]
  * 
  * @return {Boolean}
  */
 window.doload = function() {
   // console.log('last version', settings.lastVersion);
   // games are saved by popping current state onto undoStack and saving that
-  if ( gameState[rules.Name].undoStack.length === 0 ) {
+  if ( GSRN.undoStack.length === 0 ) {
     return false;
   }
-  undoStack = gameState[rules.Name].undoStack;
-  const gss = undoPop();
-  if ( gss.hasOwnProperty('containers') ) {
+  undoStack = GSRN.undoStack;
+  const saved = undoPop();
+  if ( saved.hasOwnProperty('containers') ) {
     // an old version (new version since 20.2.4.0 has .piles); refuse to load
     console.log('not loading an old saved game');
     undoReset();
-    delete gameState[rules.Name].undoStack;
+    delete GSRN.undoStack;
     return false;
   }
   Util.play('load');
-  // gss will contain seed, redeals, piles
+  // saved object will contain seed, redeals, savedPosition, piles
   // check that saved contains the expected number of cards
   let nCards = 0;
-  for ( let i=0; i<gss.piles.length; i++ ) {
-    const obj = gss.piles[i];
+  for ( let i=0; i<saved.piles.length; i++ ) {
+    const obj = saved.piles[i];
     nCards += obj.cards.length;
   }
   if ( nCards !== stock.expectedNumberOfCards() ) {
@@ -3680,12 +3686,17 @@ window.doload = function() {
     return false;
   }
 
+  GSRN.seed = saved.seed;
+
   for ( let i=0; i<piles.length; i++ ) {
-    piles[i].load(gss.piles[i]);
+    piles[i].load(saved.piles[i]);
   }
-  gameState[rules.Name].seed = gss.seed;
-  if ( gss.hasOwnProperty('redeals') ) {
-    stock.redeals = gss.redeals;
+
+  if ( saved.hasOwnProperty('savedPosition') ) {
+    GSRN.savedPosition = saved.savedPosition;
+  }
+  if ( saved.hasOwnProperty('redeals') ) {
+    stock.redeals = saved.redeals;
   } else {
     stock.redeals = null;
   }
@@ -3699,7 +3710,7 @@ const modalStarSeedFn = M.Modal.getInstance(document.getElementById('modalStarSe
 modalStarSeedFn.options.onOpenStart = function() {
   const ele = /** @type {HTMLInputElement} */(document.getElementById('starSeed'));
   if ( ele ) {
-    ele.value = String(gameState[rules.Name].seed);
+    ele.value = String(GSRN.seed);
     ele.focus();
   }
 };
@@ -3738,7 +3749,6 @@ modalSettingsFn.options.onCloseEnd = function() {
 
 const modalStatisticsFn = M.Modal.getInstance(document.getElementById('modalStatistics'));
 modalStatisticsFn.options.onOpenStart = function() {
-  const GSRN = gameState[rules.Name];
   if ( isComplete() ) {
     document.getElementById('thisGameStats').innerHTML = `You won this game of ${rules.Name} (number ${GSRN.seed}) in ${Util.plural(undoStack.length, 'move')}`;
   } else {
@@ -3791,7 +3801,6 @@ modalStatisticsFn.options.onCloseEnd = function() {
 
 const modalGameOverFn = M.Modal.getInstance(document.getElementById('modalGameOver'));
 modalGameOverFn.options.onOpenStart = function() {
-  const GSRN = gameState[rules.Name];
   let s = `You won this game of ${rules.Name} in ${undoStack.length} moves`;
   if ( GSRN.gamesWon > 1 ) {
     s = s + `; your average is ${Math.round(GSRN.totalMoves/GSRN.gamesWon)}`;
@@ -3844,7 +3853,6 @@ window.doshowrules = function() {
 }
 
 window.dostatsreset = function() {
-  const GSRN = gameState[rules.Name];
   GSRN.totalMoves = 0;
   GSRN.totalGames = 0;
   GSRN.gamesWon = 0;
@@ -3990,16 +3998,21 @@ if ( Object.keys(gameState).length === 0 ) {
 if ( gameState.hasOwnProperty('Options') )
   delete gameState.Options;
 
-if ( !gameState[rules.Name] )               gameState[rules.Name] = {};
-if ( !gameState[rules.Name].totalMoves )    gameState[rules.Name].totalMoves = 0;
-if ( !gameState[rules.Name].totalGames )    gameState[rules.Name].totalGames = 0;
-if ( !gameState[rules.Name].gamesWon )      gameState[rules.Name].gamesWon = 0;
+if ( !gameState[rules.Name] ) {
+  gameState[rules.Name] = {};
+}
 
-if ( !gameState[rules.Name].currStreak )    gameState[rules.Name].currStreak = 0;
-if ( !gameState[rules.Name].bestStreak )    gameState[rules.Name].bestStreak = 0;
-if ( !gameState[rules.Name].worstStreak )   gameState[rules.Name].worstStreak = 0;
+const GSRN = gameState[rules.Name];
 
-if ( !gameState[rules.Name].bestPercent )   gameState[rules.Name].bestPercent = 0;
+if ( !GSRN.totalMoves )    GSRN.totalMoves = 0;
+if ( !GSRN.totalGames )    GSRN.totalGames = 0;
+if ( !GSRN.gamesWon )      GSRN.gamesWon = 0;
+
+if ( !GSRN.currStreak )    GSRN.currStreak = 0;
+if ( !GSRN.bestStreak )    GSRN.bestStreak = 0;
+if ( !GSRN.worstStreak )   GSRN.worstStreak = 0;
+
+if ( !GSRN.bestPercent )   GSRN.bestPercent = 0;
 
 const stocks = /** @type {Array<Stock>} */ (linkClasses([Stock, StockAgnes, StockCruel, StockFan, StockKlondike, StockGolf, StockScorpion, StockSpider]));
 const stock = stocks[0];
@@ -4016,7 +4029,6 @@ document.documentElement.style.setProperty('--hi-color', 'lightgreen');
 // document.addEventListener('contextmenu', event => event.preventDefault());
 
 window.onbeforeunload = function(e) {
-  const GSRN = gameState[rules.Name];
   undoPush();
   GSRN.undoStack = undoStack; // GSRN.saved is now ignored/deprecated to avoid loading old saved stuff into undoStack
   GSRN.modified = Date.now();
@@ -4371,17 +4383,17 @@ document.addEventListener('keydown', function(/** @type {KeyboardEvent} */kev) {
   }
 });
 
-// if ( gameState[rules.Name].undoStack && gameState[rules.Name].undoStack.length > 0 && settings.loadSaved ) {
-  if ( gameState[rules.Name].undoStack && gameState[rules.Name].undoStack.length > 0 ) {
+// if ( GSRN.undoStack && GSRN.undoStack.length > 0 && settings.loadSaved ) {
+  if ( GSRN.undoStack && GSRN.undoStack.length > 0 ) {
   if ( !window.doload() ) {
     stock.createPacks();
     window.onload = dealCards;
   }
-  gameState[rules.Name].undoStack = [];
+  GSRN.undoStack = [];
 } else {
   stock.createPacks();
   window.onload = dealCards;
 }
 
-if ( 0 === gameState[rules.Name].totalGames )
+if ( 0 === GSRN.totalGames )
   window.doshowrules();

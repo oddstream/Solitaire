@@ -508,6 +508,13 @@ const Variants = [
   'Wikipedia':'https://en.wikipedia.org/wiki/Mrs._Mop'
 },
 {
+  'Name':'Mrs Mop Relaxed',
+  'Type':'All,Simple,Spider',
+  'Desc':'Invented by Charles Jewell, it is a relative of Spider in which all of the cards are dealt face up at the beginning of the game.',
+  'File':'MrsMopRelaxed',
+  'Wikipedia':'https://en.wikipedia.org/wiki/Mrs._Mop'
+},
+{
     'Name':'Fortress',
     'Type':'All,Hard,Simple,Castle',
     'Desc':'one of the oldest open solitaires and at one time one of the most popular',
